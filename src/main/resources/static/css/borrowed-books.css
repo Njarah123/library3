@@ -1,0 +1,587 @@
+/* borrowed-books.css - Ultra Wide & Modern Super Stylish Admin Borrow History, widened for full content visibility */
+
+/* -- Reset & Base -- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  background: linear-gradient(160deg, #fafbff 0%, #e4ebff 100%);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #2a3252;
+  line-height: 1.65;
+  user-select: none;
+}
+
+body {
+  min-height: 100vh;
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  padding: 4.5rem 3rem 6rem;
+  overflow-x: hidden; /* prevents horizontal scroll */
+}
+
+/* -- Container -- */
+.container {
+  /* ULTRA WIDE max to show all content without cutting */
+  max-width: 1920px; /* widened from 1380px to 1920px */
+  width: 96vw; /* almost full viewport width with some margin */
+  background: linear-gradient(145deg, #ffffff, #f4f7ff);
+  border-radius: 3rem;
+  padding: 4rem 5rem 5rem 5rem;
+  box-shadow:
+    0 32px 96px rgba(41, 55, 120, 0.15),
+    0 12px 48px rgba(41, 55, 120, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 3.8rem;
+  user-select: text;
+  overflow: visible;
+  position: relative;
+}
+
+/* -- Header Actions -- */
+.header-actions {
+  display: flex;
+  justify-content: flex-start;
+  padding-left: 2rem;
+  user-select: none;
+  position: relative;
+  z-index: 10;
+}
+
+.btn-home {
+  font-weight: 700;
+  font-size: 1.25rem;
+  line-height: 1;
+  color: #4053ff;
+  background: transparent;
+  padding: 0.75rem 2.3rem;
+  border-radius: 4.5rem;
+  border: 3px solid #4053ff;
+  text-decoration: none;
+  transition:
+    background 0.45s cubic-bezier(0.23, 1, 0.32, 1),
+    border-color 0.45s cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow 0.35s ease,
+    color 0.35s ease;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.btn-home i {
+  font-size: 1.6rem;
+  line-height: 1;
+  color: #4053ff;
+  transition: color 0.4s ease;
+}
+
+.btn-home:hover,
+.btn-home:focus {
+  background: #4053ff;
+  color: #fff;
+  border-color: #4053ff;
+  box-shadow:
+    0 0 22px 5px rgba(64, 83, 255, 0.55);
+  outline: none;
+  transform: scale(1.07);
+}
+
+.btn-home:hover i,
+.btn-home:focus i {
+  color: #f0f4ff;
+}
+
+/* -- Title -- */
+h1 {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 900;
+  font-size: 4rem;
+  text-transform: uppercase;
+  text-align: center;
+  background-image: linear-gradient(90deg, #4053ff 0%, #738cff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 0.15em;
+  user-select: text;
+  text-shadow: 0 6px 14px rgba(64, 83, 255, 0.3);
+  margin-top: 0;
+  margin-bottom: 2.8rem;
+  position: relative;
+  z-index: 5;
+}
+
+/* -- Stats Section -- */
+.stats-section {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+  flex-wrap: wrap;
+  user-select: none;
+}
+
+.stat-card {
+  flex: 1 1 28%;
+  background: linear-gradient(145deg, #dce4ff, #a9baff);
+  border-radius: 2.5rem;
+  box-shadow:
+    0 26px 60px rgba(50, 59, 212, 0.18),
+    inset 0 0 16px rgba(104, 119, 239, 0.65);
+  padding: 3.5rem 1.9rem;
+  cursor: default;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  user-select: text;
+  transition: box-shadow 0.3s ease, transform 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: transform;
+}
+
+.stat-card:hover,
+.stat-card:focus-within {
+  box-shadow:
+    0 36px 90px rgba(50, 59, 212, 0.35),
+    inset 0 0 28px rgba(89, 101, 242, 0.95);
+  transform: translateY(-10px);
+  outline: none;
+}
+
+.stat-card i {
+  font-size: 4.6rem;
+  color: #2c3aee;
+  margin-bottom: 1rem;
+  filter: drop-shadow(0 0 10px rgba(44, 58, 238, 0.5));
+  user-select: none;
+  transition: filter 0.3s ease;
+}
+
+.stat-card h3 {
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: #1c2563;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.9rem;
+  user-select: text;
+}
+
+.stat-card p {
+  font-size: 3.5rem;
+  font-weight: 900;
+  color: #1b2445;
+  margin: 0;
+  user-select: text;
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: 0.04em;
+}
+
+/* -- Borrowings Table Wrapper -- */
+.borrowings-table-container {
+  background: #f9fbff;
+  border-radius: 3rem;
+  box-shadow: 0 32px 78px rgba(24, 42, 108, 0.12);
+  padding: 3rem 4rem 4rem;
+  user-select: text;
+  overflow-x: visible; /* changed from hidden */
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* -- Borrowings Table -- */
+.borrowings-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 1.6rem;
+  font-weight: 700;
+  color: #32426a;
+  font-size: 1.1rem;
+  text-align: left;
+  user-select: text;
+  /* Allow table to auto-size with its content but wrap */
+  table-layout: auto;
+  white-space: nowrap;
+}
+
+/* Table Head */
+.borrowings-table thead tr {
+  background: #4053ff;
+  color: #f3f6ff;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  box-shadow: 0 8px 22px rgba(64, 83, 255, 0.4);
+  border-radius: 2.8rem 2.8rem 0 0;
+  user-select: none;
+}
+
+.borrowings-table thead th {
+  padding: 1.35rem 2.4rem;
+  cursor: default;
+  user-select: none;
+  white-space: nowrap; /* keep column headers on one line */
+}
+
+/* Table Body */
+.borrowings-table tbody tr {
+  background: #ffffff;
+  border-radius: 2.5rem;
+  box-shadow:
+    0 18px 42px rgba(64, 83, 255, 0.1),
+    inset 0 0 18px rgba(99, 123, 255, 0.3);
+  transition: all 0.38s cubic-bezier(0.5, 0, 0, 1);
+  user-select: text;
+  will-change: transform, box-shadow;
+}
+
+.borrowings-table tbody tr:not(:last-child) {
+  margin-bottom: 2rem;
+}
+
+.borrowings-table tbody tr:hover,
+.borrowings-table tbody tr:focus-within {
+  outline: none;
+  transform: translateY(-9px) scale(1.04);
+  box-shadow:
+    0 48px 110px rgba(64, 83, 255, 0.24),
+    inset 0 0 24px rgba(114, 137, 255, 0.55);
+}
+
+/* Table Cells */
+.borrowings-table tbody td {
+  padding: 1.4rem 2.4rem;
+  vertical-align: middle;
+  color: #2a3360;
+  user-select: text;
+  letter-spacing: 0.01em;
+  font-size: 1.05rem;
+  white-space: nowrap;
+}
+
+/* Book Info Column */
+.book-info {
+  display: flex;
+  flex-direction: column;
+  user-select: text;
+  max-width: 220px;
+  word-wrap: break-word;
+}
+
+.book-info > div {
+  font-weight: 800;
+  font-size: 1.18rem;
+  color: #1b244b;
+  text-transform: capitalize;
+  letter-spacing: 0.01em;
+}
+
+.book-info > small {
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: #6274b2;
+  font-style: italic;
+  margin-top: 0.28rem;
+}
+
+/* Borrower Info */
+.borrower-info {
+  color: #344070;
+  font-weight: 700;
+  font-size: 1.05rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  user-select: text;
+  max-width: 180px;
+  overflow-wrap: anywhere;
+}
+
+.borrower-info span {
+  font-weight: 600;
+  font-size: 0.96rem;
+  color: #54659b;
+  font-style: italic;
+}
+
+/* Date columns */
+.borrowings-table tbody td:nth-child(3),
+.borrowings-table tbody td:nth-child(4),
+.borrowings-table tbody td:nth-child(5) {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #4251a0;
+  font-style: normal;
+  white-space: nowrap;
+  max-width: 140px;
+  overflow-wrap: break-word;
+}
+
+/* Status Badges */
+.status-badge {
+  font-weight: 800;
+  font-size: 1rem;
+  border-radius: 3rem;
+  padding: 0.62rem 1.5rem;
+  min-width: 130px;
+  user-select: none;
+  box-shadow: 0 6px 16px rgba(50, 65, 190, 0.15);
+  font-family: 'Poppins', sans-serif;
+  display: inline-block;
+  text-align: center;
+  letter-spacing: 0.06em;
+  cursor: default;
+  transition: box-shadow 0.3s ease;
+  font-variant: small-caps;
+  text-transform: lowercase;
+}
+
+.status-badge.emprunte {
+  background: #d7dcff;
+  color: #293fbd;
+  box-shadow: 0 6px 20px rgba(41, 63, 189, 0.48);
+  text-shadow: 0 0 10px rgba(41, 63, 189, 0.3);
+}
+
+.status-badge.retourne {
+  background: #d3f2ee;
+  color: #18785c;
+  box-shadow: 0 5px 18px rgba(24, 120, 90, 0.37);
+  text-shadow: 0 0 8px rgba(24, 120, 90, 0.22);
+}
+
+.status-badge.en_retard {
+  background: #ffe2e2;
+  color: #b73131;
+  box-shadow: 0 5px 20px rgba(183, 49, 49, 0.42);
+  text-shadow: 0 0 10px rgba(183, 49, 49, 0.35);
+}
+
+.status-badge.en_attente {
+  background: #fff6da;
+  color: #a97c17;
+  box-shadow: 0 5px 18px rgba(169, 124, 23, 0.38);
+}
+
+.status-badge.perdu {
+  background: #ffcdd2;
+  color: #991b1b;
+  box-shadow: 0 6px 20px rgba(153, 27, 27, 0.45);
+  font-weight: 900;
+}
+
+/* Return Button */
+.btn-return {
+  background-color: #4053ff;
+  color: #f7f9ff;
+  padding: 0.58rem 1.45rem;
+  border-radius: 3rem;
+  border: none;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.35s ease, box-shadow 0.35s ease, transform 0.25s ease;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: 0 14px 40px rgba(64, 83, 255, 0.55);
+  white-space: nowrap;
+}
+
+.btn-return i {
+  font-size: 1.3rem;
+  user-select: none;
+}
+
+.btn-return:hover,
+.btn-return:focus {
+  background-color: #6378ff;
+  box-shadow: 0 18px 48px rgba(99, 120, 255, 0.9);
+  transform: translateY(-4px);
+  outline: none;
+}
+
+/* No Borrowings Message */
+.no-borrowings {
+  margin: 8rem auto 2rem auto;
+  max-width: 520px;
+  text-align: center;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #7a84bb;
+  user-select: none;
+  background: #eff4ff;
+  padding: 3rem 3.5rem;
+  border-radius: 3rem;
+  box-shadow:
+    inset 0 0 18px rgba(142, 157, 255, 0.45),
+    0 16px 35px rgba(126, 138, 212, 0.23);
+  text-transform: capitalize;
+}
+
+.no-borrowings i {
+  font-size: 4rem;
+  color: #8a9aff;
+  margin-bottom: 1.5rem;
+}
+
+/* Accessibility Focus */
+button:focus-visible,
+a.btn-home:focus-visible,
+.btn-return:focus-visible {
+  outline: 3px solid #4053ff;
+  outline-offset: 4px;
+  user-select: none;
+}
+
+/* Scrollbar hidden globally to avoid horizontal scroll */
+html, body {
+  overflow-x: hidden;
+}
+
+/* -- Responsive -- */
+
+/* Small Devices */
+@media (max-width: 480px) {
+  body {
+    padding: 2.4rem 1rem 3rem;
+  }
+  .container {
+    padding: 2.5rem 2rem 3rem;
+    border-radius: 2rem;
+    max-width: 100%;
+  }
+  h1 {
+    font-size: 2.6rem;
+    letter-spacing: 0.1em;
+  }
+  .btn-home {
+    font-size: 1rem;
+    padding: 0.55rem 1.6rem;
+  }
+  .btn-home i {
+    font-size: 1.2rem;
+  }
+  .stats-section {
+    gap: 1.6rem;
+    justify-content: center;
+  }
+  .stat-card {
+    flex-basis: 100%;
+    padding: 2.6rem 1.5rem;
+  }
+  .stat-card i {
+    font-size: 3.5rem;
+  }
+  .stat-card h3 {
+    font-size: 1.2rem;
+  }
+  .stat-card p {
+    font-size: 2.7rem;
+  }
+  .borrowings-table-container {
+    padding: 1.5rem 1.8rem 2rem;
+  }
+  .borrowings-table thead th {
+    font-size: 0.85rem;
+    padding: 1.1rem 1.2rem;
+  }
+  .borrowings-table tbody td {
+    font-size: 0.9rem;
+    padding: 1rem 1.1rem;
+    white-space: normal;
+  }
+  .btn-return {
+    font-size: 0.9rem;
+    padding: 0.45rem 1rem;
+  }
+  .no-borrowings {
+    font-size: 1.15rem;
+    max-width: 100%;
+    padding: 2rem 2rem;
+  }
+}
+
+/* Tablets */
+@media (min-width: 481px) and (max-width: 768px) {
+  .container {
+    padding: 3.5rem 3rem 4rem;
+  }
+  h1 {
+    font-size: 3.5rem;
+  }
+  .btn-home {
+    font-size: 1.15rem;
+    padding: 0.75rem 2rem;
+  }
+  .stats-section {
+    max-width: 800px;
+    gap: 2.4rem;
+  }
+  .stat-card {
+    padding: 3rem 2rem;
+  }
+  .stat-card i {
+    font-size: 4rem;
+  }
+  .stat-card p {
+    font-size: 3rem;
+  }
+  .borrowings-table-container {
+    padding: 2.5rem 3rem;
+  }
+  .borrowings-table {
+    font-size: 1rem;
+  }
+  .btn-return {
+    font-size: 1rem;
+    padding: 0.6rem 1.4rem;
+  }
+  .no-borrowings {
+    max-width: 520px;
+    font-size: 1.3rem;
+  }
+}
+
+/* Large screens */
+@media (min-width: 1100px) and (max-width: 1360px) {
+  .container {
+    max-width: 1080px;
+    padding: 4rem 4rem 4.5rem;
+  }
+  h1 {
+    font-size: 3.8rem;
+  }
+  .stat-card p {
+    font-size: 3.3rem;
+  }
+}
+
+/* Ultra Large Screens */
+@media (min-width: 1361px) {
+  .container {
+    max-width: 1920px;
+    padding: 4rem 6rem 5rem 6rem; /* wider side paddings */
+  }
+  h1 {
+    font-size: 4rem;
+  }
+  .stat-card p {
+    font-size: 3.5rem;
+  }
+}

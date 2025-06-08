@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Dashboard - Library Management System</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+<body>
+    <div class="container">
+        <header class="dashboard-header">
+            <h1>Welcome, <span th:text="${user.name}">User</span></h1>
+            <nav class="main-nav">
+                <a th:href="@{/books}" class="nav-link">Browse Books</a>
+                <a th:href="@{/profile}" class="nav-link">My Profile</a>
+                <form th:action="@{/logout}" method="post" class="logout-form">
+                    <button type="submit" class="btn-logout">Logout</button>
+                </form>
+            </nav>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Borrowed Books</h3>
+                <div class="number" th:text="${account.noBorrowedBooks}">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Reserved Books</h3>
+                <div class="number" th:text="${account.noReservedBooks}">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Returned Books</h3>
+                <div class="number" th:text="${account.noReturnedBooks}">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Fine Amount</h3>
+                <div class="number" th:text="${'$' + #numbers.formatDecimal(account.fineAmount, 1, 2)}">$0.00</div>
+            </div>
+        </div>
+
+        <!-- Borrowed Books Section -->
+        <section class="borrowed-books">
+            <h2>Currently Borrowed Books</h2>
+            <div class="books-grid" th:if="${not #lists.isEmpty(borrowedBooks)}">
+                <div th:each="book : ${borrowedBooks}" class="book-card">
+                    <h3 th:text="${book.title}">Book Title</h3>
+                    <p th:text="${'Author: ' + book.author}">Author</p>
+                    <p th:text="${'Due Date: ' + #temporals.format(book.dueDate, 'dd-MM-yyyy')}">Due Date</p>
+                    <button th:onclick="'returnBook(' + ${book.id} + ')'" class="btn btn-return">Return Book</button>
+                </div>
+            </div>
+            <p th:if="${#lists.isEmpty(borrowedBooks)}" class="no-books-message">
+                You haven't borrowed any books yet.
+            </p>
+        </section>
+
+        <!-- Reserved Books Section -->
+        <section class="reserved-books">
+            <h2>Reserved Books</h2>
+            <div class="books-grid" th:if="${not #lists.isEmpty(reservedBooks)}">
+                <div th:each="book : ${reservedBooks}" class="book-card">
+                    <h3 th:text="${book.title}">Book Title</h3>
+                    <p th:text="${'Author: ' + book.author}">Author</p>
+                    <p th:text="${'Reservation Date: ' + #temporals.format(book.reservationDate, 'dd-MM-yyyy')}">Reservation Date</p>
+                    <button th:onclick="'cancelReservation(' + ${book.id} + ')'" class="btn btn-cancel">Cancel Reservation</button>
+                </div>
+            </div>
+            <p th:if="${#lists.isEmpty(reservedBooks)}" class="no-books-message">
+                You haven't reserved any books yet.
+            </p>
+        </section>
+    </div>
+
+    <script>
+        function returnBook(bookId) {
+            if(confirm('Are you sure you want to return this book?')) {
+                fetch(`/books/${bookId}/return`, {
+                    method: 'POST',
+                })
+                .then(response => {
+                    if(response.ok) {
+                        location.reload();
+                    } else {
+                        alert('Failed to return the book');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while returning the book');
+                });
+            }
+        }
+
+        function cancelReservation(bookId) {
+            if(confirm('Are you sure you want to cancel this reservation?')) {
+                fetch(`/books/${bookId}/cancel-reservation`, {
+                    method: 'POST',
+                })
+                .then(response => {
+                    if(response.ok) {
+                        location.reload();
+                    } else {
+                        alert('Failed to cancel the reservation');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while canceling the reservation');
+                });
+            }
+        }
+    </script>
+</body>
+</html>

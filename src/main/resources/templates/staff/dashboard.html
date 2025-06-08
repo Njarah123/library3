@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Dashboard Staff - Bibliothèque</title>
+    <link rel="stylesheet" th:href="@{/css/staff-dashboard.css}">
+    <script th:src="@{/js/staff-dashboard.js}"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="dashboard-header">
+            <h1>Tableau de Bord - Staff</h1>
+            <div class="user-info">
+                <span class="welcome-message">Bienvenue, <span th:text="${#authentication.name}">Staff</span></span>
+                <span class="current-time" th:text="${#temporals.format(#temporals.createNow(), 'dd/MM/yyyy HH:mm')}">Date</span>
+                <div class="logout-section">
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="logout-button">
+                    <i class="fas fa-sign-out-alt"></i> Déconnexion
+                </button>
+            </div>
+        </header>
+
+        <div class="dashboard-grid">
+            <!-- Catalogue des Livres -->
+            <div class="dashboard-card">
+                <a th:href="@{/staff/books}" class="card-content">
+                    <i class="fas fa-book card-icon"></i>
+                    <h3>Catalogue des Livres</h3>
+                    <p>Consulter et emprunter des livres</p>
+                </a>
+            </div>
+
+            <!-- Mes Emprunts -->
+            <div class="dashboard-card">
+                <a th:href="@{/staff/borrows}" class="card-content">
+                    <i class="fas fa-bookmark card-icon"></i>
+                    <h3>Mes Emprunts en Cours</h3>
+                    <p>Gérer mes emprunts actuels</p>
+                </a>
+            </div>
+
+            <!-- Historique des Emprunts -->
+            <div class="dashboard-card">
+                <a th:href="@{/staff/history}" class="card-content">
+                    <i class="fas fa-history card-icon"></i>
+                    <h3>Historique des Emprunts</h3>
+                    <p>Consulter mon historique et noter les livres</p>
+                </a>
+            </div>
+        </div>
+
+        <!-- Bouton de déconnexion -->
+        
+            </form>
+        </div>
+    </div>
+</body>
+</html>

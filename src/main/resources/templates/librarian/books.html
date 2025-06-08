@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Gestion des Livres</title>
+    <link rel="stylesheet" th:href="@{/css/books.css}">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Ajoutez ce code juste après l'ouverture de la div.container -->
+<div class="header-actions">
+    <a th:href="@{/librarian/dashboard}" class="btn-home">
+        <i class="fas fa-home"></i>
+        <span>Accueil</span>
+    </a>
+</div>
+    <div class="container">
+        <h1>Gestion des Livres</h1>
+        
+        <div class="success-message" th:if="${success}" th:text="${success}"></div>
+        <div class="error-message" th:if="${error}" th:text="${error}"></div>
+
+        <!-- Barre de recherche -->
+        <div class="search-section">
+            <form th:action="@{/librarian/books}" method="get" class="search-form">
+                <input type="text" name="search" th:value="${search}" 
+                       placeholder="Rechercher un livre..." class="search-input">
+                <button type="submit" class="search-button">Rechercher</button>
+            </form>
+        </div>
+
+        <a th:href="@{/librarian/books/add}" class="btn-add">Ajouter un livre</a>
+
+        <div class="books-grid">
+            <div th:each="book : ${books}" class="book-card">
+                <div class="book-image">
+                    <img th:if="${book.imagePath}" 
+                         th:src="@{${book.imagePath}}" 
+                         alt="Couverture du livre"
+                         class="book-cover">
+                    <img th:unless="${book.imagePath}" 
+                         th:src="@{/images/default-book.png}" 
+                         alt="Image par défaut"
+                         class="book-cover">
+                </div>
+                <div class="book-info">
+                    <h3 th:text="${book.title}">Titre du livre</h3>
+                    <p th:text="${'Auteur: ' + book.author}">Auteur</p>
+                    <p th:text="${'Catégorie: ' + book.category}">Catégorie</p>
+                    <p th:text="${'Quantité disponible: ' + book.availableQuantity + '/' + book.quantity}">Quantité</p>
+                    
+                    <!-- Boutons d'action simplifiés -->
+                    <div class="book-actions">
+                        <a th:href="@{/librarian/books/edit/{id}(id=${book.id})}" 
+                           class="btn-edit">
+                            Modifier
+                        </a>
+                        <form th:action="@{/librarian/books/delete/{id}(id=${book.id})}" 
+                              method="post" 
+                              style="display: inline;">
+                            <button type="submit" class="btn-delete" 
+                                    onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce livre?');">
+                                Supprimer
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

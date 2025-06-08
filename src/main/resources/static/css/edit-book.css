@@ -1,0 +1,431 @@
+/* edit-book.css */
+
+/* Reset and base */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg, #f0f4f8 0%, #ffffff 100%);
+  min-height: 100vh;
+  height: 100%;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #253858;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 3.2rem 1.5rem 4rem;
+  background-color: #f9fbfc;
+  user-select: none;
+  line-height: 1.55;
+}
+
+/* Container styling */
+.container {
+  background-color: #ffffff;
+  max-width: 720px;
+  width: 100%;
+  padding: 3.8rem 3rem 3.8rem;
+  box-shadow:
+    0 14px 32px rgba(37, 56, 88, 0.12),
+    0 6px 12px rgba(37, 56, 88, 0.07);
+  border-radius: 16px;
+  user-select: text;
+  display: flex;
+  flex-direction: column;
+  gap: 1.8rem;
+}
+
+/* Main heading */
+h1 {
+  font-weight: 700;
+  color: #0c2f5e;
+  font-size: 2.4rem;
+  text-align: center;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  user-select: text;
+  text-shadow: 0 1px 3px rgba(12, 47, 94, 0.15);
+  margin-bottom: 2rem;
+}
+
+/* Success and error messages */
+.success-message,
+.error-message {
+  max-width: 680px;
+  margin: 0 auto 1.4rem auto;
+  padding: 1rem 1.3rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  text-align: center;
+  user-select: none;
+  box-shadow: 0 3px 6px rgba(37, 56, 88, 0.1);
+  letter-spacing: 0.02em;
+}
+
+.success-message {
+  background-color: #e2f7e1;
+  color: #2b662d;
+  border: 1.8px solid #a6dba5;
+}
+
+.error-message {
+  background-color: #fbebeb;
+  color: #8a1c1c;
+  border: 1.8px solid #e09b9b;
+}
+
+/* Form styling */
+form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.6rem;
+}
+
+/* Form group style */
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Label styling */
+label {
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: #1e3251;
+  margin-bottom: 0.48rem;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.25s ease;
+}
+
+label:hover,
+label:focus-within {
+  color: #0c2f5e;
+}
+
+/* Input, Select and Textarea common style */
+input[type="text"],
+input[type="number"],
+select,
+textarea {
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 1rem;
+  color: #324868;
+  background-color: #fefeff;
+  border: 2px solid #c3cee5;
+  border-radius: 12px;
+  padding: 0.72rem 1.1rem;
+  box-shadow: inset 0 2px 6px rgba(12, 47, 94, 0.07);
+  transition: border-color 0.3s ease, box-shadow 0.25s ease;
+  outline-offset: 2.5px;
+  min-height: 44px;
+  resize: vertical;
+  user-select: text;
+}
+
+input[type="text"]::placeholder,
+input[type="number"]::placeholder,
+textarea::placeholder,
+select:not([multiple]) option[disabled] {
+  color: #a0aec0;
+  font-style: italic;
+}
+
+/* Textarea specifics */
+textarea {
+  min-height: 90px;
+  line-height: 1.42;
+  padding-top: 0.85rem;
+}
+
+/* Focus states */
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus,
+textarea:focus {
+  border-color: #0c2f5e;
+  box-shadow: 0 0 10px 3px rgba(12, 47, 94, 0.28);
+  outline: none;
+  background-color: #ffffff;
+}
+
+/* Small helper text */
+.form-text {
+  font-size: 0.83rem;
+  font-style: italic;
+  color: #5a6a8a;
+  margin-top: 0.33rem;
+  user-select: none;
+}
+
+/* Button container */
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 1.95rem;
+  margin-top: 2.5rem;
+  user-select: none;
+}
+
+/* Button base styles */
+button.btn-save,
+a.btn-cancel {
+  border-radius: 50px;
+  padding: 0.9rem 3.3rem;
+  font-weight: 700;
+  font-size: 1.18rem;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 160px;
+  text-decoration: none;
+  text-align: center;
+  box-shadow: 0 10px 24px rgba(12, 47, 94, 0.2);
+  border: none;
+}
+
+/* Save button - primary */
+button.btn-save {
+  background-color: #0c2f5e;
+  color: #f8faff;
+  box-shadow:
+    0 14px 26px rgba(12, 47, 94, 0.48);
+}
+
+button.btn-save:hover,
+button.btn-save:focus {
+  background-color: #155591;
+  box-shadow:
+    0 16px 36px rgba(21, 85, 145, 0.6);
+  transform: translateY(-3px);
+  outline: none;
+}
+
+/* Cancel button - secondary */
+a.btn-cancel {
+  background-color: transparent;
+  color: #0c2f5e;
+  border: 2px solid #0c2f5e;
+  box-shadow:
+    0 6px 14px rgba(12, 47, 94, 0.14);
+  font-weight: 600;
+  user-select: none;
+}
+
+a.btn-cancel:hover,
+a.btn-cancel:focus {
+  background-color: #0c2f5e;
+  color: #f8faff;
+  box-shadow:
+    0 10px 28px rgba(21, 85, 145, 0.48);
+  transform: translateY(-3px);
+  outline: none;
+  text-decoration: none;
+}
+
+/* Accessibility: focus visible states */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+button:focus-visible,
+a.btn-cancel:focus-visible {
+  outline: 3px solid #154b8a;
+  outline-offset: 3px;
+}
+
+/* Number input spin buttons removal for cleaner UI */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* Disabled input style */
+input:disabled,
+textarea:disabled,
+select:disabled {
+  background-color: #e1e5ec;
+  cursor: not-allowed;
+  color: #7b849a;
+}
+
+/* Scrollbar styling for better UX */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f0f4f8;
+  border-radius: 12px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #0c2f5e;
+  border-radius: 12px;
+  transition: background-color 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #154b8a;
+}
+
+/* Responsive breakpoints */
+
+/* Mobile Small (up to 480px) */
+@media (max-width: 480px) {
+  body {
+    padding: 2rem 1rem 3rem;
+  }
+
+  .container {
+    padding: 2.2rem 1.5rem 2.5rem;
+    border-radius: 12px;
+  }
+
+  h1 {
+    font-size: 1.9rem;
+    margin-bottom: 1.4rem;
+  }
+
+  form {
+    gap: 1.2rem;
+  }
+
+  label {
+    font-size: 1rem;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  select,
+  textarea {
+    font-size: 0.95rem;
+    padding: 0.55rem 0.85rem;
+    border-radius: 8px;
+  }
+
+  .button-group {
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  button.btn-save,
+  a.btn-cancel {
+    min-width: 100%;
+    font-size: 1.1rem;
+    padding: 0.85rem 0;
+  }
+}
+
+/* Tablet medium (481px - 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+  .container {
+    padding: 3rem 2.8rem 3rem;
+  }
+
+  h1 {
+    font-size: 2.1rem;
+  }
+
+  form {
+    gap: 1.4rem;
+  }
+
+  .button-group {
+    gap: 1.5rem;
+  }
+
+  button.btn-save,
+  a.btn-cancel {
+    padding: 0.9rem 2.8rem;
+    font-size: 1.13rem;
+    min-width: 140px;
+  }
+}
+
+/* Large Desktops (769px and up) */
+@media (min-width: 769px) {
+  body {
+    padding: 4rem 5rem 5rem;
+  }
+
+  .container {
+    box-shadow:
+      0 18px 42px rgba(37, 56, 88, 0.20),
+      0 7px 16px rgba(37, 56, 88, 0.11);
+  }
+
+  h1 {
+    font-size: 2.5rem;
+  }
+
+  form {
+    gap: 1.8rem;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  select,
+  textarea {
+    min-height: 48px;
+    padding: 1rem 1.3rem;
+  }
+
+  .button-group {
+    justify-content: flex-start;
+    gap: 2.7rem;
+  }
+
+  button.btn-save,
+  a.btn-cancel {
+    padding: 1rem 3.5rem;
+    font-size: 1.3rem;
+    min-width: 170px;
+  }
+}
+
+/* User select corrections */
+input,
+textarea,
+select {
+  user-select: text;
+}
+
+/* Smooth transitions for inputs, buttons and links */
+input,
+select,
+textarea,
+button,
+a.btn-cancel {
+  transition: all 0.25s ease-in-out;
+}
+
+/* Placeholder styling consistency */
+::placeholder {
+  opacity: 0.7;
+  font-style: italic;
+  color: #8693a0;
+}

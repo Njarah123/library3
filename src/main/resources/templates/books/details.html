@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Book Details - Library</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+</head>
+<body>
+    <div class="container">
+        <div class="book-details">
+            <h2 th:text="${book.title}">Book Title</h2>
+            
+            <div class="book-info">
+                <p><strong>Author:</strong> <span th:text="${book.author}">Author Name</span></p>
+                <p><strong>ISBN:</strong> <span th:text="${book.isbn}">ISBN Number</span></p>
+                <p><strong>Publication:</strong> <span th:text="${book.publication}">Publication Info</span></p>
+                <p><strong>Status:</strong> <span th:text="${book.reservationStatus}">Status</span></p>
+            </div>
+            
+            <div class="book-actions">
+                <button th:if="${book.reservationStatus.name() == 'AVAILABLE'}"
+                        th:onclick="'requestBook(' + ${book.id} + ')'"
+                        class="btn btn-request">
+                    Request Book
+                </button>
+                
+                <div th:if="${#authentication.principal.userType == 'STAFF'}" class="admin-actions">
+                    <a th:href="@{/books/{id}/edit(id=${book.id})}" class="btn btn-edit">Edit</a>
+                    <button th:onclick="'deleteBook(' + ${book.id} + ')'" class="btn btn-delete">Delete</button>
+                </div>
+            </div>
+            
+            <!-- Feedback Section -->
+            <div class="feedback-section">
+                <h3>Leave Feedback</h3>
+                <form th:action="@{/books/{id}/feedback(id=${book.id})}" method="post">
+                    <textarea name="comment" rows="4" placeholder="Write your feedback here..."></textarea>
+                    <button type="submit" class="btn btn-primary">Submit Feedback</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+    function requestBook(bookId) {
+        fetch(`/books/${bookId}/request`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.text())
+        .then(message => {
+            alert(message);
+            if(message.includes('successfully')) {
+                location.reload();
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while requesting the book');
+        });
+    }
+    
+    function deleteBook(bookId) {
+        if(confirm('Are you sure you want to delete this book?')) {
+            fetch(`/books/${bookId}`, {
+                method: 'DELETE',
+            })
+            .then(response => {
+                if(response.ok) {
+                    window.location.href = '/books';
+                } else {
+                    alert('Failed to delete the book');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while deleting the book');
+            });
+        }
+    }
+    </script>
+</body>
+</html>

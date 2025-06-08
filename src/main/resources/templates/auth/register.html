@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Inscription</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/css/register.css}">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-box">
+
+            <div class="auth-image-side">
+                <img src="/images/livre2.png" alt="Illustration de livres pour une librairie">
+            </div>
+
+            <div class="auth-form-side">
+                <h2>Inscription</h2>
+        
+                <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
+                
+                <form th:action="@{/auth/register}" method="post" th:object="${user}">
+                    <div class="form-group">
+                        <label for="username">Nom d'utilisateur*</label>
+                        <input type="text" id="username" th:field="*{username}" required>
+                        <span th:if="${#fields.hasErrors('username')}" class="error-field" th:errors="*{username}"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="name">Nom complet*</label>
+                        <input type="text" id="name" th:field="*{name}" required>
+                        <span th:if="${#fields.hasErrors('name')}" class="error-field" th:errors="*{name}"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email*</label>
+                        <input type="email" id="email" th:field="*{email}" required>
+                        <span th:if="${#fields.hasErrors('email')}" class="error-field" th:errors="*{email}"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Mot de passe*</label>
+                        <input type="password" id="password" th:field="*{password}" required>
+                        <span th:if="${#fields.hasErrors('password')}" class="error-field" th:errors="*{password}"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirmer le mot de passe*</label>
+                        <input type="password" id="confirmPassword" th:field="*{confirmPassword}" required>
+                        <span th:if="${#fields.hasErrors('confirmPassword')}" class="error-field" th:errors="*{confirmPassword}"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="userType">Type d'utilisateur*</label>
+                        <select id="userType" th:field="*{userType}" required onchange="toggleFields()">
+                            <option value="">Sélectionner un type</option>
+                            <option value="STUDENT">Étudiant</option>
+                            <option value="STAFF">Personnel</option>
+                            <option value="LIBRARIAN">Bibliothécaire</option>
+                        </select>
+                        <span th:if="${#fields.hasErrors('userType')}" class="error-field" th:errors="*{userType}"></span>
+                    </div>
+
+                    <div id="studentFields">
+                        <div class="form-group">
+                            <label for="studentId">Numéro étudiant*</label>
+                            <input type="text" id="studentId" th:field="*{studentId}">
+                        </div>
+                        <div class="form-group">
+                            <label for="className">Classe*</label>
+                            <input type="text" id="className" th:field="*{className}">
+                        </div>
+                    </div>
+
+                    <div id="staffFields">
+                        <div class="form-group">
+                            <label for="employeeId">Numéro employé*</label>
+                            <input type="text" id="employeeId" th:field="*{employeeId}">
+                        </div>
+                        <div class="form-group">
+                            <label for="dept">Département</label>
+                            <input type="text" id="dept" th:field="*{dept}">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">S'inscrire</button>
+                    </div>
+                </form>
+                
+                <div class="auth-links">
+                    <a th:href="@{/auth/login}" class="btn btn-link">Déjà inscrit ? Se connecter</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function toggleFields() {
+            const userType = document.getElementById('userType').value;
+            const studentFields = document.getElementById('studentFields');
+            const staffFields = document.getElementById('staffFields');
+            
+            // Cacher tous les champs par défaut
+            studentFields.style.display = 'none';
+            staffFields.style.display = 'none';
+            
+            // Récupérer tous les inputs pour la gestion du 'required'
+            const studentInputs = studentFields.querySelectorAll('input');
+            const staffInputs = staffFields.querySelectorAll('input');
+
+            // Réinitialiser le 'required' pour tous
+            studentInputs.forEach(input => input.required = false);
+            staffInputs.forEach(input => input.required = false);
+            
+            // Afficher les champs appropriés et définir le 'required'
+            if (userType === 'STUDENT') {
+                studentFields.style.display = 'block';
+                studentInputs.forEach(input => input.required = true);
+            } else if (userType === 'STAFF' || userType === 'LIBRARIAN') {
+                staffFields.style.display = 'block';
+                document.getElementById('employeeId').required = true;
+                document.getElementById('dept').required = false; // Département n'est pas obligatoire
+            }
+        }
+
+        // Appeler la fonction au chargement pour initialiser l'affichage
+        document.addEventListener('DOMContentLoaded', toggleFields);
+    </script>
+</body>
+</html>

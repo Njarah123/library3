@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Historique des Emprunts - Bibliothécaire</title>
+    <link rel="stylesheet" th:href="@{/css/borrowed-books.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script th:src="@{/js/borrowed-books.js}"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header-actions">
+            <a th:href="@{/librarian/dashboard}" class="btn-home">
+                <i class="fas fa-home"></i>
+                <span>Accueil</span>
+            </a>
+        </div>
+
+        <h1>Historique des Emprunts</h1>
+
+        <!-- Message d'erreur -->
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+        <!-- Statistiques -->
+        <div class="stats-section">
+            <div class="stat-card">
+                <i class="fas fa-book"></i>
+                <h3>Total des emprunts</h3>
+                <p th:text="${totalBorrowings}">0</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-book-reader"></i>
+                <h3>Emprunts en cours</h3>
+                <p th:text="${currentBorrowings}">0</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-exclamation-circle"></i>
+                <h3>Retards</h3>
+                <p th:text="${overdueBorrowings}">0</p>
+            </div>
+        </div>
+
+        <!-- Table des emprunts -->
+        <div class="borrowings-table-container" th:if="${borrowings != null and !borrowings.empty}">
+            <table class="borrowings-table">
+                <thead>
+                    <tr>
+                        <th>Livre</th>
+                        <th>Emprunteur</th>
+                        <th>Date d'emprunt</th>
+                        <th>Date de retour prévue</th>
+                        <th>Date de retour</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="borrowing : ${borrowings}" th:data-borrowing-id="${borrowing.id}">
+                        <td class="book-info">
+                            <div>
+                                <span class="book-title" 
+                                      th:text="${borrowing.book != null ? borrowing.book.title : 'N/A'}">
+                                    Titre du livre
+                                </span>
+                                <br>
+                                <small class="book-author" 
+                                       th:text="${borrowing.book != null ? borrowing.book.author : 'N/A'}">
+                                    Auteur
+                                </small>
+                            </div>
+                        </td>
+                        <td class="borrower-info">
+                            <div class="user-details">
+                                <i class="fas fa-user"></i>
+                                <span th:text="${borrowing.user != null ? borrowing.user.username : 'N/A'}">
+                                    Utilisateur
+                                </span>
+                                <br>
+                                <small th:text="${borrowing.user != null ? borrowing.user.userType : 'N/A'}">
+                                    Type
+                                </small>
+                            </div>
+                        </td>
+                        <td th:text="${borrowing.borrowDate != null ? #temporals.format(borrowing.borrowDate, 'dd/MM/yyyy HH:mm') : 'N/A'}">
+                            Date d'emprunt
+                        </td>
+                        <td th:text="${borrowing.dueDate != null ? #temporals.format(borrowing.dueDate, 'dd/MM/yyyy HH:mm') : 'N/A'}">
+                            Date prévue
+                        </td>
+                        <td th:text="${borrowing.returnDate != null ? #temporals.format(borrowing.returnDate, 'dd/MM/yyyy HH:mm') : '-'}">
+                            Date de retour
+                        </td>
+                        <td>
+                            <span th:class="'status-badge ' + ${borrowing.status?.toLowerCase()}"
+                                  th:text="${borrowing.status == 'EMPRUNTE' ? 'En cours' : 
+                                           (borrowing.status == 'RETOURNE' ? 'Retourné' : 
+                                           (borrowing.status == 'EN_RETARD' ? 'En retard' : 
+                                           (borrowing.status == 'EN_ATTENTE' ? 'En attente' : 
+                                           (borrowing.status == 'PERDU' ? 'Perdu' : 'N/A'))))}">
+                                Status
+                            </span>
+                        </td>
+                        <td>
+                            <button th:if="${borrowing.status == 'EMPRUNTE'}"
+                                    class="btn-return"
+                                    th:onclick="'returnBook(' + ${borrowing.id} + ')'">
+                                <i class="fas fa-check"></i>
+                                Retourner
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Message si aucun emprunt -->
+        <div th:if="${borrowings == null or borrowings.empty}" class="no-borrowings">
+            <i class="fas fa-info-circle"></i>
+            <p>Aucun emprunt trouvé.</p>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+    function returnBook(id) {
+        if (confirm('Confirmer le retour de ce livre ?')) {
+            fetch(`/librarian/borrowings/${id}/return`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    throw new Error('Erreur lors du retour du livre');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert(error.message);
+            });
+        }
+    }
+    </script>
+</body>
+</html>

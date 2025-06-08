@@ -1,0 +1,583 @@
+/* history.css - Elegant & Stylish Staff Borrowing History */
+
+/* Reset & base */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(145deg, #f2f6ff, #d9e4ff);
+  min-height: 100vh;
+  font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #273452;
+  line-height: 1.6;
+  user-select: none;
+}
+
+body {
+  min-height: 100vh;
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  padding: 3.5rem 2rem 5rem;
+}
+
+/* Container */
+.container {
+  background: #fff;
+  border-radius: 2.5rem;
+  box-shadow:
+    0 20px 60px rgba(12, 32, 71, 0.12),
+    0 8px 25px rgba(12, 32, 71, 0.06);
+  max-width: 980px;
+  width: 100%;
+  padding: 3.8rem 4rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  user-select: text;
+}
+
+/* Header Actions */
+.header-actions {
+  display: flex;
+  justify-content: flex-start;
+  padding-left: 1rem;
+}
+
+.btn-home {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #274066;
+  background: linear-gradient(135deg, #e0e7ff 0%, #b3c0ff 100%);
+  padding: 0.7rem 1.75rem;
+  border-radius: 4rem;
+  box-shadow:
+    0 10px 30px rgba(95, 103, 208, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  border: none;
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.22, 0.61, 0.36, 1);
+  user-select: none;
+  white-space: nowrap;
+}
+
+.btn-home i {
+  font-size: 1.4rem;
+  color: #2d4263;
+  transition: color 0.3s ease;
+}
+
+.btn-home:hover,
+.btn-home:focus {
+  background: linear-gradient(135deg, #5661ff 0%, #3b4be5 100%);
+  box-shadow:
+    0 14px 44px rgba(15, 32, 216, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  color: #f7f9ff;
+  outline: none;
+  transform: translateY(-3px);
+}
+
+.btn-home:hover i,
+.btn-home:focus i {
+  color: #f0f4fa;
+}
+
+/* Page Title */
+h1 {
+  font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-weight: 900;
+  font-size: 3.5rem;
+  color: #1b2444;
+  text-transform: uppercase;
+  text-align: center;
+  letter-spacing: 0.1em;
+  text-shadow: 2px 4px 6px rgba(31, 45, 87, 0.1);
+  user-select: text;
+  margin-bottom: 0.3rem;
+}
+
+/* Borrow History Container */
+.history-container {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Empty State */
+.history-container > div p {
+  font-size: 1.35rem;
+  color: #7283a7;
+  user-select: none;
+  text-align: center;
+  margin-top: 8rem;
+  font-weight: 600;
+  padding: 2rem 1.8rem;
+  border-radius: 2rem;
+  background: linear-gradient(135deg, #e9efff 0%, #d0dbff 100%);
+  box-shadow:
+    inset 0 0 12px rgba(115, 131, 176, 0.35);
+  max-width: 450px;
+  margin-left: auto;
+  margin-right: auto;
+  font-style: italic;
+}
+
+/* History Table - Elegant Card Style */
+.borrowing-list {
+  overflow-x: auto;
+  border-radius: 2rem;
+  background: #f2f6ff;
+  padding: 1.5rem 2rem;
+  box-shadow: 0 24px 60px rgba(12, 32, 71, 0.14);
+  user-select: text;
+}
+
+/* Table Layout */
+.history-table {
+  width: 100%;
+  border-spacing: 0 1.25rem;
+  border-collapse: separate;
+  font-weight: 600;
+  color: #445475;
+  font-size: 1rem;
+  text-align: left;
+  user-select: text;
+}
+
+/* Thead with smooth rounded corners */
+.history-table thead tr {
+  background: #4c57a5;
+  color: #f7f8fc;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  box-shadow: 0 4px 10px rgba(76, 87, 165, 0.3);
+  border-radius: 2rem 2rem 0 0;
+  user-select: none;
+}
+
+.history-table thead th {
+  padding: 1.25rem 1.8rem;
+  white-space: nowrap;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  cursor: default;
+}
+
+/* Table Body rows - card style with separation */
+.history-table tbody tr {
+  background: #fcfdff;
+  border-radius: 2rem;
+  box-shadow:
+    0 10px 38px rgba(28, 34, 95, 0.07),
+    inset 0 0 5px rgba(97, 110, 193, 0.08);
+  transition: transform 0.3s cubic-bezier(0.22, 0.61, 0.36, 1),
+              box-shadow 0.3s cubic-bezier(0.22, 0.61, 0.36, 1);
+  user-select: text;
+}
+
+.history-table tbody tr:not(:last-child) {
+  margin-bottom: 1.8rem;
+}
+
+.history-table tbody tr:hover,
+.history-table tbody tr:focus-within {
+  outline: none;
+  transform: translateY(-6px);
+  box-shadow:
+    0 30px 70px rgba(31, 42, 113, 0.22),
+    inset 0 0 8px rgba(102, 118, 215, 0.21);
+}
+
+/* Table cells with comfortable padding*/
+.history-table tbody td {
+  vertical-align: middle;
+  padding: 1.2rem 2rem;
+  white-space: nowrap;
+  font-size: 1rem;
+  color: #2c3c6f;
+  user-select: text;
+}
+
+/* Book Info with hierarchy */
+.history-table tbody td:nth-child(1) {
+  color: #1e2d54;
+  font-weight: 700;
+  font-size: 1.17rem;
+  letter-spacing: 0.015em;
+  text-transform: capitalize;
+  overflow-wrap: break-word;
+}
+
+/* Date Columns styling */
+.history-table tbody td:nth-child(2),
+.history-table tbody td:nth-child(3),
+.history-table tbody td:nth-child(4) {
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.01em;
+  color: #576a9b;
+  font-style: normal;
+}
+
+/* Status badge styling for refined visual */
+.status-current,
+.status-returned,
+.status-overdue {
+  display: inline-block;
+  font-weight: 700;
+  padding: 0.48rem 1.3rem;
+  border-radius: 3rem;
+  font-size: 1rem;
+  text-align: center;
+  min-width: 100px;
+  user-select: none;
+  letter-spacing: 0.04em;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.075);
+  font-family: 'Montserrat', sans-serif;
+  cursor: default;
+}
+
+.status-current {
+  background: #c7d8f9;
+  color: #2646a0;
+  box-shadow:
+    0 3px 14px rgba(38, 70, 160, 0.34);
+  text-shadow: 0 0 7px rgba(38, 70, 160, 0.2);
+}
+
+.status-returned {
+  background: #d1ede5;
+  color: #2f6543;
+  box-shadow:
+    0 3px 14px rgba(47, 101, 67, 0.32);
+  text-shadow: 0 0 7px rgba(47, 101, 67, 0.2);
+}
+
+.status-overdue {
+  background: #fcdede;
+  color: #b83030;
+  box-shadow:
+    0 3px 14px rgba(184, 48, 48, 0.35);
+  text-shadow: 0 0 8px rgba(184, 48, 48, 0.23);
+  font-weight: 800;
+}
+
+/* Rating styling */
+.rating-display {
+  font-size: 1.3rem;
+  color: #f9b700;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.rating-display .fa-star {
+  text-shadow: 0 0 6px #fcd535;
+  margin-right: 0.15rem;
+}
+
+/* Rating form styling */
+.rating-form {
+  margin-top: 0.6rem;
+  user-select: none;
+}
+
+.rating-form label {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #394e89;
+  margin-bottom: 0.4rem;
+  user-select: none;
+  display: block;
+}
+
+.rating-form select {
+  background: #f8fbff;
+  border-radius: 14px;
+  border: 2.2px solid #a0abe3;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #33417c;
+  box-shadow: inset 0 2px 6px rgba(77, 93, 182, 0.09);
+  outline-offset: 3px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  user-select: none;
+  min-width: 110px;
+}
+
+.rating-form select:focus {
+  border-color: #223ba8;
+  box-shadow: 0 0 15px 3px rgba(34, 59, 168, 0.5);
+  outline: none;
+}
+
+/* CommentTextarea */
+.rating-comment textarea {
+  margin-top: 0.7rem;
+  width: 100%;
+  min-height: 80px;
+  padding: 0.75rem 1.25rem;
+  border-radius: 20px;
+  background: #f7faff;
+  border: 2px solid #becbf9;
+  box-shadow: inset 0 1.5px 5px rgba(70, 91, 188, 0.14);
+  font-size: 1rem;
+  font-weight: 500;
+  color: #344776;
+  resize: vertical;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  outline-offset: 3px;
+  user-select: text;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.rating-comment textarea::placeholder {
+  font-style: italic;
+  color: #8791c6;
+}
+
+.rating-comment textarea:focus {
+  border-color: #223ba8;
+  box-shadow: 0 0 18px 4px rgba(34, 59, 168, 0.6);
+  outline: none;
+}
+
+/* Submit button refined */
+.btn-submit-rating {
+  margin-top: 1rem;
+  background: #223ba8;
+  border-radius: 40px;
+  box-shadow:
+    0 12px 30px rgba(34, 59, 168, 0.6);
+  font-size: 1rem;
+  font-weight: 700;
+  color: #f9faff;
+  border: none;
+  cursor: pointer;
+  padding: 0.75rem 2.2rem;
+  user-select: none;
+  transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.25s ease;
+  white-space: nowrap;
+}
+
+.btn-submit-rating:hover,
+.btn-submit-rating:focus {
+  background: #7793ff;
+  box-shadow:
+    0 14px 38px rgba(119, 147, 255, 0.85);
+  transform: translateY(-3px);
+  outline: none;
+}
+
+/* Back button big and bold */
+.back-button {
+  max-width: 260px;
+  margin: 0 auto;
+  margin-top: 3rem;
+  background: linear-gradient(135deg, #5068f2 0%, #7983ff 100%);
+  padding: 1rem 2.8rem;
+  border-radius: 60px;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #f0f4ff;
+  text-align: center;
+  text-decoration: none;
+  box-shadow:
+    0 20px 60px rgba(80, 104, 242, 0.55);
+  cursor: pointer;
+  user-select: none;
+  display: block;
+  transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.back-button:hover,
+.back-button:focus {
+  background: linear-gradient(135deg, #7983ff 0%, #5068f2 100%);
+  box-shadow:
+    0 28px 70px rgba(121, 131, 255, 0.72);
+  transform: translateY(-4px);
+  outline: none;
+}
+
+/* Accessibility outlines */
+button:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+a.btn-home:focus-visible,
+a.back-button:focus-visible {
+  outline: 3px solid #3648a7;
+  outline-offset: 4px;
+}
+
+/* Scrollbar for borrowing list */
+.borrowing-list::-webkit-scrollbar {
+  height: 10px;
+}
+
+.borrowing-list::-webkit-scrollbar-track {
+  background: #d7dfff;
+  border-radius: 20px;
+}
+
+.borrowing-list::-webkit-scrollbar-thumb {
+  background: #5068f2;
+  border-radius: 20px;
+  transition: background-color 0.3s ease;
+}
+
+.borrowing-list::-webkit-scrollbar-thumb:hover {
+  background: #7983ff;
+}
+
+/* --- Responsiveness --- */
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  body {
+    padding: 2rem 1rem 3rem;
+  }
+
+  .container {
+    max-width: 100%;
+    padding: 2.2rem 1.8rem 3rem;
+    border-radius: 1.8rem;
+  }
+
+  h1 {
+    font-size: 2.3rem;
+    letter-spacing: 0.07em;
+  }
+
+  .btn-home {
+    font-size: 0.95rem;
+    padding: 0.55rem 1.3rem;
+  }
+
+  .btn-home i {
+    font-size: 1.1rem;
+  }
+
+  .history-table thead th {
+    font-size: 0.85rem;
+    padding: 0.75rem 1.1rem;
+  }
+
+  .history-table tbody td {
+    font-size: 0.9rem;
+    padding: 0.9rem 1rem;
+    white-space: normal;
+  }
+
+  .back-button {
+    max-width: 200px;
+    font-size: 1.05rem;
+    padding: 0.75rem 2rem;
+  }
+
+  .btn-submit-rating {
+    padding: 0.6rem 1.6rem;
+    font-size: 0.9rem;
+  }
+
+  .rating-form select {
+    min-width: 90px;
+  }
+}
+
+/* Tablets */
+@media (min-width: 481px) and (max-width: 767px) {
+  .container {
+    max-width: 680px;
+    padding: 3rem 2.4rem 3.6rem;
+  }
+
+  h1 {
+    font-size: 3rem;
+  }
+
+  .btn-home {
+    font-size: 1.05rem;
+    padding: 0.6rem 1.6rem;
+  }
+
+  .history-table thead th {
+    font-size: 1rem;
+  }
+
+  .history-table tbody td {
+    font-size: 1rem;
+    padding: 1.1rem 1.3rem;
+  }
+
+  .btn-submit-rating {
+    font-size: 1rem;
+    padding: 0.7rem 1.8rem;
+  }
+
+  .back-button {
+    max-width: 220px;
+    font-size: 1.15rem;
+    padding: 0.85rem 2.3rem;
+  }
+}
+
+/* Desktop and larger */
+@media (min-width: 768px) {
+  .container {
+    max-width: 980px;
+    padding: 3.8rem 4rem 4rem;
+  }
+
+  h1 {
+    font-size: 3.5rem;
+  }
+
+  .btn-home {
+    font-size: 1.1rem;
+    padding: 0.7rem 1.75rem;
+  }
+
+  .history-table thead th {
+    font-size: 1.1rem;
+  }
+
+  .history-table tbody td {
+    font-size: 1.1rem;
+    padding: 1.2rem 1.6rem;
+  }
+
+  .btn-submit-rating {
+    font-size: 1.1rem;
+    padding: 0.8rem 1.9rem;
+  }
+
+  .back-button {
+    max-width: 260px;
+    font-size: 1.3rem;
+    padding: 1rem 3rem;
+  }
+}
+
+/* Extra large */
+@media (min-width: 1440px) {
+  .container {
+    max-width: 1140px;
+    padding-left: 6rem;
+    padding-right: 6rem;
+  }
+}

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Ajouter un livre</title>
+    <link rel="stylesheet" th:href="@{/css/add-book.css}" />
+    <script th:src="@{/js/add-book.js}"></script>
+</head>
+<body>
+    <div class="container">
+        <h2>Ajouter un nouveau livre</h2>
+        
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        
+        <form th:action="@{/librarian/books/add}" th:object="${book}" method="post">
+            <div class="form-group">
+                <label for="title">Titre:</label>
+                <input type="text" class="form-control" id="title" th:field="*{title}" required>
+                <span th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="author">Auteur:</label>
+                <input type="text" class="form-control" id="author" th:field="*{author}" required>
+                <span th:if="${#fields.hasErrors('author')}" th:errors="*{author}" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="category">Catégorie:</label>
+                <select class="form-control" id="category" th:field="*{category}" required>
+                    <option value="">Sélectionner une catégorie</option>
+                    <option value="FICTION">Fiction</option>
+                    <option value="NON_FICTION">Non-Fiction</option>
+                    <option value="SCIENCE">Science</option>
+                    <option value="TECHNOLOGY">Technologie</option>
+                    <option value="HISTORY">Histoire</option>
+                    <option value="LITERATURE">Littérature</option>
+                </select>
+                <span th:if="${#fields.hasErrors('category')}" th:errors="*{category}" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="isbn">ISBN:</label>
+                <input type="text" class="form-control" id="isbn" th:field="*{isbn}" required>
+                <span th:if="${#fields.hasErrors('isbn')}" th:errors="*{isbn}" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="publisher">Éditeur:</label>
+                <input type="text" class="form-control" id="publisher" th:field="*{publisher}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="publicationYear">Année de publication:</label>
+                <input type="number" class="form-control" id="publicationYear" th:field="*{publicationYear}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="language">Langue:</label>
+                <select class="form-control" id="language" th:field="*{language}" required>
+                    <option value="">Sélectionner une langue</option>
+                    <option value="FRENCH">Français</option>
+                    <option value="ENGLISH">Anglais</option>
+                    <option value="SPANISH">Espagnol</option>
+                    <option value="ARABIC">Arabe</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="edition">Édition:</label>
+                <input type="text" class="form-control" id="edition" th:field="*{edition}">
+            </div>
+            
+            <div class="form-group">
+                <label for="quantity">Quantité:</label>
+                <input type="number" class="form-control" id="quantity" th:field="*{quantity}" required min="0">
+                <span th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="shelfLocation">Emplacement:</label>
+                <input type="text" class="form-control" id="shelfLocation" th:field="*{shelfLocation}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea class="form-control" id="description" th:field="*{description}" rows="3"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="purchasePrice">Prix d'achat:</label>
+                <input type="number" step="0.01" class="form-control" id="purchasePrice" th:field="*{purchasePrice}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="replacementCost">Coût de remplacement:</label>
+                <input type="number" step="0.01" class="form-control" id="replacementCost" th:field="*{replacementCost}" required>
+            </div>
+
+            <!-- Modification du champ image pour utiliser th:field -->
+            <div class="form-group">
+                <label for="imagePath">Nom de l'image:</label>
+                <input type="text" class="form-control" id="imagePath" th:field="*{imagePath}" 
+                       placeholder="exemple.jpg">
+                <small class="form-text text-muted">Entrez le nom de l'image située dans /static/images (ex: livre1.jpg)</small>
+                <span th:if="${#fields.hasErrors('imagePath')}" th:errors="*{imagePath}" class="text-danger"></span>
+            </div>
+            
+            <div class="button-group">
+                <button type="submit" class="btn btn-primary">Ajouter</button>
+                <a th:href="@{/librarian/books}" class="btn btn-secondary">Annuler</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

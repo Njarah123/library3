@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Tableau de bord - Bibliothécaire</title>
+    <link rel="stylesheet" th:href="@{/css/dashboards.css}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script th:src="@{/js/dashboard.js}"></script>
+</head>
+<body>
+    <div class="nav-header">
+        <div class="user-info">
+            <span class="username" th:text="${#authentication.name}">Username</span>
+            <form th:action="@{/logout}" method="post" class="logout-form">
+                <button type="submit" class="logout-btn">Déconnexion</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>Tableau de bord Bibliothécaire</h1>
+        
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+        <!-- Statistiques -->
+        <div class="stats-container">
+            <div class="stat-box">
+                <i class="fas fa-books"></i>
+                <h3>Total des livres</h3>
+                <p th:text="${totalBooks}">0</p>
+            </div>
+            <div class="stat-box">
+                <i class="fas fa-book-reader"></i>
+                <h3>Livres empruntés</h3>
+                <p th:text="${borrowedBooks}">0</p>
+            </div>
+            <div class="stat-box">
+                <i class="fas fa-exclamation-circle"></i>
+                <h3>Livres en retard</h3>
+                <p th:text="${overdueBooks}">0</p>
+            </div>
+        </div>
+
+        <!-- Menu Actions -->
+        <div class="actions-menu">
+            <a th:href="@{/librarian/books}" class="btn btn-primary">
+                <i class="fas fa-list"></i>
+                Liste des livres
+            </a>
+            <a th:href="@{/librarian/books/add}" class="btn btn-success">
+                <i class="fas fa-plus"></i>
+                Ajouter un livre
+            </a>
+            <a th:href="@{/librarian/borrows-books}" class="btn btn-info">
+                <i class="fas fa-history"></i>
+                Historique des emprunts
+            </a>
+        </div>
+    </div>
+
+   
+</body>
+</html>

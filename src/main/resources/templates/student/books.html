@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Bibliothèque - Liste des Livres</title>
+    <link rel="stylesheet" th:href="@{/css/books.css}">
+</head>
+<body>
+   
+<!-- Ajoutez ce code juste après l'ouverture de la div.container -->
+<div class="header-actions">
+    <a th:href="@{/student/dashboard}" class="btn-home">
+        <i class="fas fa-home"></i>
+        <span>Accueil</span>
+    </a>
+</div>
+    <div class="container">
+        <h1>Liste des Livres</h1>
+        
+        <div class="success-message" th:if="${success}" th:text="${success}"></div>
+        <div class="error-message" th:if="${error}" th:text="${error}"></div>
+
+        <!-- Barre de recherche et filtres -->
+        <div class="search-section">
+            <form th:action="@{/student/books}" method="get" class="search-form">
+                <input type="text" name="search" th:value="${search}" 
+                       placeholder="Rechercher un livre..." class="search-input">
+                <select name="category" class="category-select">
+                    <option value="">Toutes les catégories</option>
+                    <option th:each="cat : ${categories}"
+                            th:value="${cat}"
+                            th:text="${cat}"
+                            th:selected="${cat == selectedCategory}">
+                    </option>
+                </select>
+                <button type="submit" class="search-button">Rechercher</button>
+            </form>
+        </div>
+
+        <!-- Information sur les emprunts -->
+        <div class="borrow-info">
+            <p>Emprunts actuels: <span th:text="${currentBorrows}">0</span>/<span th:text="${maxBorrows}">3</span></p>
+        </div>
+
+        <div class="books-grid">
+            <div th:each="book : ${books}" class="book-card">
+                <div class="book-image">
+                    <img th:if="${book.imagePath}" 
+                         th:src="@{${book.imagePath}}" 
+                         alt="Couverture du livre"
+                         class="book-cover">
+                    <img th:unless="${book.imagePath}" 
+                         th:src="@{/images/default-book.png}" 
+                         alt="Image par défaut"
+                         class="book-cover">
+                </div>
+                <div class="book-info">
+                    <h3 th:text="${book.title}">Titre du livre</h3>
+                    <p th:text="${'Auteur: ' + book.author}">Auteur</p>
+                    <p th:text="${'Catégorie: ' + book.category}">Catégorie</p>
+                    <p th:text="${'Quantité disponible: ' + book.availableQuantity + '/' + book.quantity}">Quantité</p>
+                    <div class="book-actions">
+                        <!-- Bouton d'emprunt uniquement si l'utilisateur n'a pas atteint la limite -->
+                        <form th:if="${book.availableQuantity > 0 && currentBorrows < maxBorrows}" 
+                              th:action="@{/student/books/{id}/borrow(id=${book.id})}" 
+                              method="post"
+                              style="margin-top: 10px;">
+                            <button type="submit" class="btn-borrow">Emprunter</button>
+                        </form>
+                        <!-- Message si le livre n'est pas disponible -->
+                        <p th:if="${book.availableQuantity <= 0}" class="book-unavailable">
+                            Non disponible
+                        </p>
+                        <!-- Message si l'utilisateur a atteint la limite d'emprunts -->
+                        <p th:if="${book.availableQuantity > 0 && currentBorrows >= maxBorrows}" class="book-unavailable">
+                            Limite d'emprunts atteinte
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

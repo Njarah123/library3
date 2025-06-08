@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Mes Emprunts - Staff</title>
+    <link rel="stylesheet" th:href="@{/css/staff-borrows.css}">
+</head>
+<body>
+    <div class="header-actions">
+    <a th:href="@{/staff/dashboard}" class="btn-home">
+        <i class="fas fa-home"></i>
+        <span>Accueil</span>
+    </a>
+</div>
+    <div class="container">
+        <h1>Mes Emprunts</h1>
+
+        <div class="borrows-container">
+            <div th:if="${#lists.isEmpty(borrows)}">
+                <p>Vous n'avez pas d'emprunts en cours.</p>
+            </div>
+
+            <div th:if="${not #lists.isEmpty(borrows)}" class="borrows-list">
+                <div th:each="borrow : ${borrows}" class="borrow-card">
+                    <h3 th:text="${borrow.book.title}">Titre du livre</h3>
+                    <p th:text="'Emprunté le: ' + ${#temporals.format(borrow.borrowDate, 'dd/MM/yyyy')}">Date d'emprunt</p>
+                    <p th:text="'À retourner le: ' + ${#temporals.format(borrow.dueDate, 'dd/MM/yyyy')}">Date de retour</p>
+                </div>
+            </div>
+        </div>
+
+        <a th:href="@{/staff/dashboard}" class="back-button">Retour au Dashboard</a>
+    </div>
+</body>
+</html>

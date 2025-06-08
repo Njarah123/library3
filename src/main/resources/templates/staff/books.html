@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Catalogue - Staff</title>
+    <link rel="stylesheet" th:href="@{/css/staff-books.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script th:src="@{/js/staff-books.js}"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header-actions">
+            <a th:href="@{/staff/dashboard}" class="btn-home">
+                <i class="fas fa-home"></i>
+                <span>Accueil</span>
+            </a>
+        </div>
+
+        <h1>Catalogue des Livres</h1>
+
+        <div class="books-container">
+            <div th:each="book : ${books}" class="book-card">
+                <!-- Section image - Correction des chemins d'accès -->
+                <div class="book-image">
+                    <!-- Vérification et affichage de l'image avec différentes possibilités de chemins -->
+                    <img th:if="${book.imagePath != null and !book.imagePath.isEmpty()}" 
+                         th:src="${book.imagePath.startsWith('/') ? book.imagePath : '/uploads/' + book.imagePath}"
+                         onerror="this.src='/images/default-book.png'"
+                         class="book-cover"
+                         th:alt="${book.title}">
+                    <!-- Image par défaut -->
+                    <img th:unless="${book.imagePath != null and !book.imagePath.isEmpty()}" 
+                         th:src="@{/images/default-book.png}"
+                         class="book-cover"
+                         alt="Image par défaut">
+                </div>
+
+                <!-- Section informations -->
+                <div class="book-details">
+                    <h3 th:text="${book.title}">Titre du livre</h3>
+                    <p class="author">
+                        <i class="fas fa-user-edit"></i> 
+                        <span th:text="${book.author}">Auteur</span>
+                    </p>
+                    <p class="category">
+                        <i class="fas fa-bookmark"></i> 
+                        <span th:text="${book.category}">Catégorie</span>
+                    </p>
+                    
+                    <!-- Statut du livre -->
+                    <div class="book-status">
+                        <p th:class="${book.available ? 'status-available' : 'status-unavailable'}"
+                           th:text="${book.available ? 'Disponible' : 'Non disponible'}">
+                            Status
+                        </p>
+
+                        <!-- Bouton Emprunter -->
+                        <form th:if="${book.available}" 
+                              th:action="@{/staff/books/borrow}" 
+                              method="post" 
+                              class="borrow-form">
+                            <input type="hidden" name="bookId" th:value="${book.id}">
+                            <button type="submit" class="btn-borrow">
+                                <i class="fas fa-book-reader"></i> Emprunter
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <a th:href="@{/staff/dashboard}" class="back-button">
+            <i class="fas fa-arrow-left"></i> Retour au Dashboard
+        </a>
+    </div>
+
+    <!-- Script pour gérer les erreurs d'images -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const bookCovers = document.querySelectorAll('.book-cover');
+            bookCovers.forEach(img => {
+                img.onerror = function() {
+                    this.src = '/images/default-book.png';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

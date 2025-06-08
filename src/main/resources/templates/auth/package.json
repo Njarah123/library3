@@ -1,0 +1,17 @@
+{
+  "name": "librabyte-login",
+  "version": "1.0.0",
+  "description": "LibraByte Login Form",
+  "main": "login.html",
+  "scripts": {
+    "dev": "npx serve .",
+    "start": "npx serve .",
+    "build": "echo 'No build process needed for static HTML/CSS'"
+  },
+  "keywords": ["login", "html", "css"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "serve": "^14.2.1"
+  }
+}

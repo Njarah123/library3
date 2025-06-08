@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Mes Emprunts</title>
+    <link rel="stylesheet" th:href="@{/css/student-borrows.css}" />
+    <script th:src="@{/js/student-borrows.js}"></script>
+</head>
+<body>
+    <div class="header-actions">
+    <a th:href="@{/student/dashboard}" class="btn-home">
+        <i class="fas fa-home"></i>
+        <span>Accueil</span>
+    </a>
+</div>
+    <div class="container">
+        <!-- Messages de succès/erreur -->
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+        <!-- En-tête -->
+        <h1>Mes Emprunts Actuels</h1>
+        <div class="borrow-stats">
+            <p>Emprunts actuels: <span th:text="${currentBorrowsCount}">0</span>/<span th:text="${maxBorrows}">3</span></p>
+        </div>
+
+        <!-- Liste des emprunts -->
+        <div class="borrows-list" th:if="${!#lists.isEmpty(borrows)}">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Livre</th>
+                        <th>Date d'emprunt</th>
+                        <th>Date de retour prévue</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="borrow : ${borrows}">
+                        <td>
+                            <div class="book-info">
+                                <span th:text="${borrow.book.title}">Titre du livre</span>
+                                <small th:text="${borrow.book.author}">Auteur</small>
+                            </div>
+                        </td>
+                        <td th:text="${#temporals.format(borrow.borrowDate, 'dd/MM/yyyy')}">Date d'emprunt</td>
+                        <td th:text="${#temporals.format(borrow.dueDate, 'dd/MM/yyyy')}">Date de retour</td>
+                        <td>
+                            <span th:class="${borrow.dueDate.isBefore(currentDateTime)} ? 'status-overdue' : 'status-current'"
+                                  th:text="${borrow.dueDate.isBefore(currentDateTime)} ? 'En retard' : 'En cours'">
+                                Statut
+                            </span>
+                        </td>
+                        <td>
+                            <form th:action="@{/student/borrows/__${borrow.id}__/return}" method="post" style="display: inline;">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <button type="submit" class="btn-return">Retourner</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Message si aucun emprunt -->
+        <div th:if="${#lists.isEmpty(borrows)}" class="no-borrows">
+            <p>Vous n'avez aucun emprunt en cours.</p>
+        </div>
+
+        <!-- Bouton pour retourner à la liste des livres -->
+        <div class="actions">
+            <a th:href="@{/student/books}" class="btn-back">Retour à la liste des livres</a>
+        </div>
+    </div>
+</body>
+</html>

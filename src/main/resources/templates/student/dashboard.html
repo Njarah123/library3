@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Tableau de bord - Étudiant</title>
+    <link rel="stylesheet" th:href="@{/css/student-dashboard.css}" />
+    <script th:src="@{/js/student-dashboard.js}"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-header">
+            <div class="user-info">
+                <span class="username" th:text="${#authentication.name}">Njarah123</span>
+                <span class="current-time" th:text="${#temporals.format(#temporals.createNow(), 'dd/MM/yyyy HH:mm')}">01/06/2025 10:20</span>
+                <form th:action="@{/logout}" method="post" class="logout-form">
+                    <button type="submit" class="logout-btn">Déconnexion</button>
+                </form>
+            </div>
+        </div>
+
+        <h1>Bienvenue dans votre espace étudiant</h1>
+
+        <div class="stats-container">
+            <div class="stat-box current-borrows">
+                <h3>Emprunts en cours</h3>
+                <p th:text="${currentBorrows}">0</p>
+            </div>
+            <div class="stat-box overdue-borrows">
+                <h3>Livres en retard</h3>
+                <p th:text="${overdueBorrows}">0</p>
+            </div>
+            <div class="stat-box allowed-borrows">
+                <h3>Emprunts restants autorisés</h3>
+                <p th:text="${maxBorrows - currentBorrows}">3</p>
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <a th:href="@{/student/books}" class="action-card">
+                <div class="card-icon">📚</div>
+                <h3>Catalogue</h3>
+                <p>Parcourir les livres disponibles</p>
+            </a>
+            <a th:href="@{/student/borrows}" class="action-card">
+                <div class="card-icon">📖</div>
+                <h3>Mes emprunts</h3>
+                <p>Gérer mes emprunts actuels</p>
+            </a>
+            <a th:href="@{/student/history}" class="action-card">
+                <div class="card-icon">📋</div>
+                <h3>Historique</h3>
+                <p>Voir mon historique d'emprunts</p>
+            </a>
+        </div>
+
+        <!-- Prochains retours -->
+        <div class="upcoming-returns" th:if="${!#lists.isEmpty(upcomingReturns)}">
+            <h2>Retours à effectuer prochainement</h2>
+            <div class="returns-grid">
+                <div th:each="borrow : ${upcomingReturns}" class="return-card">
+                    <img th:src="${borrow.book.coverImageUrl}" alt="Couverture" class="book-cover"/>
+                    <div class="book-info">
+                        <h4 th:text="${borrow.book.title}">Titre du livre</h4>
+                        <p class="author" th:text="${borrow.book.author}">Auteur</p>
+                        <p class="due-date" th:classappend="${borrow.isOverdue ? 'overdue' : ''}"
+                           th:text="'À rendre le : ' + ${#temporals.format(borrow.dueDate, 'dd/MM/yyyy')}">
+                            Date de retour
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommandations -->
+        <div class="recommendations" th:if="${!#lists.isEmpty(recommendedBooks)}">
+            <h2>Livres recommandés</h2>
+            <div class="books-carousel">
+                <div th:each="book : ${recommendedBooks}" class="book-card">
+                    <img th:src="${book.coverImageUrl}" alt="Couverture" class="book-cover"/>
+                    <div class="book-info">
+                        <h4 th:text="${book.title}">Titre du livre</h4>
+                        <p class="author" th:text="${book.author}">Auteur</p>
+                        <div class="rating">
+                            <span class="stars" th:attr="data-rating=${book.rating}">★★★★★</span>
+                            <span th:text="${book.rating + '/5'}">4.5/5</span>
+                        </div>
+                        <a th:href="@{/student/books(id=${book.id})}" class="btn-details">Voir détails</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        // Pour l'affichage des étoiles
+        document.querySelectorAll('.stars').forEach(function(stars) {
+            const rating = parseFloat(stars.dataset.rating);
+            stars.style.width = (rating * 20) + '%';
+        });
+
+        // Mise à jour de l'heure en temps réel
+        function updateTime() {
+            const now = new Date();
+            const formatted = now.toLocaleString('fr-FR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.querySelector('.current-time').textContent = formatted;
+        }
+        setInterval(updateTime, 60000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+package com.library.model;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.library.enums.UserType;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import lombok.Data;
+
+@Data
+@Entity
+@Table(name = "users")
+@Inheritance(strategy = InheritanceType.JOINED)
+public abstract class User {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    @Column(nullable = false)
+    private String name;
+    
+    @Column(unique = true, nullable = false)
+    private String username;
+    
+    @Column(nullable = false)
+    private String password;
+    
+    @Column(unique = true)
+    private String email;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserType userType;
+    
+    // Dans la classe User, modifiez cette partie :
+@OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+private Account account;
+    
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Borrowing> borrowings = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Reservation> reservations = new ArrayList<>();
+    
+    // Méthodes abstraites
+    public abstract boolean verify();
+    
+    // Méthodes communes
+    public boolean checkAccount() {
+        return account != null && account.calculateFine() <= 0;
+    }
+    
+    public Book getBookInfo(Long bookId) {
+        // Implémentation pour obtenir les informations d'un livre
+        return null; // À implémenter avec le repository
+    }
+    
+    // Méthodes pour la gestion des emprunts
+    public boolean canBorrowBooks() {
+        if (account == null) {
+            return false;
+        }
+        return account.getNoBorrowedBooks() < getMaxBorrowingLimit() &&
+               (account.getFineAmount() == null || account.getFineAmount().compareTo(BigDecimal.ZERO) <= 0);
+    }
+    
+    public int getMaxBorrowingLimit() {
+        return userType == UserType.STAFF ? 10 : 5;
+    }
+    
+    public int getMaxReservationLimit() {
+        return userType == UserType.STAFF ? 5 : 3;
+    }
+    
+    // Méthodes pour la sécurité
+    public String getRole() {
+        return userType.getRole();
+    }
+    
+    public boolean isStaff() {
+        return userType == UserType.STAFF;
+    }
+    
+    public boolean isStudent() {
+        return userType == UserType.STUDENT;
+    }
+
+    // Getter et Setter pour email
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+}

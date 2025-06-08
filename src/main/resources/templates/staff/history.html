@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Historique des Emprunts - Staff</title>
+    <link rel="stylesheet" th:href="@{/css/history.css}">
+    <script th:src="@{/js/history.js}"></script>
+    <!-- Ajout de Font Awesome pour les étoiles -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="header-actions">
+    <a th:href="@{/staff/dashboard}" class="btn-home">
+        <i class="fas fa-home"></i>
+        <span>Accueil</span>
+    </a>
+</div>
+    <div class="container">
+        <h1>Historique de mes Emprunts</h1>
+
+        <div class="history-container">
+            <div th:if="${#lists.isEmpty(borrowings)}">
+                <p>Vous n'avez pas d'historique d'emprunts.</p>
+            </div>
+
+            <div th:if="${not #lists.isEmpty(borrowings)}" class="borrowing-list">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Livre</th>
+                            <th>Date d'emprunt</th>
+                            <th>Date de retour prévue</th>
+                            <th>Statut</th>
+                            <th>Note</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="borrowing : ${borrowings}">
+                            <td th:text="${borrowing.book.title}">Titre du livre</td>
+                            <td th:text="${#temporals.format(borrowing.borrowDate, 'dd/MM/yyyy')}">Date d'emprunt</td>
+                            <td th:text="${#temporals.format(borrowing.dueDate, 'dd/MM/yyyy')}">Date de retour</td>
+                            <td th:text="${borrowing.status}">Status</td>
+                            <td>
+                                <!-- Si le livre a déjà été noté -->
+                                <div th:if="${borrowing.rating != null}" class="rating-display">
+                                    <span th:each="star : ${#numbers.sequence(1, 5)}"
+                                          th:class="${star <= borrowing.rating ? 'fas' : 'far'} + ' fa-star'"
+                                          style="color: #ffd700;">
+                                    </span>
+                                </div>
+                                <!-- Si le livre peut être noté (déjà retourné mais pas encore noté) -->
+                                <div th:if="${borrowing.rating == null && borrowing.status == 'RETOURNÉ'}" class="rating-form">
+                                    <form th:action="@{/staff/rate}" method="post" class="star-rating">
+                                        <input type="hidden" name="borrowingId" th:value="${borrowing.id}">
+                                        <div class="star-rating">
+                                            <input type="radio" id="5-stars" name="rating" value="5"/>
+                                            <label for="5-stars" class="star">&#9733;</label>
+                                            <input type="radio" id="4-stars" name="rating" value="4"/>
+                                            <label for="4-stars" class="star">&#9733;</label>
+                                            <input type="radio" id="3-stars" name="rating" value="3"/>
+                                            <label for="3-stars" class="star">&#9733;</label>
+                                            <input type="radio" id="2-stars" name="rating" value="2"/>
+                                            <label for="2-stars" class="star">&#9733;</label>
+                                            <input type="radio" id="1-star" name="rating" value="1"/>
+                                            <label for="1-star" class="star">&#9733;</label>
+                                       <div class="rating-comment">
+            <textarea name="comment" placeholder="Ajoutez un commentaire (optionnel)" rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn-submit-rating">Noter</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <a th:href="@{/staff/dashboard}" class="back-button">Retour au Dashboard</a>
+    </div>
+</body>
+</html>
