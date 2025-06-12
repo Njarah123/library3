@@ -1,6 +1,7 @@
 package com.library.model;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,6 +47,9 @@ public abstract class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserType userType;
+    private boolean active = true;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
     
     // Dans la classe User, modifiez cette partie :
 @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
@@ -59,7 +63,8 @@ private Account account;
     
     // Méthodes abstraites
     public abstract boolean verify();
-    
+    private String profileImagePath;
+
     // Méthodes communes
     public boolean checkAccount() {
         return account != null && account.calculateFine() <= 0;
@@ -69,7 +74,33 @@ private Account account;
         // Implémentation pour obtenir les informations d'un livre
         return null; // À implémenter avec le repository
     }
+
+
+ public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
     
+ public String getProfileImagePath() {
+        return profileImagePath;
+    }
+
+    public void setProfileImagePath(String profileImagePath) {
+        this.profileImagePath = profileImagePath;
+    }
+
     // Méthodes pour la gestion des emprunts
     public boolean canBorrowBooks() {
         if (account == null) {

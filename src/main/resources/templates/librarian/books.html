@@ -3,22 +3,35 @@
 <head>
     <title>Gestion des Livres</title>
     <link rel="stylesheet" th:href="@{/css/books.css}">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <!-- Ajoutez ce code juste après l'ouverture de la div.container -->
-<div class="header-actions">
-    <a th:href="@{/librarian/dashboard}" class="btn-home">
-        <i class="fas fa-home"></i>
-        <span>Accueil</span>
-    </a>
-</div>
+    <div class="header-actions">
+        <a th:href="@{/librarian/dashboard}" class="btn-home">
+            <i class="fas fa-home"></i>
+            <span>Accueil</span>
+        </a>
+    </div>
     <div class="container">
         <h1>Gestion des Livres</h1>
         
         <div class="success-message" th:if="${success}" th:text="${success}"></div>
         <div class="error-message" th:if="${error}" th:text="${error}"></div>
+
+        <!-- Filtrage par catégorie (séparé) -->
+        <div class="category-filter">
+            <form th:action="@{/librarian/books}" method="get" class="filter-form">
+                <select name="category" class="category-select" onchange="this.form.submit()">
+                    <option value="">Toutes les catégories</option>
+                    <option th:each="cat : ${categories}"
+                            th:value="${cat}"
+                            th:text="${cat}"
+                            th:selected="${cat == selectedCategory}">
+                    </option>
+                </select>
+            </form>
+        </div>
 
         <!-- Barre de recherche -->
         <div class="search-section">
@@ -32,17 +45,17 @@
         <a th:href="@{/librarian/books/add}" class="btn-add">Ajouter un livre</a>
 
         <div class="books-grid">
-            <div th:each="book : ${books}" class="book-card">
-                <div class="book-image">
-                    <img th:if="${book.imagePath}" 
-                         th:src="@{${book.imagePath}}" 
-                         alt="Couverture du livre"
-                         class="book-cover">
-                    <img th:unless="${book.imagePath}" 
-                         th:src="@{/images/default-book.png}" 
-                         alt="Image par défaut"
-                         class="book-cover">
-                </div>
+           <div th:each="book : ${books}" class="book-card">
+    <div class="book-image" th:data-book-id="${book.id}" onclick="showBookDetails(this.getAttribute('data-book-id'))">
+        <img th:if="${book.imagePath}" 
+             th:src="@{${book.imagePath}}" 
+             alt="Couverture du livre"
+             class="book-cover">
+        <img th:unless="${book.imagePath}" 
+             th:src="@{/images/default-book.png}" 
+             alt="Image par défaut"
+             class="book-cover">
+    </div>
                 <div class="book-info">
                     <h3 th:text="${book.title}">Titre du livre</h3>
                     <p th:text="${'Auteur: ' + book.author}">Auteur</p>
@@ -67,6 +80,172 @@
                 </div>
             </div>
         </div>
+
+        <!-- Pagination -->
+        <div class="pagination-container" th:if="${totalPages > 1}">
+            <div class="pagination">
+                <!-- Premier -->
+                <a th:href="@{/librarian/books(page=0, search=${search}, category=${selectedCategory})}" 
+                   class="page-link" 
+                   th:classappend="${currentPage == 0} ? 'disabled'">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+                
+                <!-- Précédent -->
+                <a th:href="@{/librarian/books(page=${currentPage - 1}, search=${search}, category=${selectedCategory})}" 
+                   class="page-link" 
+                   th:classappend="${currentPage == 0} ? 'disabled'">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+                
+                <!-- Pages -->
+                <a th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}"
+                   th:href="@{/librarian/books(page=${pageNum}, search=${search}, category=${selectedCategory})}"
+                   class="page-link"
+                   th:classappend="${pageNum == currentPage} ? 'active'"
+                   th:text="${pageNum + 1}">1</a>
+                
+                <!-- Suivant -->
+                <a th:href="@{/librarian/books(page=${currentPage + 1}, search=${search}, category=${selectedCategory})}" 
+                   class="page-link" 
+                   th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+                
+                <!-- Dernier -->
+                <a th:href="@{/librarian/books(page=${totalPages - 1}, search=${search}, category=${selectedCategory})}" 
+                   class="page-link" 
+                   th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            </div>
+        </div>
     </div>
+   <!-- Book Sidebar -->
+<div class="book-sidebar" id="bookSidebar">
+    <div class="sidebar-content">
+        <div class="sidebar-header">
+            <h2>Détails du livre</h2>
+           <button class="close-sidebar" id="closeSidebarBtn">
+    <i class="fas fa-times"></i>
+</button>
+        </div>
+        <div class="book-details">
+            <div class="book-image-large">
+                <img id="sidebarBookCover" src="" alt="Couverture du livre">
+            </div>
+            <div class="book-info">
+                <h3 id="sidebarBookTitle"></h3>
+                <p class="book-author">
+                    <i class="fas fa-user-edit"></i>
+                    <span id="sidebarBookAuthor"></span>
+                </p>
+                <p class="book-isbn">
+                    <i class="fas fa-barcode"></i>
+                    <span id="sidebarBookIsbn"></span>
+                </p>
+                <p class="book-category">
+                    <i class="fas fa-bookmark"></i>
+                    <span id="sidebarBookCategory"></span>
+                </p>
+                <p class="book-quantity">
+                    <i class="fas fa-cubes"></i>
+                    <span id="sidebarBookQuantity"></span>
+                </p>
+                <p class="book-availability">
+                    <i class="fas fa-check-circle"></i>
+                    <span id="sidebarBookAvailable"></span>
+                </p>
+            </div>
+            <div class="book-description">
+                <h4>Description</h4>
+                <p id="sidebarBookDescription"></p>
+            </div>
+            <div class="book-actions">
+                <a href="#" id="sidebarEditBtn" class="btn-edit">
+                    <i class="fas fa-edit"></i> Modifier
+                </a>
+                <button id="sidebarDeleteBtn" class="btn-delete">
+                    <i class="fas fa-trash-alt"></i> Supprimer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showBookDetails(bookId) {
+    fetch(`/librarian/books/details/${bookId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erreur lors de la récupération des détails du livre');
+            }
+            return response.json();
+        })
+        .then(book => {
+            // Mise à jour de la sidebar avec les données du livre
+            const sidebar = document.getElementById('bookSidebar');
+            
+            // Mise à jour de l'image
+            const coverImage = document.getElementById('sidebarBookCover');
+            coverImage.src = book.imagePath || '/images/default-book.png';
+            coverImage.onerror = function() {
+                this.src = '/images/default-book.png';
+            };
+
+            // Mise à jour des informations textuelles
+            document.getElementById('sidebarBookTitle').textContent = book.title || 'Sans titre';
+            document.getElementById('sidebarBookAuthor').textContent = book.author || 'Auteur inconnu';
+            document.getElementById('sidebarBookCategory').textContent = book.category || 'Non catégorisé';
+            document.getElementById('sidebarBookIsbn').textContent = book.isbn || 'ISBN non spécifié';
+            document.getElementById('sidebarBookQuantity').textContent = `Quantité totale: ${book.quantity || 0}`;
+            document.getElementById('sidebarBookAvailable').textContent = 
+                `Disponible: ${book.availableQuantity || 0}/${book.quantity || 0}`;
+            document.getElementById('sidebarBookDescription').textContent = 
+                book.description || 'Aucune description disponible';
+
+            // Mise à jour des boutons d'action
+            const editBtn = document.getElementById('sidebarEditBtn');
+            editBtn.href = `/librarian/books/edit/${bookId}`;
+
+            function closeBookSidebar() {
+    const sidebar = document.getElementById('bookSidebar');
+    if (sidebar) {
+        sidebar.classList.remove('active');
+    }
+}
+
+    document.addEventListener('click', function(e) {
+        const sidebar = document.getElementById('bookSidebar');
+        const bookImages = document.querySelectorAll('.book-image');
+      
+    });
+     const closeButton = document.getElementById('closeSidebarBtn');
+        if (closeButton) {
+            closeButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                closeBookSidebar();
+            });
+        }
+            const deleteBtn = document.getElementById('sidebarDeleteBtn');
+            deleteBtn.onclick = () => {
+                if (confirm('Êtes-vous sûr de vouloir supprimer ce livre?')) {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `/librarian/books/delete/${bookId}`;
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            };
+
+            // Afficher la sidebar
+            sidebar.classList.add('active');
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Une erreur est survenue lors du chargement des détails du livre');
+        });
+}
+</script>
 </body>
 </html>

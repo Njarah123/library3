@@ -3,13 +3,69 @@
 <head>
     <title>Tableau de bord - Étudiant</title>
     <link rel="stylesheet" th:href="@{/css/student-dashboard.css}" />
+    <link rel="stylesheet" th:href="@{/css/dashboards.css}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script th:src="@{/js/student-dashboard.js}"></script>
+    <script th:src="@{/js/dashboard.js}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
+    <!-- Sidebar pour Student -->
+    <div class="profile-sidebar" id="profileSidebar">
+        <div class="sidebar-content">
+            <div class="sidebar-header">
+                <h2>Profil <span th:text="${user.username}"></span></h2>
+                <button class="close-sidebar" onclick="toggleSidebar()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="profile-details">
+                <div class="profile-image-large">
+                    <img th:if="${user != null and user.profileImagePath != null}" 
+                         th:src="${user.profileImagePath}"
+                         onerror="this.src='/images/default-student.png'"
+                         alt="Photo de profil">
+                    <img th:unless="${user != null and user.profileImagePath != null}" 
+                         src="/images/default-student.png"
+                         alt="Photo de profil par défaut">
+                </div>
+                <div class="profile-info">
+                    <h3 th:text="${user.name}">Nom complet</h3>
+                    <p><i class="fas fa-user"></i> <span th:text="${user.username}">Username</span></p>
+                    <p><i class="fas fa-envelope"></i> <span th:text="${user.email}">Email</span></p>
+                    <p><i class="fas fa-id-badge"></i> <span th:text="${user.studentId}">ID Étudiant</span></p>
+                    <p><i class="fas fa-graduation-cap"></i> <span th:text="${user.className}">Classe</span></p>
+                    <p><i class="fas fa-user-tag"></i> Étudiant</p>
+                </div>
+                <div class="qr-code">
+                    <div id="qrcode"></div>
+                    <p>Scanner pour voir le profil</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <div class="nav-header">
             <div class="user-info">
-                <span class="username" th:text="${#authentication.name}">Njarah123</span>
+                <div class="header-actions">
+                    <a th:href="@{/home}" class="btn-home">
+                        <i class="fas fa-home"></i>
+                        <span>Accueil</span>
+                    </a>
+                </div>
+                <div class="profile-image-container" onclick="toggleSidebar()">
+                    <img th:if="${user != null and user.profileImagePath != null}" 
+                         th:src="${user.profileImagePath}"
+                         class="profile-image"
+                         onerror="this.src='/images/default-student.png'"
+                         alt="Photo de profil">
+                    <img th:unless="${user != null and user.profileImagePath != null}" 
+                         src="/images/default-student.png"
+                         class="profile-image"
+                         alt="Photo de profil par défaut">
+                </div>
+                <span class="username" th:text="${#authentication.name}"></span>
                 <span class="current-time" th:text="${#temporals.format(#temporals.createNow(), 'dd/MM/yyyy HH:mm')}">01/06/2025 10:20</span>
                 <form th:action="@{/logout}" method="post" class="logout-form">
                     <button type="submit" class="logout-btn">Déconnexion</button>
@@ -110,6 +166,37 @@
             document.querySelector('.current-time').textContent = formatted;
         }
         setInterval(updateTime, 60000);
+         const userData = {
+            name: [[${user.name}]],
+            username: [[${user.username}]],
+            email: [[${user.email}]],
+            studentId: [[${user.studentId}]],
+            className: [[${user.className}]],
+            role: 'Étudiant'
+        };
+
+        // Fonction pour générer le QR Code
+        function generateQRCode() {
+            const qrcode = new QRCode(document.getElementById("qrcode"), {
+                text: JSON.stringify(userData),
+                width: 128,
+                height: 128,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+        }
+
+        // Fonction pour basculer la sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('profileSidebar');
+            sidebar.classList.toggle('active');
+            if(sidebar.classList.contains('active')) {
+                document.getElementById('qrcode').innerHTML = '';
+                generateQRCode();
+            }
+        }
+        
     </script>
 </body>
 </html>

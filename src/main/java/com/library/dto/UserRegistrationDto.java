@@ -22,7 +22,16 @@ public class UserRegistrationDto {
     // Constructeur par défaut
     public UserRegistrationDto() {
     }
+private String profileImagePath;
 
+    // Getters et setters
+    public String getProfileImagePath() {
+        return profileImagePath;
+    }
+
+    public void setProfileImagePath(String profileImagePath) {
+        this.profileImagePath = profileImagePath;
+    }
     // Getters et setters
     public String getUsername() {
         return username;

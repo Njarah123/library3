@@ -20,6 +20,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.Data;
 
 @Data
@@ -79,7 +80,10 @@ public class Book {
     @Column(name = "edition")
     private String edition;
 
-    
+    @Transient // Cette annotation indique que ce n'est pas une colonne de la base de données
+    public Long getBorrowCount() {
+        return borrowings != null ? (long) borrowings.size() : 0L;
+    }
 
     @OneToMany(mappedBy = "book")
     private List<Borrowing> borrowings;

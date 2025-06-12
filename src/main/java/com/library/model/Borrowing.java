@@ -48,6 +48,8 @@ private User user;
 
     @Column(nullable = false)
     private String status = "EN_ATTENTE";
+    @Column(name = "borrowing_date")
+    private LocalDateTime borrowingDate;
 
     @Column(precision = 10, scale = 2)
     private BigDecimal fineAmount = BigDecimal.ZERO;
@@ -64,6 +66,7 @@ private User user;
         this.fineAmount = BigDecimal.ZERO;
         this.status = "EN_ATTENTE";
     }
+    
 
 
     

@@ -3,28 +3,66 @@
 <head>
     <title>Bibliothèque - Liste des Livres</title>
     <link rel="stylesheet" th:href="@{/css/books.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-   
-<!-- Ajoutez ce code juste après l'ouverture de la div.container -->
-<div class="header-actions">
-    <a th:href="@{/student/dashboard}" class="btn-home">
-        <i class="fas fa-home"></i>
-        <span>Accueil</span>
-    </a>
-</div>
+    <!-- En-tête avec la date/heure et l'utilisateur -->
+    <div class="header-info">
+        <div class="datetime-info">
+            <i class="fas fa-clock"></i>
+            <span th:text="${currentTime}">2025-06-08 15:33:40</span>
+        </div>
+        <div class="user-info">
+            <i class="fas fa-user"></i>
+            <span th:text="${#authentication.name}"></span>
+        </div>
+    </div>
+
+    <div class="header-actions">
+        <a th:href="@{/student/dashboard}" class="btn-home">
+            <i class="fas fa-home"></i>
+            <span>Accueil</span>
+        </a>
+        <a th:href="@{/student/borrows}" class="btn-borrows">
+            <i class="fas fa-book-reader"></i>
+            <span>Mes Emprunts</span>
+        </a>
+    </div>
+
     <div class="container">
         <h1>Liste des Livres</h1>
         
-        <div class="success-message" th:if="${success}" th:text="${success}"></div>
-        <div class="error-message" th:if="${error}" th:text="${error}"></div>
+        <!-- Messages de notification -->
+        <div class="notifications">
+            <div class="success-message" th:if="${success}" th:text="${success}"></div>
+            <div class="error-message" th:if="${error}" th:text="${error}"></div>
+        </div>
 
         <!-- Barre de recherche et filtres -->
         <div class="search-section">
             <form th:action="@{/student/books}" method="get" class="search-form">
-                <input type="text" name="search" th:value="${search}" 
-                       placeholder="Rechercher un livre..." class="search-input">
-                <select name="category" class="category-select">
+                <div class="search-container">
+                    <input type="text" 
+                           name="search" 
+                           th:value="${search}" 
+                           placeholder="Rechercher un livre..." 
+                           class="search-input">
+                    <button type="submit" class="search-button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                <!-- Conservation des paramètres existants -->
+                <input type="hidden" name="category" th:value="${selectedCategory}">
+                <input type="hidden" name="page" value="0">
+            </form>
+        </div>
+
+        <!-- Liste déroulante des catégories -->
+        <div class="category-section">
+            <form th:action="@{/student/books}" method="get" class="category-form">
+                <select name="category" class="category-select" onchange="this.form.submit()">
                     <option value="">Toutes les catégories</option>
                     <option th:each="cat : ${categories}"
                             th:value="${cat}"
@@ -32,18 +70,16 @@
                             th:selected="${cat == selectedCategory}">
                     </option>
                 </select>
-                <button type="submit" class="search-button">Rechercher</button>
+                <!-- Conservation des paramètres existants -->
+                <input type="hidden" name="search" th:value="${search}">
+                <input type="hidden" name="page" value="0">
             </form>
         </div>
 
-        <!-- Information sur les emprunts -->
-        <div class="borrow-info">
-            <p>Emprunts actuels: <span th:text="${currentBorrows}">0</span>/<span th:text="${maxBorrows}">3</span></p>
-        </div>
-
+        <!-- Grille des livres -->
         <div class="books-grid">
             <div th:each="book : ${books}" class="book-card">
-                <div class="book-image">
+                <div class="book-image" th:data-book-id="${book.id}">
                     <img th:if="${book.imagePath}" 
                          th:src="@{${book.imagePath}}" 
                          alt="Couverture du livre"
@@ -55,29 +91,236 @@
                 </div>
                 <div class="book-info">
                     <h3 th:text="${book.title}">Titre du livre</h3>
-                    <p th:text="${'Auteur: ' + book.author}">Auteur</p>
-                    <p th:text="${'Catégorie: ' + book.category}">Catégorie</p>
-                    <p th:text="${'Quantité disponible: ' + book.availableQuantity + '/' + book.quantity}">Quantité</p>
+                    <p class="book-author">
+                        <i class="fas fa-user-edit"></i>
+                        <span th:text="${book.author}">Auteur</span>
+                    </p>
+                    <p class="book-category">
+                        <i class="fas fa-tag"></i>
+                        <span th:text="${book.category}">Catégorie</span>
+                    </p>
+                    <p class="book-quantity" th:class="${book.availableQuantity == 0 ? 'quantity-zero' : 'quantity-available'}">
+                        <i class="fas fa-books"></i>
+                        <span th:text="'Disponible: ' + ${book.availableQuantity} + '/' + ${book.quantity}">Quantité</span>
+                    </p>
+                    <div class="book-status">
+                        <span th:if="${book.available}" class="status-badge available">
+                            <i class="fas fa-check-circle"></i> Disponible
+                        </span>
+                        <span th:unless="${book.available}" class="status-badge unavailable">
+                            <i class="fas fa-times-circle"></i> Non disponible
+                        </span>
+                    </div>
                     <div class="book-actions">
-                        <!-- Bouton d'emprunt uniquement si l'utilisateur n'a pas atteint la limite -->
-                        <form th:if="${book.availableQuantity > 0 && currentBorrows < maxBorrows}" 
+                        <form th:if="${book.available}" 
                               th:action="@{/student/books/{id}/borrow(id=${book.id})}" 
-                              method="post"
-                              style="margin-top: 10px;">
-                            <button type="submit" class="btn-borrow">Emprunter</button>
+                              method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                            <button type="submit" class="btn-borrow">
+                                <i class="fas fa-book"></i> Emprunter
+                            </button>
                         </form>
-                        <!-- Message si le livre n'est pas disponible -->
-                        <p th:if="${book.availableQuantity <= 0}" class="book-unavailable">
-                            Non disponible
-                        </p>
-                        <!-- Message si l'utilisateur a atteint la limite d'emprunts -->
-                        <p th:if="${book.availableQuantity > 0 && currentBorrows >= maxBorrows}" class="book-unavailable">
-                            Limite d'emprunts atteinte
-                        </p>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Message si aucun livre trouvé -->
+        <div th:if="${#lists.isEmpty(books)}" class="no-books-message">
+            <i class="fas fa-info-circle"></i>
+            <p>Aucun livre ne correspond à votre recherche.</p>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-container" th:if="${totalPages > 1}">
+            <div class="pagination">
+                <a th:href="@{/student/books(page=0, search=${search}, category=${selectedCategory})}" 
+                   class="page-link" 
+                   th:classappend="${currentPage == 0} ? 'disabled'"
+                   title="Première page">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+                
+                <a th:href="@{/student/books(page=${currentPage - 1}, search=${search}, category=${selectedCategory})}" 
+                   class="page-link" 
+                   th:classappend="${currentPage == 0} ? 'disabled'"
+                   title="Page précédente">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+                
+                <a th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}"
+                   th:href="@{/student/books(page=${pageNum}, search=${search}, category=${selectedCategory})}"
+                   class="page-link"
+                   th:classappend="${pageNum == currentPage} ? 'active'"
+                   th:text="${pageNum + 1}">1</a>
+                
+                <a th:href="@{/student/books(page=${currentPage + 1}, search=${search}, category=${selectedCategory})}" 
+                   class="page-link" 
+                   th:classappend="${currentPage == totalPages - 1} ? 'disabled'"
+                   title="Page suivante">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+                
+                <a th:href="@{/student/books(page=${totalPages - 1}, search=${search}, category=${selectedCategory})}" 
+                   class="page-link" 
+                   th:classappend="${currentPage == totalPages - 1} ? 'disabled'"
+                   title="Dernière page">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            </div>
+        </div>
     </div>
+    <!-- Book Sidebar -->
+<div class="book-sidebar" id="bookSidebar">
+    <div class="sidebar-content">
+        <div class="sidebar-header">
+            <h2>Détails du livre</h2>
+            <button class="close-sidebar" id="closeSidebarBtn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="book-details">
+            <div class="book-image-large">
+                <img id="sidebarBookCover" src="" alt="Couverture du livre">
+            </div>
+            <div class="book-info">
+                <h3 id="sidebarBookTitle"></h3>
+                <p class="book-author">
+                    <i class="fas fa-user-edit"></i>
+                    <span id="sidebarBookAuthor"></span>
+                </p>
+                <p class="book-isbn">
+                    <i class="fas fa-barcode"></i>
+                    <span id="sidebarBookIsbn"></span>
+                </p>
+                <p class="book-category">
+                    <i class="fas fa-bookmark"></i>
+                    <span id="sidebarBookCategory"></span>
+                </p>
+                <p class="book-quantity">
+                    <i class="fas fa-cubes"></i>
+                    <span id="sidebarBookQuantity"></span>
+                </p>
+                <p class="book-availability">
+                    <i class="fas fa-check-circle"></i>
+                    <span id="sidebarBookAvailable"></span>
+                </p>
+            </div>
+            <div class="book-description">
+                <h4>Description</h4>
+                <p id="sidebarBookDescription"></p>
+            </div>
+            <div class="book-actions">
+                <!-- Pour Student -->
+                <button id="sidebarBorrowBtn" class="btn-borrow">
+                    <i class="fas fa-book-reader"></i> Emprunter
+                </button>
+                <button id="sidebarReserveBtn" class="btn-reserve">
+                    <i class="fas fa-clock"></i> Réserver
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        // Rendre les images de livres cliquables
+        document.querySelectorAll('.book-image').forEach(bookImage => {
+            bookImage.addEventListener('click', function() {
+                const bookId = this.getAttribute('data-book-id');
+                showBookDetails(bookId);
+            });
+        });
+
+        // Gestionnaire pour le bouton de fermeture
+        const closeButton = document.getElementById('closeSidebarBtn');
+        if (closeButton) {
+            closeButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                closeBookSidebar();
+            });
+        }
+    });
+
+    function showBookDetails(bookId) {
+        fetch(`/student/books/details/${bookId}`)  // ou /staff/books/details/${bookId} pour le staff
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erreur lors de la récupération des détails du livre');
+                }
+                return response.json();
+            })
+            .then(book => {
+                // Mise à jour de la sidebar avec les données du livre
+                const sidebar = document.getElementById('bookSidebar');
+                
+                // Mise à jour de l'image
+                const coverImage = document.getElementById('sidebarBookCover');
+                coverImage.src = book.imagePath || '/images/default-book.png';
+                coverImage.onerror = function() {
+                    this.src = '/images/default-book.png';
+                };
+
+                // Mise à jour des informations textuelles
+                document.getElementById('sidebarBookTitle').textContent = book.title || 'Sans titre';
+                document.getElementById('sidebarBookAuthor').textContent = book.author || 'Auteur inconnu';
+                document.getElementById('sidebarBookCategory').textContent = book.category || 'Non catégorisé';
+                document.getElementById('sidebarBookIsbn').textContent = book.isbn || 'ISBN non spécifié';
+                document.getElementById('sidebarBookQuantity').textContent = `Quantité totale: ${book.quantity || 0}`;
+                document.getElementById('sidebarBookAvailable').textContent = 
+                    `Disponible: ${book.availableQuantity || 0}/${book.quantity || 0}`;
+                document.getElementById('sidebarBookDescription').textContent = 
+                    book.description || 'Aucune description disponible';
+
+                // Configuration des boutons d'action
+                const borrowBtn = document.getElementById('sidebarBorrowBtn');
+                const reserveBtn = document.getElementById('sidebarReserveBtn');
+
+                if (book.availableQuantity > 0) {
+                    borrowBtn.style.display = 'block';
+                    reserveBtn.style.display = 'none';
+                    
+                    borrowBtn.onclick = () => {
+                        if (confirm('Voulez-vous emprunter ce livre ?')) {
+                            window.location.href = `/student/books/borrow/${bookId}`; // Adapter l'URL selon le rôle
+                        }
+                    };
+                } else {
+                    borrowBtn.style.display = 'none';
+                    reserveBtn.style.display = 'block';
+                    
+                    reserveBtn.onclick = () => {
+                        if (confirm('Voulez-vous réserver ce livre ?')) {
+                            window.location.href = `/student/books/reserve/${bookId}`; // Adapter l'URL selon le rôle
+                        }
+                    };
+                }
+
+                // Afficher la sidebar
+                sidebar.classList.add('active');
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                alert('Une erreur est survenue lors du chargement des détails du livre');
+            });
+    }
+
+    function closeBookSidebar() {
+        const sidebar = document.getElementById('bookSidebar');
+        sidebar.classList.remove('active');
+    }
+
+    // Fermer la sidebar en cliquant en dehors
+    document.addEventListener('click', function(e) {
+        const sidebar = document.getElementById('bookSidebar');
+        const bookImages = document.querySelectorAll('.book-image');
+        
+        if (sidebar && sidebar.classList.contains('active') && 
+            !sidebar.contains(e.target) && 
+            !Array.from(bookImages).some(img => img.contains(e.target))) {
+            closeBookSidebar();
+        }
+    });
+</script>
 </body>
 </html>

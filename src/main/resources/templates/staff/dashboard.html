@@ -3,21 +3,75 @@
 <head>
     <title>Dashboard Staff - Bibliothèque</title>
     <link rel="stylesheet" th:href="@{/css/staff-dashboard.css}">
+    <link rel="stylesheet" th:href="@{/css/dashboards.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script th:src="@{/js/staff-dashboard.js}"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
+    <div class="profile-sidebar" id="profileSidebar">
+        <div class="sidebar-content">
+            <div class="sidebar-header">
+                <h2>Profil <span th:text="${user.username}"></span></h2>
+                <button class="close-sidebar" onclick="toggleSidebar()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="profile-details">
+                <div class="profile-image-large">
+                    <img th:if="${user != null and user.profileImagePath != null}" 
+                         th:src="${user.profileImagePath}"
+                         onerror="this.src='/images/default-staff.png'"
+                         alt="Photo de profil">
+                    <img th:unless="${user != null and user.profileImagePath != null}" 
+                         src="/images/default-staff.png"
+                         alt="Photo de profil par défaut">
+                </div>
+                <div class="profile-info">
+                    <h3 th:text="${user.name}">Nom complet</h3>
+                    <p><i class="fas fa-user"></i> <span th:text="${user.username}">Username</span></p>
+                    <p><i class="fas fa-envelope"></i> <span th:text="${user.email}">Email</span></p>
+                    <p><i class="fas fa-id-badge"></i> <span th:text="${user.employeeId}">ID Employé</span></p>
+                    <p><i class="fas fa-building"></i> <span th:text="${user.dept}">Département</span></p>
+                    <p><i class="fas fa-user-tag"></i> Staff</p>
+                </div>
+                <div class="qr-code">
+                    <div id="qrcode"></div>
+                    <p>Scanner pour voir le profil</p>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="container">
         <header class="dashboard-header">
             <h1>Tableau de Bord - Staff</h1>
             <div class="user-info">
-                <span class="welcome-message">Bienvenue, <span th:text="${#authentication.name}">Staff</span></span>
-                <span class="current-time" th:text="${#temporals.format(#temporals.createNow(), 'dd/MM/yyyy HH:mm')}">Date</span>
+                <div class="header-actions">
+                    <a th:href="@{/home}" class="btn-home">
+                        <i class="fas fa-home"></i>
+                        <span>Accueil</span>
+                    </a>
+                </div>
+                <div class="profile-image-container" onclick="toggleSidebar()">
+                    <img th:if="${user != null and user.profileImagePath != null}" 
+                         th:src="${user.profileImagePath}"
+                         class="profile-image"
+                         onerror="this.src='/images/default-staff.png'"
+                         alt="Photo de profil">
+                    <img th:unless="${user != null and user.profileImagePath != null}" 
+                         src="/images/default-staff.png"
+                         class="profile-image"
+                         alt="Photo de profil par défaut">
+                </div>
+                <span class="welcome-message"><span th:text="${#authentication.name}"></span></span>
+                <span class="current-time" id="currentDateTime"> (UTC - YYYY-MM-DD HH:MM:SS formatted): 2025-06-10 11:23:00</span>
                 <div class="logout-section">
-            <form th:action="@{/logout}" method="post">
-                <button type="submit" class="logout-button">
-                    <i class="fas fa-sign-out-alt"></i> Déconnexion
-                </button>
+                    <form th:action="@{/logout}" method="post">
+                        <button type="submit" class="logout-button">
+                            <i class="fas fa-sign-out-alt"></i> Déconnexion
+                        </button>
+                    </form>
+                </div>
             </div>
         </header>
 
@@ -49,11 +103,55 @@
                 </a>
             </div>
         </div>
-
-        <!-- Bouton de déconnexion -->
-        
-            </form>
-        </div>
     </div>
+
+    <script th:inline="javascript">
+        // Données de l'utilisateur pour le QR Code
+        const userData = {
+            name: [[${user.name}]],
+            username: [[${user.username}]],
+            email: [[${user.email}]],
+            employeeId: [[${user.employeeId}]],
+            department: [[${user.dept}]],
+            role: 'Staff'
+        };
+
+        function generateQRCode() {
+            const qrcode = new QRCode(document.getElementById("qrcode"), {
+                text: JSON.stringify(userData),
+                width: 128,
+                height: 128,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('profileSidebar');
+            sidebar.classList.toggle('active');
+            if(sidebar.classList.contains('active')) {
+                document.getElementById('qrcode').innerHTML = '';
+                generateQRCode();
+            }
+        }
+
+        // Mise à jour de l'heure
+        function updateDateTime() {
+            const now = new Date();
+            const formatted = now.getFullYear() + '-' + 
+                            String(now.getMonth() + 1).padStart(2, '0') + '-' + 
+                            String(now.getDate()).padStart(2, '0') + ' ' + 
+                            String(now.getHours()).padStart(2, '0') + ':' + 
+                            String(now.getMinutes()).padStart(2, '0') + ':' + 
+                            String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('currentDateTime').textContent = 
+                'Current Date and Time (UTC - YYYY-MM-DD HH:MM:SS formatted): ' + formatted;
+        }
+
+        
+        // Initialiser l'heure
+        updateDateTime();
+    </script>
 </body>
 </html>

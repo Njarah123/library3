@@ -2,30 +2,47 @@ package com.library.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.library.dto.MemberBorrowingStats;
 import com.library.enums.BorrowingStatus;
 import com.library.model.Book;
 import com.library.model.Borrowing;
 import com.library.model.Reservation;
-import com.library.model.ReservationStatus;
 import com.library.model.User;
 import com.library.repository.BookRepository;
 import com.library.repository.BorrowingRepository;
 import com.library.repository.ReservationRepository;
 import com.library.repository.UserRepository;
-
 @Service
 public class BorrowingService {
 
+     
     @Autowired
     private BorrowingRepository borrowingRepository;
+
+    public Page<Borrowing> getAllBorrowings(int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "borrowDate"));
+        return borrowingRepository.findAllBorrowings(pageRequest);
+    }
 
     @Autowired
     private BookRepository bookRepository;
@@ -38,7 +55,235 @@ public class BorrowingService {
     @Autowired
     private UserService userService;
 
+ private static final int PAGE_SIZE = 12;
+  private static final Logger logger = LoggerFactory.getLogger(BorrowingService.class);
+
+     
+public List<Map<String, Object>> getRecentActivities() {
+        // Récupérer les 10 dernières activités
+        List<Borrowing> recentBorrowings = borrowingRepository.findTop10ByOrderByBorrowingDateDesc();
+        List<Map<String, Object>> activities = new ArrayList<>();
+
+        for (Borrowing borrowing : recentBorrowings) {
+            Map<String, Object> activity = new HashMap<>();
+            
+            // Déterminer le type d'activité
+            String type = borrowing.getStatus();
+            String description;
+            LocalDateTime timestamp;
+
+            if ("RETOURNE".equals(type)) {
+                description = String.format("%s a retourné \"%s\"", 
+                    borrowing.getUser().getUsername(), 
+                    borrowing.getBook().getTitle());
+                timestamp = borrowing.getReturnDate();
+            } else {
+                description = String.format("%s a emprunté \"%s\"", 
+                    borrowing.getUser().getUsername(), 
+                    borrowing.getBook().getTitle());
+                timestamp = borrowing.getBorrowingDate();
+            }
+
+            activity.put("type", type);
+            activity.put("description", description);
+            activity.put("timestamp", timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            
+            activities.add(activity);
+        }
+
+        return activities;
+    }
     
+
+
+    public List<MemberBorrowingStats> getMemberBorrowingStats() {
+        List<MemberBorrowingStats> stats = new ArrayList<>();
+        LocalDateTime now = LocalDateTime.now();
+        
+        try {
+            List<User> users = userRepository.findAll();
+            for (User user : users) {
+                MemberBorrowingStats memberStats = borrowingRepository.getUserStats(user, now);
+                if (memberStats != null) {
+                    stats.add(memberStats);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Erreur lors de la génération des statistiques des membres", e);
+        }
+        
+        return stats;
+    }
+  public Long getCurrentlyBorrowedCount() {
+        try {
+            return borrowingRepository.countByReturnDateIsNull();
+        } catch (Exception e) {
+            logger.error("Erreur lors du comptage des emprunts en cours", e);
+            return 0L;
+        }
+    
+    }
+       public List<Borrowing> getOverdueLoans() {
+        try {
+            return borrowingRepository.findOverdueBorrowings();
+        } catch (Exception e) {
+            logger.error("Erreur lors de la recherche des emprunts en retard", e);
+            return new ArrayList<>();
+        }
+    }
+
+     @Transactional
+    public void returnBook(Long borrowingId, String conditionAfter) {
+        try {
+            Borrowing borrowing = borrowingRepository.findById(borrowingId)
+                    .orElseThrow(() -> new RuntimeException("Emprunt non trouvé"));
+            borrowing.setReturnDate(LocalDateTime.now());
+            borrowing.setStatus("RETOURNE");
+            borrowing.setConditionAfter(conditionAfter);
+            
+            // Calcul des amendes si retard
+            if (borrowing.getDueDate().isBefore(LocalDateTime.now())) {
+                long daysLate = ChronoUnit.DAYS.between(borrowing.getDueDate(), LocalDateTime.now());
+                borrowing.setFineAmount(new BigDecimal(daysLate).multiply(new BigDecimal("1.00"))); // 1€ par jour
+            }
+            
+            borrowingRepository.save(borrowing);
+        } catch (Exception e) {
+            logger.error("Erreur lors du retour du livre", e);
+            throw new RuntimeException("Erreur lors du retour du livre", e);
+        }
+    }
+
+     @Transactional
+    public void renewBorrowing(Long borrowingId) {
+        try {
+            Borrowing borrowing = borrowingRepository.findById(borrowingId)
+                .orElseThrow(() -> new RuntimeException("Emprunt non trouvé"));
+
+            if (borrowing.getRenewalCount() >= 3) {
+                throw new RuntimeException("Nombre maximum de renouvellements atteint");
+            }
+
+            borrowing.setRenewalCount(borrowing.getRenewalCount() + 1);
+            borrowing.setLastRenewalDate(LocalDateTime.now());
+            borrowing.setDueDate(borrowing.getDueDate().plusDays(14));
+
+            borrowingRepository.save(borrowing);
+        } catch (Exception e) {
+            logger.error("Erreur lors du renouvellement de l'emprunt", e);
+            throw new RuntimeException("Erreur lors du renouvellement", e);
+        }
+    }
+    @Transactional
+    public Borrowing createBorrowing(Long userId, Long bookId) {
+        try {
+            Borrowing borrowing = new Borrowing();
+            // Initialisation des champs de l'emprunt
+            borrowing.setBorrowDate(LocalDateTime.now());
+            borrowing.setBorrowingDate(LocalDateTime.now());
+            borrowing.setDueDate(LocalDateTime.now().plusDays(14));
+            borrowing.setStatus("EN_ATTENTE");
+            borrowing.setFineAmount(BigDecimal.ZERO);
+            borrowing.setRenewalCount(0);
+            
+            // Sauvegarde et retour
+            return borrowingRepository.save(borrowing);
+        } catch (Exception e) {
+            logger.error("Erreur lors de la création de l'emprunt", e);
+            throw new RuntimeException("Erreur lors de la création de l'emprunt", e);
+        }
+    }
+     public List<Borrowing> getAllLateLoans() {
+        try {
+            return borrowingRepository.findAllLateLoans(LocalDateTime.now());
+        } catch (Exception e) {
+            logger.error("Erreur lors de la récupération de tous les emprunts en retard", e);
+            return new ArrayList<>();
+        }
+    }
+
+     @Transactional
+    public void renewLoan(Long borrowingId) {
+        try {
+            Borrowing borrowing = borrowingRepository.findById(borrowingId)
+                .orElseThrow(() -> new RuntimeException("Emprunt non trouvé"));
+            
+            if (borrowing.getRenewalCount() >= 3) {
+                throw new RuntimeException("Nombre maximum de renouvellements atteint");
+            }
+            
+            borrowing.setRenewalCount(borrowing.getRenewalCount() + 1);
+            borrowing.setLastRenewalDate(LocalDateTime.now());
+            borrowing.setDueDate(borrowing.getDueDate().plusDays(14)); // exemple: +14 jours
+            
+            borrowingRepository.save(borrowing);
+        } catch (Exception e) {
+            logger.error("Erreur lors du renouvellement de l'emprunt", e);
+            throw new RuntimeException("Erreur lors du renouvellement", e);
+        }
+    }
+
+    @Transactional
+    public void updateBorrowingStatus(Long borrowingId, String newStatus) {
+        try {
+            Borrowing borrowing = borrowingRepository.findById(borrowingId)
+                .orElseThrow(() -> new RuntimeException("Emprunt non trouvé"));
+            
+            borrowing.setStatus(newStatus);
+            
+            if ("RETOURNE".equals(newStatus)) {
+                borrowing.setReturnDate(LocalDateTime.now());
+                
+                // Calcul des amendes si retard
+                if (borrowing.getDueDate().isBefore(LocalDateTime.now())) {
+                    long daysLate = ChronoUnit.DAYS.between(borrowing.getDueDate(), LocalDateTime.now());
+                    borrowing.setFineAmount(new BigDecimal(daysLate).multiply(new BigDecimal("1.00")));
+                }
+            }
+            
+            borrowingRepository.save(borrowing);
+        } catch (Exception e) {
+            logger.error("Erreur lors de la mise à jour du statut", e);
+            throw new RuntimeException("Erreur lors de la mise à jour du statut", e);
+        }
+    }
+     public Long countUserBorrowings(Long userId) {
+        try {
+            return borrowingRepository.countByUserId(userId);
+        } catch (Exception e) {
+            logger.error("Erreur lors du comptage des emprunts de l'utilisateur", e);
+            return 0L;
+        }
+    }
+
+    public List<Map<String, Object>> getOverdueBooks() {
+        // Récupérer tous les emprunts en retard
+        LocalDateTime now = LocalDateTime.now();
+        List<Borrowing> overdueBooks = borrowingRepository.findByStatusAndDueDateBefore("EMPRUNTE", now);
+        List<Map<String, Object>> overdueList = new ArrayList<>();
+
+        for (Borrowing borrowing : overdueBooks) {
+            Map<String, Object> overdue = new HashMap<>();
+            
+            Book book = borrowing.getBook();
+            User borrower = borrowing.getUser();
+
+            overdue.put("title", book.getTitle());
+            overdue.put("imagePath", book.getImagePath() != null ? book.getImagePath() : "/images/default-book.png");
+            overdue.put("borrower", Map.of(
+                "name", borrower.getName(),
+                "email", borrower.getEmail()
+            ));
+            overdue.put("dueDate", borrowing.getDueDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+            overdue.put("daysOverdue", ChronoUnit.DAYS.between(borrowing.getDueDate(), now));
+            
+            overdueList.add(overdue);
+        }
+
+        return overdueList;
+    }
+
+
 
  @Transactional
     public void rateBorrowing(Long borrowId, User student, int rating, String comment) {
@@ -70,6 +315,10 @@ public class BorrowingService {
         updateBookRating(book, rating);
     }
 
+    public Page<Borrowing> getAllBorrowingsWithPagination(Pageable pageable) {
+        logger.info("Récupération de tous les emprunts avec pagination");
+        return borrowingRepository.findAllByOrderByBorrowDateDesc(pageable);
+    }
 
 
     public List<Borrowing> getAllBorrowings() {
@@ -82,6 +331,46 @@ public class BorrowingService {
         );
     }
 
+    public List<Borrowing> getOverdueBorrowings(Long userId, LocalDateTime date) {
+        try {
+            return borrowingRepository.findByUserIdAndDueDateBefore(userId, date);
+        } catch (Exception e) {
+            logger.error("Erreur lors de la recherche des emprunts en retard", e);
+            return new ArrayList<>();
+        }}
+         public Long countOverdueBorrowings(Long userId, LocalDateTime date) {
+        try {
+            return borrowingRepository.countLateLoans(userId, date);
+        } catch (Exception e) {
+            logger.error("Erreur lors du comptage des emprunts en retard", e);
+            return 0L;
+        }
+    }
+    
+ public Long countLateLoans(Long userId, LocalDateTime date) {
+        try {
+            return borrowingRepository.countLateLoans(userId, date);
+        } catch (Exception e) {
+            logger.error("Erreur lors du comptage des emprunts en retard pour l'utilisateur {}", userId, e);
+            return 0L;
+        }
+    }
+  public List<Borrowing> getLateLoans(Long userId, LocalDateTime date) {
+        try {
+            return borrowingRepository.findLateLoans(userId, date);
+        } catch (Exception e) {
+            logger.error("Erreur lors de la récupération des emprunts en retard pour l'utilisateur {}", userId, e);
+            return new ArrayList<>();
+        }
+    }
+     public Long getCurrentBorrowingsCount(Long userId) {
+        try {
+            return borrowingRepository.countCurrentBorrowings(userId);
+        } catch (Exception e) {
+            logger.error("Erreur lors du comptage des emprunts actuels pour l'utilisateur {}", userId, e);
+            return 0L;
+        }
+    }
  public long countCurrentBorrowings() {
         return borrowingRepository.countByStatus(BorrowingStatus.EN_COURS);
     }
@@ -101,7 +390,35 @@ public class BorrowingService {
         );
     }
 
-    
+    public Page<Borrowing> getAllBorrowings(int page) {
+        return borrowingRepository.findAll(
+            PageRequest.of(page, PAGE_SIZE, Sort.by(Sort.Direction.DESC, "borrowDate"))
+        );
+    }
+
+    public int getTotalPages() {
+        long totalElements = getTotalBorrowings();
+        return (int) Math.ceil((double) totalElements / PAGE_SIZE);
+    }
+
+     public Page<Borrowing> getBorrowingsByStatus(String status, int page) {
+        return borrowingRepository.findByStatus(
+            status,
+            PageRequest.of(page, PAGE_SIZE, Sort.by(Sort.Direction.DESC, "borrowDate"))
+        );
+    }
+
+     public Page<Borrowing> getUserBorrowingHistory(User user, int page) {
+        return borrowingRepository.findByUser(
+            user,
+            PageRequest.of(page, PAGE_SIZE, Sort.by(Sort.Direction.DESC, "borrowDate"))
+        );
+    }
+
+      public long getTotalBorrowings() {
+        return borrowingRepository.count();
+    }
+
 
  @Transactional
     public void rateStaffBorrowing(Long borrowId, String staffUsername, int rating, String comment) {
@@ -164,7 +481,13 @@ private void updateBookRating(Book book, int newRating) {
 
         bookRepository.save(book);
     }
-
+ public Long getUserBorrowingsCount(Long userId) {
+        try {
+            return borrowingRepository.findBorrowingsCountByUserId(userId);
+        } catch (Exception e) {
+            logger.error("Erreur lors du comptage des emprunts de l'utilisateur", e);
+            return 0L;
+        }}
 
 
     // Méthodes existantes pour les emprunts actuels
@@ -282,34 +605,42 @@ private void updateBookRating(Book book, int newRating) {
         return borrowingRepository.findByUserOrderByBorrowDateDesc(user);
     }
 
-    // Méthode de traitement du retour
-    @Transactional
-    public void processBookReturn(Long borrowingId) {
-        Borrowing borrowing = borrowingRepository.findById(borrowingId)
-            .orElseThrow(() -> new RuntimeException("Emprunt non trouvé"));
+ @Transactional
+public void processBookReturn(Long borrowId) {
+    logger.info("Traitement du retour pour l'emprunt: {}", borrowId);
+    
+    Borrowing borrowing = borrowingRepository.findById(borrowId)
+        .orElseThrow(() -> new RuntimeException("Emprunt non trouvé"));
 
-        Book book = borrowing.getBook();
-        
-        borrowing.setStatus("RETOURNE");
-        borrowing.setReturnDate(LocalDateTime.now());
-        borrowingRepository.save(borrowing);
-
-        List<Reservation> pendingReservations = reservationRepository
-            .findByBookAndStatusOrderByReservationDateAsc(book, ReservationStatus.EN_ATTENTE);
-
-        if (!pendingReservations.isEmpty()) {
-            Reservation nextReservation = pendingReservations.get(0);
-            nextReservation.setStatus(ReservationStatus.PRET);
-            reservationRepository.save(nextReservation);
-        } else {
-            book.incrementAvailableQuantity();
-            bookRepository.save(book);
-        }
+    if (borrowing.getReturnDate() != null) {
+        throw new RuntimeException("Ce livre a déjà été retourné");
     }
 
+    // Mettre à jour l'emprunt avec la date formatée en UTC
+    LocalDateTime currentDateTime = LocalDateTime.now(ZoneOffset.UTC);
+    String formattedDate = currentDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    LocalDateTime parsedDateTime = LocalDateTime.parse(formattedDate, 
+        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    
+    borrowing.setReturnDate(parsedDateTime);
+    
+    // Mettre à jour le livre
+    Book book = borrowing.getBook();
+    if (book == null) {
+        throw new RuntimeException("Le livre associé à cet emprunt n'existe pas");
+    }
+    
+    book.setAvailable(true);
+    bookRepository.save(book);
+    borrowingRepository.save(borrowing);
+    
+    logger.info("Retour traité avec succès pour l'emprunt: {} à {}", borrowId, formattedDate);
+}
+
     // Nouvelles méthodes pour le StudentController
-    public int getCurrentBorrowingsCount(User student) {
-        return borrowingRepository.countByUserAndStatus(student, "EN_COURS");
+    
+    public int getCurrentBorrowingsCount(User user) {
+        return borrowingRepository.countByUserAndReturnDateIsNull(user);
     }
 
     public int getOverdueBorrowingsCount(User student) {
@@ -328,9 +659,10 @@ private void updateBookRating(Book book, int newRating) {
             student, "EN_COURS", now, threeDaysFromNow);
     }
 
-    public List<Borrowing> getCurrentBorrowings(User student) {
-        return borrowingRepository.findByUserAndStatus(student, "EN_COURS");
+public List<Borrowing> getCurrentBorrowings(User user) {
+        return borrowingRepository.findByUserAndReturnDateIsNullOrderByBorrowDateDesc(user);
     }
+    
 
     public List<Borrowing> getBorrowingHistory(User student) {
         return borrowingRepository.findByUserOrderByBorrowDateDesc(student);
@@ -347,6 +679,8 @@ private void updateBookRating(Book book, int newRating) {
     public int getTotalRatingsCount(User student) {
         return borrowingRepository.countByUserAndRatingIsNotNull(student);
     }
+
+    
 
     // Méthode pour emprunter un livre (version étudiant)
     @Transactional
@@ -374,7 +708,30 @@ private void updateBookRating(Book book, int newRating) {
         borrowingRepository.save(borrowing);
     }
 
+   @Transactional
     public void returnBook(Long id) {
-        processBookReturn(id);
+        logger.info("Début du processus de retour pour l'emprunt ID: {}", id);
+        
+        Borrowing borrowing = borrowingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Emprunt non trouvé"));
+
+        // Vérifier si le livre n'est pas déjà retourné
+        if (borrowing.getReturnDate() != null) {
+            throw new RuntimeException("Ce livre a déjà été retourné");
+        }
+
+        // Mettre à jour la date de retour
+        borrowing.setReturnDate(LocalDateTime.now());
+        
+        // Mettre à jour le statut du livre
+        Book book = borrowing.getBook();
+        book.setAvailable(true);
+        
+        // Sauvegarder les modifications
+        bookRepository.save(book);
+        borrowingRepository.save(borrowing);
+        
+        logger.info("Livre retourné avec succès pour l'emprunt ID: {}", id);
     }
+    
 }

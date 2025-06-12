@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bibliothèque - Accueil</title>
+    <link rel="stylesheet" th:href="@{/css/home.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h2>THE BOOKS</h2>
+            </div>
+            
+            <nav class="nav-menu">
+                <a th:href="@{/home}" class="nav-item active">
+                    <i class="fas fa-compass"></i>
+                    <span>Découvrir</span>
+                </a>
+
+                <!-- Menu pour ADMIN -->
+                <div sec:authorize="hasRole('ADMIN')">
+                    <a th:href="@{/admin/books}" class="nav-item">
+                        <i class="fas fa-book"></i>
+                        <span>Catalogue</span>
+                    </a>
+                    <a th:href="@{/admin/users}" class="nav-item">
+                        <i class="fas fa-users"></i>
+                        <span>Utilisateurs</span>
+                    </a>
+                    <a th:href="@{/admin/borrows}" class="nav-item">
+                        <i class="fas fa-bookmark"></i>
+                        <span>Emprunts</span>
+                    </a>
+                    <a th:href="@{/admin/stats}" class="nav-item">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Statistiques</span>
+                    </a>
+                </div>
+
+                <!-- Menu pour LIBRARIAN -->
+                <div sec:authorize="hasRole('LIBRARIAN')">
+                    <a th:href="@{/librarian/books}" class="nav-item">
+                        <i class="fas fa-book"></i>
+                        <span>Catalogue</span>
+                    </a>
+                    <a th:href="@{/librarian/borrows-books}" class="nav-item">
+                        <i class="fas fa-bookmark"></i>
+                        <span>Emprunts</span>
+                    </a>
+                    
+                </div>
+
+                <!-- Menu pour STAFF -->
+                <div sec:authorize="hasRole('STAFF')">
+                    <a th:href="@{/staff/books}" class="nav-item">
+                        <i class="fas fa-book"></i>
+                        <span>Catalogue</span>
+                    </a>
+                    <a th:href="@{/staff/borrows}" class="nav-item">
+                        <i class="fas fa-bookmark"></i>
+                        <span>Mes Emprunts</span>
+                    </a>
+                    <a th:href="@{/staff/history}" class="nav-item">
+                        <i class="fas fa-history"></i>
+                        <span>Historique</span>
+                    </a>
+                </div>
+
+                <!-- Menu pour STUDENT -->
+                <div sec:authorize="hasRole('STUDENT')">
+                    <a th:href="@{/student/books}" class="nav-item">
+                        <i class="fas fa-book"></i>
+                        <span>Catalogue</span>
+                    </a>
+                    <a th:href="@{/student/borrows}" class="nav-item">
+                        <i class="fas fa-bookmark"></i>
+                        <span>Mes Emprunts</span>
+                    </a>
+                    <a th:href="@{/student/history}" class="nav-item">
+                        <i class="fas fa-history"></i>
+                        <span>Historique</span>
+                    </a>
+                </div>
+            </nav>
+
+            <div class="nav-bottom">
+               
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="nav-item logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Déconnexion</span>
+                    </button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="main-header">
+                <div class="header-info">
+                    <div class="datetime-info">
+                        <i class="fas fa-clock"></i>
+                        <span th:text="${currentDateTime}">2025-06-10 07:12:49</span>
+                    </div>
+                    <div class="user-info">
+                        <i class="fas fa-user"></i>
+                        <span th:text="${username}"></span>
+                        <span class="user-role" 
+                              sec:authorize="hasRole('ADMIN')">[Admin]</span>
+                        <span class="user-role" 
+                              sec:authorize="hasRole('LIBRARIAN')">[Librarian]</span>
+                        <span class="user-role" 
+                              sec:authorize="hasRole('STAFF')">[Staff]</span>
+                        <span class="user-role" 
+                              sec:authorize="hasRole('STUDENT')">[Student]</span>
+                    </div>
+                </div>
+
+                <div class="search-section">
+                    <form th:action="@{${
+                        #authorization.expression('hasRole(''ADMIN'')') ? '/admin/books' :
+                        #authorization.expression('hasRole(''LIBRARIAN'')') ? '/librarian/books' :
+                        #authorization.expression('hasRole(''STAFF'')') ? '/staff/books' :
+                        '/student/books'
+                    }}" method="get" class="search-form">
+                        <div class="search-input-wrapper">
+                            <input type="text" 
+                                   name="search" 
+                                   placeholder="Rechercher un livre..."
+                                   class="search-input">
+                            <button type="submit" class="search-button">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </header>
+
+            <!-- Recommended Books Section -->
+            <section class="recommendations">
+                <div class="section-header">
+                    <h2>Livres Recommandés</h2>
+                    <a th:href="@{${
+                        #authorization.expression('hasRole(''ADMIN'')') ? '/admin/books' :
+                        #authorization.expression('hasRole(''LIBRARIAN'')') ? '/librarian/books' :
+                        #authorization.expression('hasRole(''STAFF'')') ? '/staff/books' :
+                        '/student/books'
+                    }}" class="view-all">Voir tout</a>
+                </div>
+                <div class="books-grid">
+                    <div th:each="book : ${recommendedBooks}" class="book-card">
+                        <div class="book-image">
+                            <img th:if="${book.imagePath != null and !book.imagePath.isEmpty()}" 
+                                 th:src="${book.imagePath.startsWith('/') ? book.imagePath : '/uploads/' + book.imagePath}"
+                                 onerror="this.src='/images/default-book.png'"
+                                 class="book-cover"
+                                 th:alt="${book.title}">
+                            <img th:unless="${book.imagePath != null and !book.imagePath.isEmpty()}" 
+                                 src="/images/default-book.png"
+                                 class="book-cover"
+                                 alt="Image par défaut">
+                        </div>
+                        <div class="book-info">
+                            <h3 th:text="${book.title}">Titre du livre</h3>
+                            <p class="author">
+                                <i class="fas fa-user-edit"></i>
+                                <span th:text="${book.author}">Auteur</span>
+                            </p>
+                            <p class="category">
+                                <i class="fas fa-bookmark"></i>
+                                <span th:text="${book.category}">Catégorie</span>
+                            </p>
+                            
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Categories Section -->
+            <section class="categories-section">
+    <div class="section-header">
+        <h2>Catégories</h2>
+    </div>
+    <div class="categories-grid">
+        <a th:each="category : ${categories}" 
+           th:href="@{${
+               #authorization.expression('hasRole(''ADMIN'')') ? '/admin/books' :
+               #authorization.expression('hasRole(''LIBRARIAN'')') ? '/librarian/books' :
+               #authorization.expression('hasRole(''STAFF'')') ? '/staff/books' :
+               '/student/books'
+           }(category=${category})}" 
+           class="category-card">
+            <i class="fas fa-book-open"></i>
+            <h3 th:text="${category}">Nom de la catégorie</h3>
+            <span class="book-count" 
+                  th:text="${#numbers.formatDecimal(categoryCount.get(category), 0, 0)} + ' livres'">
+                0 livres
+            </span>
+        </a>
+    </div>
+</section>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Gestion des erreurs d'images
+            const bookCovers = document.querySelectorAll('.book-cover');
+            bookCovers.forEach(img => {
+                img.onerror = function() {
+                    this.src = '/images/default-book.png';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

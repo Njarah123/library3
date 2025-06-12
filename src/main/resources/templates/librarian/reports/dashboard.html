@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Rapports de la Bibliothèque</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Rapports de la Bibliothèque</h1>
+
+        <!-- Résumé des statistiques -->
+        <div class="stats-summary">
+            <div class="stat-card">
+                <i class="fas fa-book"></i>
+                <h3>Total des Livres</h3>
+                <p th:text="${totalBooks}">0</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-book-reader"></i>
+                <h3>Livres Empruntés</h3>
+                <p th:text="${borrowedBooks}">0</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-users"></i>
+                <h3>Membres Actifs</h3>
+                <p th:text="${activeMembers}">0</p>
+            </div>
+        </div>
+
+        <!-- Section des emprunts en retard -->
+        <div class="overdue-section">
+            <h2>Emprunts en Retard</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Membre</th>
+                        <th>Livre</th>
+                        <th>Date d'emprunt</th>
+                        <th>Date de retour prévue</th>
+                        <th>Jours de retard</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="loan : ${overdueLoans}">
+                        <td th:text="${loan.member.name}"></td>
+                        <td th:text="${loan.book.title}"></td>
+                        <td th:text="${#temporals.format(loan.borrowDate, 'dd-MM-yyyy')}"></td>
+                        <td th:text="${#temporals.format(loan.dueDate, 'dd-MM-yyyy')}"></td>
+                        <td th:text="${loan.daysOverdue}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions">
+            <a th:href="@{/librarian/reports/export-pdf}" class="btn btn-primary">
+                <i class="fas fa-file-pdf"></i> Exporter en PDF
+            </a>
+            <a th:href="@{/librarian/reports/export-excel}" class="btn btn-success">
+                <i class="fas fa-file-excel"></i> Exporter en Excel
+            </a>
+            <a th:href="@{/librarian/dashboard}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Retour
+            </a>
+        </div>
+    </div>
+
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-card i {
+            font-size: 2em;
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+
+        .stat-card h3 {
+            margin: 10px 0;
+            color: #333;
+        }
+
+        .stat-card p {
+            font-size: 2em;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .overdue-section {
+            margin: 30px 0;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .table th, .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .table th {
+            background-color: #f8f9fa;
+        }
+
+        .actions {
+            margin-top: 30px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+    </style>
+</body>
+</html>

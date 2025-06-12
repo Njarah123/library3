@@ -4,6 +4,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,12 +25,61 @@ public class BookService {
 
     @Autowired
     private BookRepository bookRepository;
+    
 
     @Autowired
     private BorrowingRepository borrowingRepository;
 
     @Autowired
     private ReservationRepository reservationRepository;
+
+
+    
+    public Page<Book> getAllBooks(Pageable pageable) {
+        return bookRepository.findAll(pageable);
+    }
+     public Page<Book> findByCategory(String category, Pageable pageable) {
+        return bookRepository.findByCategory(category, pageable);
+    }
+
+    public Page<Book> searchBooks(String search, Pageable pageable) {
+        return bookRepository.findByTitleContainingIgnoreCase(search, pageable);
+    }
+
+
+ public Page<Book> searchByCategoryAndTerm(String category, String searchTerm, Pageable pageable) {
+        return bookRepository.findByCategoryAndTitleContainingIgnoreCaseOrCategoryAndAuthorContainingIgnoreCaseOrCategoryAndIsbnContainingIgnoreCase(
+            category, searchTerm, category, searchTerm, category, searchTerm, pageable);
+    }
+
+    
+ public long countBooksByCategory(String category) {
+        return bookRepository.countByCategory(category);
+    }
+    
+    
+   public Page<Book> searchAllBooks(String search, Pageable pageable) {
+        return bookRepository.findByTitleContainingIgnoreCaseOrAuthorContainingIgnoreCaseOrCategoryContainingIgnoreCase(
+            search, search, search, pageable);
+    }
+
+    public List<Book> getPopularBooks() {
+        // Récupérer les 5 livres les plus empruntés
+        return bookRepository.findPopularBooks(PageRequest.of(0, 5));
+    }
+
+    public Page<Book> searchBooks(String search, String category, Pageable pageable) {
+        if (search != null && !search.isEmpty()) {
+            if (category != null && !category.isEmpty()) {
+                return bookRepository.findByTitleContainingIgnoreCaseAndCategory(search, category, pageable);
+            } else {
+                return bookRepository.findByTitleContainingIgnoreCase(search, pageable);
+            }
+        } else if (category != null && !category.isEmpty()) {
+            return bookRepository.findByCategory(category, pageable);
+        }
+        return bookRepository.findAll(pageable);
+    }
 
     // Méthodes pour les statistiques globales
     public Long getTotalBooks() {
@@ -322,5 +374,9 @@ public List<Book> searchAllBooks(String search, String category) {
         }
 
         bookRepository.save(book);
+    }
+    public Book findById(Long id) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findById'");
     }
 }

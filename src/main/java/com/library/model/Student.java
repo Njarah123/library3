@@ -2,6 +2,11 @@ package com.library.model;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.time.LocalDateTime;
+
+import com.library.enums.UserType;
+
 import jakarta.persistence.*;
 
 @Data
@@ -20,5 +25,10 @@ public class Student extends User {
     public boolean verify() {
         // Implémentation spécifique pour la vérification de l'étudiant
         return this.getStudentId() != null && !this.getStudentId().isEmpty();
+    }
+    public Student() {
+        this.setUserType(UserType.STUDENT);
+        this.setCreatedAt(LocalDateTime.now());
+        this.setActive(true);
     }
 }

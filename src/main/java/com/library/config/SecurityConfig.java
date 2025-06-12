@@ -35,6 +35,8 @@ public class SecurityConfig {
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
             )
             .authorizeHttpRequests(auth -> auth
+            
+            .requestMatchers("/home").authenticated()
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers("/auth/**", "/register", "/error").permitAll()
                 // Configuration pour les bibliothécaires

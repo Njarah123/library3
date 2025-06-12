@@ -1,34 +1,69 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
     <title>Mes Emprunts - Staff</title>
-    <link rel="stylesheet" th:href="@{/css/staff-borrows.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/staff-borrows.css}">
+    
 </head>
 <body>
-    <div class="header-actions">
-    <a th:href="@{/staff/dashboard}" class="btn-home">
-        <i class="fas fa-home"></i>
-        <span>Accueil</span>
-    </a>
-</div>
     <div class="container">
-        <h1>Mes Emprunts</h1>
-
-        <div class="borrows-container">
-            <div th:if="${#lists.isEmpty(borrows)}">
-                <p>Vous n'avez pas d'emprunts en cours.</p>
+        <header>
+            <h1>Mes Emprunts</h1>
+            <div class="user-info">
+                <span th:text="${username}"></span>
+                <span th:text="${currentTime}"></span>
             </div>
+            <nav>
+                <a th:href="@{/staff/dashboard}">Tableau de bord</a>
+                <a th:href="@{/staff/books}">Livres</a>
+                <a th:href="@{/staff/borrows}" class="active">Mes Emprunts</a>
+                <a th:href="@{/logout}">Déconnexion</a>
+            </nav>
+        </header>
 
-            <div th:if="${not #lists.isEmpty(borrows)}" class="borrows-list">
-                <div th:each="borrow : ${borrows}" class="borrow-card">
-                    <h3 th:text="${borrow.book.title}">Titre du livre</h3>
-                    <p th:text="'Emprunté le: ' + ${#temporals.format(borrow.borrowDate, 'dd/MM/yyyy')}">Date d'emprunt</p>
-                    <p th:text="'À retourner le: ' + ${#temporals.format(borrow.dueDate, 'dd/MM/yyyy')}">Date de retour</p>
-                </div>
-            </div>
-        </div>
+        <main>
+            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+            <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
 
-        <a th:href="@{/staff/dashboard}" class="back-button">Retour au Dashboard</a>
+            <table class="borrow-table">
+                <thead>
+                    <tr>
+                        <th>Livre</th>
+                        <th>Date d'emprunt</th>
+                        <th>Date de retour prévue</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="borrow : ${currentBorrows}">
+                        <td th:text="${borrow.book.title}"></td>
+                        <td th:text="${#temporals.format(borrow.borrowDate, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td th:text="${#temporals.format(borrow.expectedReturnDate, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td>
+                            <span class="status-label" 
+                                  th:classappend="${borrow.status == 'EMPRUNTÉ' ? 'status-emprunte' : 
+                                                  (borrow.status == 'RETOURNÉ' ? 'status-retourne' : 'status-retard')}"
+                                  th:text="${borrow.status}">
+                            </span>
+                        </td>
+                        <td>
+                            <form th:if="${borrow.status == 'EMPRUNTÉ'}" 
+                                  th:action="@{/staff/borrows/{id}/return(id=${borrow.id})}" 
+                                  method="post" 
+                                  style="display: inline;">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <button type="submit" class="btn-return">Retourner</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(currentBorrows)}">
+                        <td colspan="5" style="text-align: center;">Aucun emprunt en cours</td>
+                    </tr>
+                </tbody>
+            </table>
+        </main>
     </div>
 </body>
 </html>
