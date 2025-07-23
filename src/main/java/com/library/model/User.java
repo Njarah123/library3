@@ -5,6 +5,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.library.enums.UserType;
 
 import jakarta.persistence.CascadeType;
@@ -21,11 +25,19 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Data
+@EqualsAndHashCode(exclude = {"account", "borrowings", "reservations", "notifications"})
+@ToString(exclude = {"account", "borrowings", "reservations", "notifications"})
 @Entity
 @Table(name = "users")
 @Inheritance(strategy = InheritanceType.JOINED)
+@JsonIdentityInfo(
+    generator = ObjectIdGenerators.PropertyGenerator.class,
+    property = "id",
+    scope = User.class)
 public abstract class User {
     
     @Id
@@ -39,6 +51,7 @@ public abstract class User {
     private String username;
     
     @Column(nullable = false)
+    @JsonIgnore
     private String password;
     
     @Column(unique = true)
@@ -51,15 +64,27 @@ public abstract class User {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     
+    @Column(name = "balance")
+    private Double balance = 0.0;
+    
     // Dans la classe User, modifiez cette partie :
 @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+@JsonIgnoreProperties("user")
 private Account account;
     
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Borrowing> borrowings = new ArrayList<>();
     
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Reservation> reservations = new ArrayList<>();
+    
+    // Add notifications field with proper annotations for circular reference handling
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties({"user", "hibernateLazyInitializer", "handler"})
+    @JsonIgnore // Use DTOs instead of direct serialization to avoid circular references
+    private List<Notification> notifications = new ArrayList<>();
     
     // Méthodes abstraites
     public abstract boolean verify();
@@ -138,5 +163,14 @@ private Account account;
 
     public void setEmail(String email) {
         this.email = email;
+    }
+    
+    // Getter and Setter for balance
+    public Double getBalance() {
+        return balance;
+    }
+    
+    public void setBalance(Double balance) {
+        this.balance = balance != null ? balance : 0.0;
     }
 }

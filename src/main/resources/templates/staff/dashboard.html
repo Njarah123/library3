@@ -1,157 +1,2251 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Dashboard Staff - Bibliothèque</title>
-    <link rel="stylesheet" th:href="@{/css/staff-dashboard.css}">
-    <link rel="stylesheet" th:href="@{/css/dashboards.css}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script th:src="@{/js/staff-dashboard.js}"></script>
+    <title>Mon Tableau de bord - Personnel</title>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <link rel="stylesheet" th:href="@{/css/dashboards.css}" />
+    <link rel="stylesheet" href="/fontawesome/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Product+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-</head>
-<body>
-    <div class="profile-sidebar" id="profileSidebar">
-        <div class="sidebar-content">
-            <div class="sidebar-header">
-                <h2>Profil <span th:text="${user.username}"></span></h2>
-                <button class="close-sidebar" onclick="toggleSidebar()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="profile-details">
-                <div class="profile-image-large">
-                    <img th:if="${user != null and user.profileImagePath != null}" 
-                         th:src="${user.profileImagePath}"
-                         onerror="this.src='/images/default-staff.png'"
-                         alt="Photo de profil">
-                    <img th:unless="${user != null and user.profileImagePath != null}" 
-                         src="/images/default-staff.png"
-                         alt="Photo de profil par défaut">
-                </div>
-                <div class="profile-info">
-                    <h3 th:text="${user.name}">Nom complet</h3>
-                    <p><i class="fas fa-user"></i> <span th:text="${user.username}">Username</span></p>
-                    <p><i class="fas fa-envelope"></i> <span th:text="${user.email}">Email</span></p>
-                    <p><i class="fas fa-id-badge"></i> <span th:text="${user.employeeId}">ID Employé</span></p>
-                    <p><i class="fas fa-building"></i> <span th:text="${user.dept}">Département</span></p>
-                    <p><i class="fas fa-user-tag"></i> Staff</p>
-                </div>
-                <div class="qr-code">
-                    <div id="qrcode"></div>
-                    <p>Scanner pour voir le profil</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="container">
-        <header class="dashboard-header">
-            <h1>Tableau de Bord - Staff</h1>
-            <div class="user-info">
-                <div class="header-actions">
-                    <a th:href="@{/home}" class="btn-home">
-                        <i class="fas fa-home"></i>
-                        <span>Accueil</span>
-                    </a>
-                </div>
-                <div class="profile-image-container" onclick="toggleSidebar()">
-                    <img th:if="${user != null and user.profileImagePath != null}" 
-                         th:src="${user.profileImagePath}"
-                         class="profile-image"
-                         onerror="this.src='/images/default-staff.png'"
-                         alt="Photo de profil">
-                    <img th:unless="${user != null and user.profileImagePath != null}" 
-                         src="/images/default-staff.png"
-                         class="profile-image"
-                         alt="Photo de profil par défaut">
-                </div>
-                <span class="welcome-message"><span th:text="${#authentication.name}"></span></span>
-                <span class="current-time" id="currentDateTime"> (UTC - YYYY-MM-DD HH:MM:SS formatted): 2025-06-10 11:23:00</span>
-                <div class="logout-section">
-                    <form th:action="@{/logout}" method="post">
-                        <button type="submit" class="logout-button">
-                            <i class="fas fa-sign-out-alt"></i> Déconnexion
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </header>
-
-        <div class="dashboard-grid">
-            <!-- Catalogue des Livres -->
-            <div class="dashboard-card">
-                <a th:href="@{/staff/books}" class="card-content">
-                    <i class="fas fa-book card-icon"></i>
-                    <h3>Catalogue des Livres</h3>
-                    <p>Consulter et emprunter des livres</p>
-                </a>
-            </div>
-
-            <!-- Mes Emprunts -->
-            <div class="dashboard-card">
-                <a th:href="@{/staff/borrows}" class="card-content">
-                    <i class="fas fa-bookmark card-icon"></i>
-                    <h3>Mes Emprunts en Cours</h3>
-                    <p>Gérer mes emprunts actuels</p>
-                </a>
-            </div>
-
-            <!-- Historique des Emprunts -->
-            <div class="dashboard-card">
-                <a th:href="@{/staff/history}" class="card-content">
-                    <i class="fas fa-history card-icon"></i>
-                    <h3>Historique des Emprunts</h3>
-                    <p>Consulter mon historique et noter les livres</p>
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <script th:inline="javascript">
-        // Données de l'utilisateur pour le QR Code
-        const userData = {
-            name: [[${user.name}]],
-            username: [[${user.username}]],
-            email: [[${user.email}]],
-            employeeId: [[${user.employeeId}]],
-            department: [[${user.dept}]],
-            role: 'Staff'
-        };
-
-        function generateQRCode() {
-            const qrcode = new QRCode(document.getElementById("qrcode"), {
-                text: JSON.stringify(userData),
-                width: 128,
-                height: 128,
-                colorDark : "#000000",
-                colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.H
-            });
+    <link rel="stylesheet" th:href="@{/css/notification-panel-ultra.css}" />
+    <script th:src="@{/js/notification-panel-ultra.js}"></script>
+    
+    <style>
+        /* Styles spécifiques pour le dashboard personnel - même design que étudiant */
+        .staff-theme {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #3b82f6;
         }
 
-        function toggleSidebar() {
-            const sidebar = document.getElementById('profileSidebar');
-            sidebar.classList.toggle('active');
-            if(sidebar.classList.contains('active')) {
-                document.getElementById('qrcode').innerHTML = '';
-                generateQRCode();
+        .profile-dropdown {
+            display: none;
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            width: 320px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            z-index: 1001;
+            overflow: hidden;
+            border: 2px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .profile-dropdown.show {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
 
-        // Mise à jour de l'heure
-        function updateDateTime() {
-            const now = new Date();
-            const formatted = now.getFullYear() + '-' + 
-                            String(now.getMonth() + 1).padStart(2, '0') + '-' + 
-                            String(now.getDate()).padStart(2, '0') + ' ' + 
-                            String(now.getHours()).padStart(2, '0') + ':' + 
-                            String(now.getMinutes()).padStart(2, '0') + ':' + 
-                            String(now.getSeconds()).padStart(2, '0');
-            document.getElementById('currentDateTime').textContent = 
-                'Current Date and Time (UTC - YYYY-MM-DD HH:MM:SS formatted): ' + formatted;
+        .profile-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.1);
+            z-index: 1000;
         }
 
+        .profile-overlay.show {
+            display: block;
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 25px 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .profile-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 3px solid rgba(255,255,255,0.3);
+            margin-bottom: 12px;
+            object-fit: cover;
+        }
+
+        .profile-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .profile-role {
+            font-size: 14px;
+            opacity: 0.9;
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 15px;
+            display: inline-block;
+        }
+
+        .profile-info {
+            padding: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: #374151;
+        }
+
+        .info-item i {
+            width: 20px;
+            margin-right: 12px;
+            color: #667eea;
+        }
+
+        .qr-section {
+            padding: 20px;
+            background: #f8fafc;
+            border-top: 1px solid #e5e7eb;
+            text-align: center;
+        }
+
+        .qr-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .profile-actions {
+            padding: 20px;
+            background: white;
+        }
+
+        .profile-action-btn {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            text-decoration: none;
+            color: #374151;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .profile-action-btn:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .profile-action-btn i {
+            width: 20px;
+            margin-right: 12px;
+        }
+
+        .profile-action-btn.logout {
+            color: #ef4444;
+        }
+
+        .profile-action-btn.logout:hover {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        /* Styles pour les cartes de statistiques personnel */
+        .staff-stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .reading-progress-card {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .overdue-card {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .activity-card {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+        }
+
+        /* Graphiques spéciaux pour personnel */
+        .reading-chart {
+            height: 300px;
+        }
+
+        .category-preference-chart {
+            height: 250px;
+        }
+
+        /* Livres recommandés */
+        .recommended-books {
+            display: grid;
+            gap: 15px;
+        }
+
+        .recommended-book {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            border: 1px solid #e5e7eb;
+        }
+
+        .recommended-book:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .recommended-book img {
+            width: 50px;
+            height: 70px;
+            border-radius: 8px;
+            margin-right: 15px;
+            object-fit: cover;
+        }
+
+        .recommended-book-info h5 {
+            margin: 0 0 5px 0;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .recommended-book-info p {
+            margin: 0;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        /* Objectifs de lecture */
+        .reading-goal {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .goal-progress {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 15px;
+        }
+
+        .goal-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(#667eea 0deg, #667eea var(--progress), #e5e7eb var(--progress), #e5e7eb 360deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .goal-circle::before {
+            content: '';
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .goal-text {
+            position: relative;
+            z-index: 1;
+            font-weight: 600;
+            color: #374151;
+        }
+    </style>
+</head>
+
+<body class="staff-theme">
+    <!-- Sidebar Navigation -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="/staff/dashboard" class="logo">
+                <img src="/images/Logobnk.png" alt="Logobnk" />
+            </a>
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
         
-        // Initialiser l'heure
-        updateDateTime();
+        <div class="sidebar-menu">
+            <div class="menu-section">
+                <h3>Mon Espace</h3>
+                <a href="/staff/dashboard" class="menu-item active">
+                    <i class="fas fa-home"></i>
+                    <span>Tableau de bord</span>
+                </a>
+                <a href="/staff/books" class="menu-item">
+                    <i class="fas fa-book"></i>
+                    <span>Catalogue</span>
+                    <span class="notification-badge" th:if="${newBooksCount != null && newBooksCount > 0}" th:text="${newBooksCount}"></span>
+                </a>
+                <a href="/staff/borrows" class="menu-item">
+                    <i class="fas fa-book-reader"></i>
+                    <span>Mes emprunts</span>
+                    <span class="notification-badge" th:if="${pendingBorrowsCount != null && pendingBorrowsCount > 0}" th:text="${pendingBorrowsCount}"></span>
+                </a>
+              
+            </div>
+            
+            <div class="menu-section">
+                <h3>Services</h3>
+                <a href="/staff/goals" class="menu-item">
+                    <i class="fas fa-bullseye"></i>
+                    <span>Mes Objectifs</span>
+                </a>
+                <a href="/staff/books" class="menu-item">
+                    <i class="fas fa-star"></i>
+                    <span>Recommandations</span>
+                </a>
+                
+            </div>
+            
+            <div class="menu-section">
+                <h3>Compte</h3>
+                <a href="/staff/settings" class="menu-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Paramètres</span>
+                </a>
+            </div>
+        </div>
+        
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <img th:if="${user != null and user.profileImagePath != null}"
+                     th:src="${user.profileImagePath}"
+                     class="profile-avatar"
+                     onerror="this.src='/images/default-staff.png'"
+                     alt="Photo de profil">
+                <img th:unless="${user != null and user.profileImagePath != null}"
+                     src="/images/default-staff.png"
+                     class="profile-avatar"
+                     alt="Photo de profil par défaut">
+                <div class="user-info">
+                    <div class="user-name" th:text="${user.name}">Nom personnel</div>
+                    <div class="user-role">Personnel</div>
+                </div>
+            </div>
+            <form th:action="@{/logout}" method="post" class="logout-form">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Top Header -->
+        <div class="top-header">
+            <div class="header-left">
+                <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Mon Tableau de bord</h1>
+            </div>
+            
+            <div class="header-right">
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Rechercher un livre...">
+                </div>
+                
+                <div class="header-actions">
+                    <button class="action-btn notification-btn" id="notificationButton">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" th:if="${unreadNotifications > 0}" th:text="${unreadNotifications}"></span>
+                    </button>
+                    
+                    <!-- User Info Button -->
+                    <div class="user-info" id="userInfoButton">
+                        <img th:if="${user != null and user.profileImagePath != null}"
+                             th:src="${user.profileImagePath}"
+                             onerror="this.src='/images/default-staff.png'"
+                             alt="Photo de profil"
+                             class="user-avatar">
+                        <img th:unless="${user != null and user.profileImagePath != null}"
+                             src="/images/default-staff.png"
+                             alt="Photo de profil par défaut"
+                             class="user-avatar">
+                        <span th:text="${user.name}">Nom personnel</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Panel Ultra -->
+        <div th:replace="~{fragments/notification-panel-ultra :: notification-panel-ultra}"></div>
+
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <div class="welcome-content">
+                <h2>Bonjour, <span th:text="${user.name}">Personnel</span> 👨‍💼</h2>
+                <p>Continuez votre parcours de lecture et découvrez de nouveaux horizons</p>
+            </div>
+            <div class="date-display">
+                <div class="current-date" id="currentDate"></div>
+                <div class="current-time" id="currentTime"></div>
+            </div>
+        </div>
+
+        <!-- Stats Cards pour Personnel -->
+        <div class="stats-grid">
+            <div class="stat-card staff-stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Livres empruntés</h3>
+                    <div class="stat-number" th:text="${currentBorrowings}">0</div>
+                    <div class="stat-change">
+                        <i class="fas fa-book-reader"></i>
+                        <span th:text="'Sur ' + ${maxBorrowings} + ' autorisés'">Actuellement</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card reading-progress-card">
+                <div class="stat-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Livres lus ce mois</h3>
+                    <div class="stat-number" th:text="${booksReadThisMonth}">0</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span th:text="'Objectif: ' + ${monthlyGoal}">Objectif mensuel</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card overdue-card">
+                <div class="stat-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Livres en retard</h3>
+                    <div class="stat-number" th:text="${overdueBorrowings}">0</div>
+                    <div class="stat-change" th:class="${overdueBorrowings > 0} ? 'negative' : 'positive'">
+                        <i th:class="${overdueBorrowings > 0} ? 'fas fa-exclamation' : 'fas fa-check'"></i>
+                        <span th:text="${overdueBorrowings > 0} ? 'À retourner rapidement' : 'Tout est à jour'">Statut</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card activity-card">
+                <div class="stat-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Points de lecture</h3>
+                    <div class="stat-number" th:text="${readingPoints}">0</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-trophy"></i>
+                        <span th:text="'Niveau ' + ${readingLevel}">Votre niveau</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Grid pour Personnel -->
+        <div class="dashboard-grid">
+            <!-- Graphique de progression de lecture -->
+            <div class="dashboard-card chart-card">
+                <div class="card-header">
+                    <h3>Ma progression de lecture</h3>
+                    <div class="card-actions">
+                        <button class="btn-icon" onclick="refreshReadingChart()">
+                            <i class="fas fa-refresh"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="chart-container reading-chart">
+                        <canvas id="readingProgressChart"></canvas>
+                    </div>
+                    <div class="chart-stats">
+                        <div class="chart-stat">
+                            <span class="stat-label">Cette semaine</span>
+                            <span class="stat-value" th:text="${weeklyReading}">0</span>
+                        </div>
+                        <div class="chart-stat">
+                            <span class="stat-label">Ce mois</span>
+                            <span class="stat-value" th:text="${monthlyReading}">0</span>
+                        </div>
+                        <div class="chart-stat">
+                            <span class="stat-label">Total</span>
+                            <span class="stat-value" th:text="${totalBooksRead}">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Graphique des catégories préférées -->
+            <div class="dashboard-card chart-card">
+                <div class="card-header">
+                    <h3>Mes catégories préférées</h3>
+                    <a href="/staff/books" class="view-all-link">Explorer</a>
+                </div>
+                <div class="card-content">
+                    <div class="chart-container category-preference-chart">
+                        <canvas id="categoryPreferenceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Objectif de lecture -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3>Mon objectif de lecture</h3>
+                    <a href="/staff/goals" class="view-all-link">Modifier</a>
+                </div>
+                <div class="card-content">
+                    <div class="reading-goal">
+                        <div class="goal-progress">
+                            <div class="goal-circle" th:style="'--progress: ' + ${goalProgress} + 'deg'">
+                                <div class="goal-text">
+                                    <div th:text="${booksReadThisMonth} + '/' + ${monthlyGoal}">0/5</div>
+                                    <small>livres</small>
+                                </div>
+                            </div>
+                        </div>
+                        <h4>Objectif mensuel</h4>
+                        <p th:text="'Il vous reste ' + ${remainingBooks} + ' livre(s) à lire ce mois'">
+                            Continuez comme ça !
+                        </p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" th:style="'width: ' + ${goalPercentage} + '%'"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Livres actuellement empruntés -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3>Mes livres actuels</h3>
+                    <a href="/staff/books" class="view-all-link">Voir tout</a>
+                </div>
+                <div class="card-content">
+                    <div class="books-list">
+                        <div class="book-item" th:each="borrowing, iterStat : ${currentBorrowingsList}" th:if="${currentBorrowingsList != null and iterStat.index < 3}">
+                            <img th:src="${borrowing.book.imagePath != null ? borrowing.book.imagePath : '/images/default-book.jpg'}"
+                                 th:alt="${borrowing.book.title}"
+                                 class="book-cover"
+                                 onerror="this.src='/images/default-book.jpg'">
+                            <div class="book-info">
+                                <h4 th:text="${borrowing.book.title}">Titre du livre</h4>
+                                <p th:text="${borrowing.book.author}">Auteur</p>
+                                <div class="book-stats">
+                                    <span class="due-date" th:class="${borrowing.dueDate.isBefore(T(java.time.LocalDateTime).now())} ? 'overdue' : 'normal'">
+                                        <i class="fas fa-calendar"></i>
+                                        <span th:text="'À rendre le ' + ${#temporals.format(borrowing.dueDate, 'dd/MM/yyyy')}">Date limite</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div th:if="${currentBorrowingsList == null or currentBorrowingsList.isEmpty()}" class="no-data">
+                            <i class="fas fa-book-open"></i>
+                            <p>Aucun livre emprunté actuellement</p>
+                            <a href="/staff/books" class="btn btn-primary">Découvrir des livres</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommandations personnalisées -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3>Recommandé pour vous</h3>
+                    <a href="/staff/books" class="view-all-link">Voir plus</a>
+                </div>
+                <div class="card-content">
+                    <div class="recommended-books">
+                        <div class="recommended-book" th:each="book, iterStat : ${recommendedBooks}" th:if="${recommendedBooks != null and iterStat.index < 4}">
+                            <img th:src="${book.imagePath != null ? book.imagePath : '/images/default-book.jpg'}"
+                                 th:alt="${book.title}"
+                                 onerror="this.src='/images/default-book.jpg'">
+                            <div class="recommended-book-info">
+                                <h5 th:text="${book.title}">Titre du livre</h5>
+                                <p th:text="${book.author}">Auteur</p>
+                                <small th:text="${book.category}">Catégorie</small>
+                            </div>
+                        </div>
+                        
+                        <div th:if="${recommendedBooks == null or recommendedBooks.isEmpty()}" class="no-data">
+                            <i class="fas fa-lightbulb"></i>
+                            <p>Empruntez plus de livres pour recevoir des recommandations personnalisées</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions rapides pour personnel -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3>Actions rapides</h3>
+                </div>
+                <div class="card-content">
+                    <div class="quick-actions">
+                        <a href="/staff/books" class="quick-action-btn primary">
+                            <i class="fas fa-search"></i>
+                            <span>Chercher un livre</span>
+                        </a>
+                        
+                        <a href="/staff/borrows" class="quick-action-btn success">
+                            <i class="fas fa-book-reader"></i>
+                            <span>Mes emprunts</span>
+                        </a>
+                        
+                      
+                        
+                        
+                        <a href="/payments/form" class="quick-action-btn danger">
+                            <i class="fas fa-money-bill-wave"></i>
+                            <span>Payer une amende</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Dropdown -->
+    <div class="profile-dropdown" id="profileDropdown">
+        <div class="profile-header">
+            <img th:if="${user != null and user.profileImagePath != null}"
+                 th:src="${user.profileImagePath}"
+                 onerror="this.src='/images/default-staff.png'"
+                 alt="Photo de profil"
+                 class="profile-avatar">
+            <img th:unless="${user != null and user.profileImagePath != null}"
+                 src="/images/default-staff.png"
+                 alt="Photo de profil par défaut"
+                 class="profile-avatar">
+            <div class="profile-name" th:text="${user.name}">Nom personnel</div>
+            <div class="profile-role">Personnel</div>
+        </div>
+        
+        <div class="profile-info">
+            <div class="info-item">
+                <i class="fas fa-envelope"></i>
+                <span th:text="${user.email}">email@example.com</span>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-id-card"></i>
+                <span>ID: <span th:text="${user.id}">12345</span></span>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-user-tie"></i>
+                <span th:text="${user.employeeId}">ID Employé</span>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-building"></i>
+                <span th:text="${user.dept}">Département</span>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-star"></i>
+                <span th:text="'Niveau ' + ${readingLevel}">Niveau de lecture</span>
+            </div>
+        </div>
+        
+        <div class="qr-section">
+            <div class="qr-title">
+                <i class="fas fa-qrcode"></i>
+                Ma carte personnel
+            </div>
+            <div class="qr-code" id="qrcode"></div>
+        </div>
+        
+        <div class="profile-actions">
+           
+            
+            <form th:action="@{/logout}" method="post" style="margin: 0;">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <button type="submit" class="profile-action-btn logout" style="width: 100%; text-align: left;">
+            <i class="fas fa-sign-out-alt"></i>
+            Déconnexion
+        </button>
+    </form>
+        </div>
+    </div>
+
+    <!-- Overlays -->
+    <div class="profile-overlay" id="profileOverlay"></div>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- JavaScript -->
+    <script th:inline="javascript">
+        // Variables globales
+        let readingChart, categoryChart;
+        let qrCodeGenerated = false;
+        
+        // Using the global NotificationPanelUltra class from notification-panel-ultra.js
+        let notificationPanel;
+
+        // Données du dashboard personnel depuis le contrôleur
+        const staffDashboardData = {
+            currentBorrowings: /*[[${currentBorrowings}]]*/ 0,
+            maxBorrowings: /*[[${maxBorrowings}]]*/ 10,
+            booksReadThisMonth: /*[[${booksReadThisMonth}]]*/ 0,
+            monthlyGoal: /*[[${monthlyGoal}]]*/ 8,
+            overdueBorrowings: /*[[${overdueBorrowings}]]*/ 0,
+            readingPoints: /*[[${readingPoints}]]*/ 0,
+            readingLevel: /*[[${readingLevel}]]*/ 1,
+            weeklyReadingData: /*[[${weeklyReadingData}]]*/ [0, 1, 0, 2, 1, 0, 1],
+            monthlyReadingData: /*[[${monthlyReadingData}]]*/ [2, 3, 1, 4, 2, 3, 5, 2, 1, 3, 2, 4],
+            categoryPreferences: /*[[${categoryPreferences}]]*/ ['Recherche', 'Science', 'Technique', 'Management'],
+            categoryReadCounts: /*[[${categoryReadCounts}]]*/ [8, 5, 3, 2],
+            goalProgress: /*[[${goalProgress}]]*/ 144, // en degrés (360 = 100%)
+            goalPercentage: /*[[${goalPercentage}]]*/ 40
+        };
+
+        // FONCTIONS DROPDOWN
+        function toggleProfileDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            const overlay = document.getElementById('profileOverlay');
+            
+            if (dropdown.classList.contains('show')) {
+                dropdown.classList.remove('show');
+                overlay.classList.remove('show');
+            } else {
+                dropdown.classList.add('show');
+                overlay.classList.add('show');
+                
+                if (!qrCodeGenerated) {
+                    generateQR();
+                }
+            }
+        }
+
+              function closeProfileDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            const overlay = document.getElementById('profileOverlay');
+            dropdown.classList.remove('show');
+            overlay.classList.remove('show');
+        }
+
+        // FONCTIONS SIDEBAR
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.querySelector('.main-content');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            if (window.innerWidth <= 768) {
+                sidebar.classList.toggle('collapsed');
+                overlay.classList.toggle('active');
+            } else {
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+            }
+        }
+
+        // GÉNÉRATION QR CODE
+        function generateQR() {
+            const qrContainer = document.getElementById('qrcode');
+            if (qrContainer && typeof QRCode !== 'undefined') {
+                qrContainer.innerHTML = '';
+                
+                const staffData = {
+                    id: /*[[${user.id}]]*/ '',
+                    name: /*[[${user.name}]]*/ '',
+                    employeeId: /*[[${user.employeeId}]]*/ '',
+                    dept: /*[[${user.dept}]]*/ '',
+                    type: 'STAFF'
+                };
+                
+                new QRCode(qrContainer, {
+                    text: JSON.stringify(staffData),
+                    width: 120,
+                    height: 120,
+                    colorDark: "#667eea",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+                
+                qrCodeGenerated = true;
+            }
+        }
+
+        // GRAPHIQUES
+        function initializeCharts() {
+            // Graphique de progression de lecture
+            const readingCtx = document.getElementById('readingProgressChart');
+            if (readingCtx) {
+                readingChart = new Chart(readingCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'],
+                        datasets: [{
+                            label: 'Livres lus',
+                            data: staffDashboardData.monthlyReadingData,
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#667eea',
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2,
+                            pointRadius: 6,
+                            pointHoverRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                titleColor: '#ffffff',
+                                bodyColor: '#ffffff',
+                                borderColor: '#667eea',
+                                borderWidth: 1,
+                                cornerRadius: 8,
+                                displayColors: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                },
+                                ticks: {
+                                    color: '#6b7280'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    color: '#6b7280'
+                                }
+                            }
+                        },
+                        interaction: {
+                            intersect: false,
+                            mode: 'index'
+                        }
+                    }
+                });
+            }
+
+            // Graphique des catégories préférées
+            const categoryCtx = document.getElementById('categoryPreferenceChart');
+            if (categoryCtx) {
+                categoryChart = new Chart(categoryCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: staffDashboardData.categoryPreferences,
+                        datasets: [{
+                            data: staffDashboardData.categoryReadCounts,
+                            backgroundColor: [
+                                '#667eea',
+                                '#10b981',
+                                '#f59e0b',
+                                '#ef4444',
+                                '#8b5cf6',
+                                '#06b6d4'
+                            ],
+                            borderWidth: 0,
+                            hoverOffset: 10
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20,
+                                    usePointStyle: true,
+                                    font: {
+                                        size: 12
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                titleColor: '#ffffff',
+                                bodyColor: '#ffffff',
+                                cornerRadius: 8,
+                                callbacks: {
+                                    label: function(context) {
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = Math.round((context.parsed / total) * 100);
+                                        return context.label + ': ' + context.parsed + ' livres (' + percentage + '%)';
+                                    }
+                                }
+                            }
+                        },
+                        cutout: '60%'
+                    }
+                });
+            }
+        }
+
+        // FONCTIONS UTILITAIRES
+        function refreshReadingChart() {
+            if (readingChart) {
+                // Simulation de nouvelles données
+                const newData = staffDashboardData.monthlyReadingData.map(val => 
+                    val + Math.floor(Math.random() * 2)
+                );
+                readingChart.data.datasets[0].data = newData;
+                readingChart.update('active');
+                
+                // Animation de succès
+                showToast('Graphique mis à jour !', 'success');
+            }
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type} show`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+
+        function updateDateTime() {
+            const now = new Date();
+            const timeElement = document.querySelector('.current-time');
+            const dateElement = document.querySelector('.current-date');
+            
+            if (timeElement) {
+                timeElement.textContent = now.toLocaleTimeString('fr-FR', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+            
+            if (dateElement) {
+                dateElement.textContent = now.toLocaleDateString('fr-FR', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            }
+        }
+
+        // ANIMATIONS ET EFFETS
+        function animateCounters() {
+            const counters = document.querySelectorAll('.stat-number');
+            counters.forEach(counter => {
+                const target = parseInt(counter.textContent);
+                const increment = target / 50;
+                let current = 0;
+                
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        counter.textContent = target;
+                        clearInterval(timer);
+                    } else {
+                        counter.textContent = Math.floor(current);
+                    }
+                }, 20);
+            });
+        }
+
+        function initializeProgressCircle() {
+            const goalCircle = document.querySelector('.goal-circle');
+            if (goalCircle) {
+                const progress = staffDashboardData.goalProgress;
+                goalCircle.style.setProperty('--progress', progress + 'deg');
+            }
+        }
+
+        // GESTION DES ÉVÉNEMENTS
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialisation des composants
+            initializeCharts();
+            updateDateTime();
+            animateCounters();
+            initializeProgressCircle();
+            
+            // Mise à jour de l'heure toutes les minutes
+            setInterval(updateDateTime, 60000);
+            
+            // Event listeners
+            const userInfoBtn = document.getElementById('userInfoButton');
+            if (userInfoBtn) {
+                userInfoBtn.addEventListener('click', toggleProfileDropdown);
+            }
+            
+            const profileOverlay = document.getElementById('profileOverlay');
+            if (profileOverlay) {
+                profileOverlay.addEventListener('click', closeProfileDropdown);
+            }
+            
+            // Initialize notification panel ultra
+            if (typeof NotificationPanelUltra !== 'undefined') {
+                notificationPanel = new NotificationPanelUltra('notificationButton');
+                console.log('NotificationPanelUltra initialized for staff dashboard');
+            } else {
+                console.error('NotificationPanelUltra class not found');
+            }
+            
+            const mobileToggle = document.querySelector('.mobile-menu-toggle');
+            if (mobileToggle) {
+                mobileToggle.addEventListener('click', toggleSidebar);
+            }
+            
+            const sidebarToggle = document.querySelector('.sidebar-toggle');
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', toggleSidebar);
+            }
+            
+            // Fermeture du dropdown avec Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeProfileDropdown();
+                }
+            });
+            
+            // Gestion responsive
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    const overlay = document.getElementById('sidebarOverlay');
+                    overlay.classList.remove('active');
+                }
+            });
+            
+            // Animation d'entrée pour les cartes
+            const cards = document.querySelectorAll('.stat-card, .dashboard-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease-out';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+
+        // FONCTIONS SPÉCIFIQUES AU PERSONNEL
+        function viewBookDetails(bookId) {
+            window.location.href = `/staff/books/${bookId}`;
+        }
+
+        function borrowBook(bookId) {
+            if (staffDashboardData.currentBorrowings >= staffDashboardData.maxBorrowings) {
+                showToast('Vous avez atteint la limite d\'emprunts simultanés', 'warning');
+                return;
+            }
+            
+            fetch(`/staff/borrow/${bookId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('Livre emprunté avec succès !', 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showToast(data.message || 'Erreur lors de l\'emprunt', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                showToast('Erreur de connexion', 'error');
+            });
+        }
+
+        function renewBook(borrowingId) {
+            fetch(`/staff/renew/${borrowingId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('Livre renouvelé avec succès !', 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showToast(data.message || 'Impossible de renouveler ce livre', 'warning');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                showToast('Erreur de connexion', 'error');
+            });
+        }
+
+        // RECHERCHE RAPIDE
+        function quickSearch() {
+            const searchInput = document.querySelector('.search-container input');
+            if (searchInput && searchInput.value.trim()) {
+                window.location.href = `/staff/books?search=${encodeURIComponent(searchInput.value.trim())}`;
+            }
+        }
+
+        // Event listener pour la recherche
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.querySelector('.search-container input');
+            if (searchInput) {
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        quickSearch();
+                    }
+                });
+            }
+        });
+
+        // NOTIFICATIONS EN TEMPS RÉEL - Géré par NotificationPanelUltra
+        // Le système ultra-efficace gère automatiquement les notifications en temps réel
+
+        // FONCTIONS D'EXPORT ET IMPRESSION
+        function printDashboard() {
+            window.print();
+        }
+
+        function exportReadingStats() {
+            const data = {
+                period: 'monthly',
+                stats: staffDashboardData.monthlyReadingData,
+                categories: staffDashboardData.categoryPreferences,
+                counts: staffDashboardData.categoryReadCounts
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], {
+                type: 'application/json'
+            });
+            
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `statistiques-lecture-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast('Statistiques exportées !', 'success');
+        }
+
+                window.addEventListener('error', function(e) {
+            console.error('Erreur JavaScript:', e.error);
+            showToast('Une erreur s\'est produite', 'error');
+        });
+
+        // FONCTIONS DE PERFORMANCE
+        function optimizeImages() {
+            const images = document.querySelectorAll('img');
+            images.forEach(img => {
+                if (!img.complete) {
+                    img.addEventListener('load', function() {
+                        this.style.opacity = '1';
+                    });
+                    img.style.opacity = '0';
+                    img.style.transition = 'opacity 0.3s ease';
+                }
+            });
+        }
+
+        // SAUVEGARDE DES PRÉFÉRENCES UTILISATEUR
+        function saveUserPreferences() {
+            const preferences = {
+                sidebarCollapsed: document.querySelector('.sidebar').classList.contains('collapsed'),
+                theme: document.body.classList.contains('dark-theme') ? 'dark' : 'light',
+                lastVisit: new Date().toISOString()
+            };
+            
+            localStorage.setItem('staffPreferences', JSON.stringify(preferences));
+        }
+
+        function loadUserPreferences() {
+            const saved = localStorage.getItem('staffPreferences');
+            if (saved) {
+                const preferences = JSON.parse(saved);
+                
+                if (preferences.sidebarCollapsed && window.innerWidth > 768) {
+                    toggleSidebar();
+                }
+                
+                if (preferences.theme === 'dark') {
+                    document.body.classList.add('dark-theme');
+                }
+            }
+        }
+
+        // FONCTIONS DE STATISTIQUES AVANCÉES
+        function calculateReadingVelocity() {
+            const totalBooks = staffDashboardData.monthlyReadingData.reduce((a, b) => a + b, 0);
+            const months = staffDashboardData.monthlyReadingData.filter(count => count > 0).length;
+            return months > 0 ? (totalBooks / months).toFixed(1) : 0;
+        }
+
+        function getReadingTrend() {
+            const data = staffDashboardData.monthlyReadingData;
+            const recent = data.slice(-3);
+            const previous = data.slice(-6, -3);
+            
+            const recentAvg = recent.reduce((a, b) => a + b, 0) / recent.length;
+            const previousAvg = previous.reduce((a, b) => a + b, 0) / previous.length;
+            
+            if (recentAvg > previousAvg) return 'increasing';
+            if (recentAvg < previousAvg) return 'decreasing';
+            return 'stable';
+        }
+
+        // MISE À JOUR DES STATISTIQUES EN TEMPS RÉEL
+        function updateDashboardStats() {
+            fetch('/staff/dashboard/stats', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Mise à jour des compteurs
+                const currentBorrowingsElement = document.querySelector('.current-card .stat-number');
+                if (currentBorrowingsElement) {
+                    currentBorrowingsElement.textContent = data.currentBorrowings;
+                }
+                
+                const booksReadElement = document.querySelector('.books-read-card .stat-number');
+                if (booksReadElement) {
+                    booksReadElement.textContent = data.booksReadThisMonth;
+                }
+                
+                const overdueElement = document.querySelector('.overdue-card .stat-number');
+                if (overdueElement) {
+                    overdueElement.textContent = data.overdueBorrowings;
+                }
+                
+                const pointsElement = document.querySelector('.activity-card .stat-number');
+                if (pointsElement) {
+                    pointsElement.textContent = data.readingPoints;
+                }
+                
+                // Mise à jour des graphiques si nécessaire
+                if (readingChart && data.monthlyReadingData) {
+                    readingChart.data.datasets[0].data = data.monthlyReadingData;
+                    readingChart.update('none');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur lors de la mise à jour des statistiques:', error);
+            });
+        }
+
+        // FONCTIONS D'ACCESSIBILITÉ
+        function initializeAccessibility() {
+            // Navigation au clavier
+            document.addEventListener('keydown', function(e) {
+                if (e.altKey && e.key === 'm') {
+                    e.preventDefault();
+                    toggleSidebar();
+                }
+                
+                if (e.altKey && e.key === 's') {
+                    e.preventDefault();
+                    const searchInput = document.querySelector('.search-container input');
+                    if (searchInput) {
+                        searchInput.focus();
+                    }
+                }
+                
+                if (e.altKey && e.key === 'p') {
+                    e.preventDefault();
+                    toggleProfileDropdown();
+                }
+            });
+            
+            // Amélioration du contraste pour les utilisateurs malvoyants
+            if (window.matchMedia('(prefers-contrast: high)').matches) {
+                document.body.classList.add('high-contrast');
+            }
+            
+            // Support pour les lecteurs d'écran
+            const statNumbers = document.querySelectorAll('.stat-number');
+            statNumbers.forEach(element => {
+                element.setAttribute('aria-live', 'polite');
+            });
+        }
+
+        // FONCTIONS DE CACHE ET PERFORMANCE
+        function cacheBookData() {
+            const bookItems = document.querySelectorAll('.book-item');
+            const bookData = Array.from(bookItems).map(item => {
+                const title = item.querySelector('h4').textContent;
+                const author = item.querySelector('p').textContent;
+                const cover = item.querySelector('img').src;
+                return { title, author, cover };
+            });
+            
+            sessionStorage.setItem('cachedBooks', JSON.stringify(bookData));
+        }
+
+        function loadCachedBookData() {
+            const cached = sessionStorage.getItem('cachedBooks');
+            return cached ? JSON.parse(cached) : null;
+        }
+
+        // FONCTIONS DE VALIDATION
+        function validateUserSession() {
+            fetch('/staff/validate-session', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    showToast('Session expirée, redirection...', 'warning');
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 2000);
+                }
+            })
+            .catch(error => {
+                console.error('Erreur de validation de session:', error);
+            });
+        }
+
+        // INITIALISATION FINALE
+        document.addEventListener('DOMContentLoaded', function() {
+            // Chargement des préférences utilisateur
+            loadUserPreferences();
+            
+            // Initialisation de l'accessibilité
+            initializeAccessibility();
+            
+            // Optimisation des images
+            optimizeImages();
+            
+            // Cache des données
+            setTimeout(cacheBookData, 2000);
+            
+            // Validation de session toutes les 10 minutes
+            setInterval(validateUserSession, 600000);
+            
+            // Mise à jour des statistiques toutes les 2 minutes
+            setInterval(updateDashboardStats, 120000);
+            
+            // Sauvegarde des préférences avant fermeture
+            window.addEventListener('beforeunload', saveUserPreferences);
+            
+            // Affichage des statistiques avancées
+            console.log('Vitesse de lecture:', calculateReadingVelocity(), 'livres/mois');
+            console.log('Tendance de lecture:', getReadingTrend());
+            
+            // Animation finale
+            setTimeout(() => {
+                document.body.classList.add('loaded');
+            }, 1000);
+        });
+
+        // FONCTIONS UTILITAIRES SUPPLÉMENTAIRES
+        function formatDate(date) {
+            return new Date(date).toLocaleDateString('fr-FR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        }
+
+        function formatTime(date) {
+            return new Date(date).toLocaleTimeString('fr-FR', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function calculateDaysUntilDue(dueDate) {
+            const now = new Date();
+            const due = new Date(dueDate);
+            const diffTime = due - now;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays;
+        }
+
+        function getStatusColor(status) {
+            const colors = {
+                'EN_ATTENTE': '#f59e0b',
+                'RENDU': '#10b981',
+                'EN_RETARD': '#ef4444',
+                'RENOUVELE': '#3b82f6'
+            };
+            return colors[status] || '#6b7280';
+        }
+
+        // EXPORT DES FONCTIONS GLOBALES
+        window.staffDashboard = {
+            toggleProfileDropdown,
+            closeProfileDropdown,
+            toggleSidebar,
+            refreshReadingChart,
+            showToast,
+            quickSearch,
+            borrowBook,
+            renewBook,
+            viewBookDetails,
+            printDashboard,
+            exportReadingStats,
+            updateDashboardStats,
+            formatDate,
+            formatTime,
+            calculateDaysUntilDue,
+            getStatusColor
+        };
     </script>
+
+
+    <!-- Scripts externes -->
+    <!-- Chart.js and QRCode.js are already loaded in the head section -->
+    <!-- notifications.js script is already loaded in the head section -->
+    <!-- No need to load these scripts again as they're already in the head section -->
+    
+    <!-- CSS supplémentaire pour les styles spécifiques au personnel -->
+    <style>
+        /* Styles spécifiques au dashboard personnel */
+        .current-card::before { background: var(--primary-color); }
+        .books-read-card::before { background: var(--success-color); }
+        .overdue-card::before { background: var(--warning-color); }
+        .activity-card::before { background: var(--info-color); }
+
+        .current-card .stat-icon { background: var(--primary-color); }
+        .books-read-card .stat-icon { background: var(--success-color); }
+        .overdue-card .stat-icon { background: var(--warning-color); }
+        .activity-card .stat-icon { background: var(--info-color); }
+
+        /* Styles pour l'objectif de lecture */
+        .reading-goal {
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .goal-progress {
+            margin-bottom: 1.5rem;
+        }
+
+        .goal-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: conic-gradient(
+                var(--primary-color) 0deg,
+                var(--primary-color) var(--progress, 0deg),
+                var(--gray-200) var(--progress, 0deg),
+                var(--gray-200) 360deg
+            );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .goal-circle::before {
+            content: '';
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: var(--white);
+            position: absolute;
+        }
+
+        .goal-text {
+            position: relative;
+            z-index: 1;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .goal-text div {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .goal-text small {
+            font-size: 0.75rem;
+            color: var(--gray-600);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--gray-200);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+            border-radius: 4px;
+            transition: width 0.6s ease;
+        }
+
+        /* Styles pour les livres recommandés */
+        .recommended-books {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .recommended-book {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .recommended-book:hover {
+            background: var(--gray-50);
+            transform: translateY(-2px);
+        }
+
+        .recommended-book img {
+            width: 60px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: var(--border-radius);
+            margin-bottom: 0.75rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .recommended-book-info h5 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 0.25rem;
+            line-height: 1.3;
+        }
+
+        .recommended-book-info p {
+            font-size: 0.75rem;
+            color: var(--gray-600);
+            margin-bottom: 0.25rem;
+        }
+
+        .recommended-book-info small {
+            font-size: 0.625rem;
+            color: var(--gray-500);
+            background: var(--gray-100);
+            padding: 0.125rem 0.5rem;
+            border-radius: 12px;
+        }
+
+        /* Styles pour les statistiques de graphique */
+        .chart-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .chart-stat {
+            text-align: center;
+        }
+
+        .stat-label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--gray-600);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        /* Styles pour les dates d'échéance */
+        .due-date {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        .due-date.normal {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+
+               .due-date.overdue {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+        }
+
+        .due-date.warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+        }
+
+        /* Styles pour les messages vides */
+        .no-data {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--gray-500);
+        }
+
+        .no-data i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--gray-400);
+        }
+
+        .no-data p {
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .no-data .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--primary-color);
+            color: var(--white);
+            text-decoration: none;
+            border-radius: var(--border-radius);
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .no-data .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        /* Styles pour le thème sombre */
+        .dark-theme {
+            --gray-50: #0f172a;
+            --gray-100: #1e293b;
+            --gray-200: #334155;
+            --gray-300: #475569;
+            --gray-400: #64748b;
+            --gray-500: #94a3b8;
+            --gray-600: #cbd5e1;
+            --gray-700: #e2e8f0;
+            --gray-800: #f1f5f9;
+            --gray-900: #f8fafc;
+            --white: #0f172a;
+        }
+
+        /* Styles pour le contraste élevé */
+        .high-contrast {
+            --primary-color: #0000ff;
+            --success-color: #008000;
+            --warning-color: #ff8000;
+            --danger-color: #ff0000;
+            --gray-900: #000000;
+            --white: #ffffff;
+        }
+
+        .high-contrast .stat-card,
+        .high-contrast .dashboard-card {
+            border: 2px solid var(--gray-900);
+        }
+
+        /* Styles pour l'état chargé */
+        .loaded .welcome-section {
+            animation: slideInFromTop 0.8s ease-out;
+        }
+
+        .loaded .stats-grid {
+            animation: slideInFromBottom 0.8s ease-out 0.2s both;
+        }
+
+        .loaded .dashboard-grid {
+            animation: slideInFromBottom 0.8s ease-out 0.4s both;
+        }
+
+        @keyframes slideInFromTop {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInFromBottom {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive pour les graphiques */
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 250px;
+            }
+            
+            .chart-stats {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .recommended-books {
+                grid-template-columns: 1fr;
+            }
+            
+            .goal-circle {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .goal-circle::before {
+                width: 75px;
+                height: 75px;
+            }
+            
+            .goal-text div {
+                font-size: 1.25rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .chart-container {
+                height: 200px;
+            }
+            
+            .recommended-book img {
+                width: 50px;
+                height: 70px;
+            }
+            
+            .goal-circle {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .goal-circle::before {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .goal-text div {
+                font-size: 1rem;
+            }
+        }
+
+        /* Styles pour l'impression */
+        @media print {
+            .chart-container {
+                height: 300px !important;
+            }
+            
+            .recommended-books {
+                grid-template-columns: repeat(4, 1fr) !important;
+            }
+            
+            .goal-circle {
+                border: 3px solid var(--primary-color) !important;
+                background: none !important;
+            }
+            
+            .no-data .btn {
+                display: none !important;
+            }
+        }
+
+        /* Animations supplémentaires */
+        @keyframes bookHover {
+            0% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.05) rotate(1deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        .book-cover:hover {
+            animation: bookHover 0.6s ease-in-out;
+        }
+
+        @keyframes statPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .stat-card:hover {
+            animation: statPulse 0.8s ease-in-out;
+        }
+
+        /* Styles pour les tooltips personnalisés */
+        .custom-tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .custom-tooltip.show {
+            opacity: 1;
+        }
+
+        /* Styles pour les badges de notification */
+        .notification-dot {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 8px;
+            height: 8px;
+            background: var(--danger-color);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        /* Styles pour les états de chargement */
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+               @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .skeleton-text {
+            height: 1rem;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+
+        .skeleton-text:last-child {
+            width: 60%;
+        }
+
+        .skeleton-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .skeleton-book {
+            width: 60px;
+            height: 80px;
+            border-radius: var(--border-radius);
+        }
+
+        /* Styles pour les états d'erreur */
+        .error-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--danger-color);
+        }
+
+        .error-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .error-state h3 {
+            margin-bottom: 0.5rem;
+            font-size: 1.25rem;
+        }
+
+        .error-state p {
+            margin-bottom: 1.5rem;
+            color: var(--gray-600);
+        }
+
+        .retry-btn {
+            background: var(--primary-color);
+            color: var(--white);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .retry-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Styles pour les indicateurs de performance */
+        .performance-indicator {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--border-radius);
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+            color: var(--gray-600);
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            display: none;
+        }
+
+        .performance-indicator.show {
+            display: block;
+        }
+
+        .performance-good { border-left: 4px solid var(--success-color); }
+        .performance-medium { border-left: 4px solid var(--warning-color); }
+        .performance-poor { border-left: 4px solid var(--danger-color); }
+
+        /* Styles pour les micro-interactions */
+        .interactive-element {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .interactive-element:hover {
+            transform: translateY(-1px);
+        }
+
+        .interactive-element:active {
+            transform: translateY(0);
+        }
+
+        /* Styles pour les focus states améliorés */
+        .focus-visible {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+            border-radius: var(--border-radius);
+        }
+
+        /* Styles pour les animations de transition de page */
+        .page-transition {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s ease-out;
+        }
+
+        .page-transition.loaded {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Styles pour les indicateurs de statut en temps réel */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+        }
+
+        .status-online {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+
+        .status-offline {
+            background: rgba(107, 114, 128, 0.1);
+            color: var(--gray-500);
+        }
+
+        .status-indicator::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .status-online::before {
+            animation: pulse 2s infinite;
+        }
+
+        /* Styles pour les graphiques responsives */
+        .chart-responsive {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 60%;
+        }
+
+        .chart-responsive canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        /* Styles pour les alertes contextuelles */
+        .contextual-alert {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(129, 140, 248, 0.05));
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: var(--border-radius-lg);
+            padding: 1rem;
+            margin: 1rem 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .contextual-alert.warning {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(251, 191, 36, 0.05));
+            border-color: rgba(245, 158, 11, 0.2);
+        }
+
+        .contextual-alert.success {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(52, 211, 153, 0.05));
+            border-color: rgba(16, 185, 129, 0.2);
+        }
+
+        .contextual-alert.danger {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(248, 113, 113, 0.05));
+            border-color: rgba(239, 68, 68, 0.2);
+        }
+
+        .alert-icon {
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 0.75rem;
+        }
+
+        .contextual-alert .alert-icon {
+            background: var(--primary-color);
+            color: var(--white);
+        }
+
+        .contextual-alert.warning .alert-icon {
+            background: var(--warning-color);
+            color: var(--white);
+        }
+
+        .contextual-alert.success .alert-icon {
+            background: var(--success-color);
+            color: var(--white);
+        }
+
+        .contextual-alert.danger .alert-icon {
+            background: var(--danger-color);
+            color: var(--white);
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: var(--gray-900);
+        }
+
+        .alert-message {
+            font-size: 0.875rem;
+            color: var(--gray-700);
+            line-height: 1.5;
+        }
+
+        /* Styles pour les badges de progression */
+        .progress-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--gray-700);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .progress-ring {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--gray-200);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Styles finaux pour l'optimisation */
+        .will-change-transform {
+            will-change: transform;
+        }
+
+        .will-change-opacity {
+            will-change: opacity;
+        }
+
+        .gpu-accelerated {
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            perspective: 1000px;
+        }
+
+        /* Styles pour les états de connexion */
+        .connection-status {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            font-size: 0.75rem;
+            font-weight: 500;
+            z-index: 10000;
+            transition: all 0.3s ease;
+            transform: translateY(-100px);
+        }
+
+        .connection-status.show {
+            transform: translateY(0);
+        }
+
+        .connection-status.online {
+            background: var(--success-color);
+            color: var(--white);
+        }
+
+        .connection-status.offline {
+            background: var(--danger-color);
+            color: var(--white);
+        }
+
+        /* Media queries pour les très petits écrans */
+        @media (max-width: 320px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .stat-card {
+                padding: 1rem;
+            }
+            
+            .stat-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+            
+            .stat-number {
+                font-size: 1.25rem;
+            }
+            
+            .welcome-content h2 {
+                font-size: 1rem;
+            }
+            
+            .current-time {
+                font-size: 1.25rem;
+            }
+        }
+
+        /* Styles pour les appareils avec écran tactile */
+        @media (hover: none) and (pointer: coarse) {
+            .menu-item:hover,
+            .stat-card:hover,
+            .dashboard-card:hover,
+            .book-item:hover,
+            .activity-item:hover {
+                transform: none;
+            }
+            
+            .quick-action-btn:hover {
+                transform: none;
+            }
+            
+            .interactive-element:hover {
+                transform: none;
+            }
+        }
+    </style>
 </body>
 </html>

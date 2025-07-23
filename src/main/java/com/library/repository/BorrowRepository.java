@@ -15,6 +15,8 @@ import com.library.model.User;
 public interface BorrowRepository extends JpaRepository<Borrow, Long> {
     List<Borrow> findByUserId(Long userId);
    List<Borrow> findByStatus(@Param("status") String status);
+    List<Borrow> findByBook(com.library.model.Book book);
+    void deleteByBook(com.library.model.Book book);
     boolean existsByUserIdAndBookIdAndStatus(Long userId, Long bookId, String status);
     List<Borrow> findByReturnDateIsNull();
     @Query("SELECT b FROM Borrow b WHERE b.user.id = :userId AND b.status = 'BORROWED'")
@@ -29,4 +31,8 @@ public interface BorrowRepository extends JpaRepository<Borrow, Long> {
     List<Borrow> findCurrentBorrowsByStaffUsername(@Param("username") String username);
     List<Borrowing> findByUserAndReturnDateIsNullOrderByBorrowDateDesc(User user);
     int countByUserAndReturnDateIsNull(User user);
+    List<Borrow> findTop10ByOrderByBorrowDateDesc();
+
+    @Query("SELECT b FROM Borrow b WHERE b.user.userType = com.library.enums.UserType.STUDENT OR b.user.userType = com.library.enums.UserType.STAFF")
+    List<Borrow> findActivitiesByStudentAndStaff();
 }

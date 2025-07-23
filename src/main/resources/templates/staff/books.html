@@ -2,146 +2,339 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Catalogue - Staff</title>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <link rel="stylesheet" th:href="@{/css/staff-books.css}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+    <link rel="stylesheet" href="/fontawesome/all.min.css">
 </head>
-<body>
-    <div class="container">
-        <!-- En-tête avec info utilisateur et date -->
-        <div class="header-info">
-            <div class="datetime-info">
-                <i class="fas fa-clock"></i>
-                <span> </span>
-                <span th:text="${currentDateTime}">2025-06-10 02:23:42</span>
+<body class="dark-theme">
+    <!-- Modern Header -->
+    <header class="modern-header">
+        <div class="header-left">
+            <div class="logo-section">
+                <img src="/images/Logobnk.png" alt="Logo" class="header-logo" onerror="this.style.display='none'">
+                <h1 class="page-title">Catalogue des Livres</h1>
             </div>
-            <div class="user-info">
-                <i class="fas fa-user"></i>
-                <span th:text="${#authentication.name}"></span>
+        </div>
+        
+        <div class="header-center">
+            <div class="datetime-display">
+                <div class="date-time">
+                    <span id="currentDate" class="current-date"></span>
+                    <span id="currentTime" class="current-time"></span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="header-right">
+            <div class="header-controls">
+                <!-- Theme Toggle -->
+                <div class="theme-toggle-container">
+                    <label class="theme-toggle">
+                        <input type="checkbox" id="themeToggle" checked>
+                        <span class="toggle-slider">
+                            <i class="fas fa-sun sun-icon"></i>
+                            <i class="fas fa-moon moon-icon"></i>
+                        </span>
+                    </label>
+                    <span class="theme-label">Mode sombre</span>
+                </div>
                 
+                <!-- Navigation Actions -->
+                <div class="nav-actions">
+                    <a th:href="@{/staff/dashboard}" class="nav-btn">
+                        <i class="fas fa-home"></i>
+                        <span>Accueil</span>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- User Profile Section -->
+            <div class="user-profile-header">
+                <div class="user-info">
+                    <span class="user-name" th:text="${#authentication.name}">Utilisateur</span>
+                    <span class="user-role">Staff</span>
+                </div>
+                <div class="user-avatar">
+                    <img th:src="${#authentication.principal.user.profileImagePath != null && !#authentication.principal.user.profileImagePath.isEmpty() ?
+                                  (#authentication.principal.user.profileImagePath.startsWith('/') ? #authentication.principal.user.profileImagePath : '/uploads/' + #authentication.principal.user.profileImagePath) :
+                                  '/images/default-staff.png'}"
+                         alt="Profile"
+                         class="profile-image"
+                         onerror="this.src='/images/default-staff.png'">
+                </div>
             </div>
         </div>
+    </header>
 
-        <div class="header-actions">
-            <a th:href="@{/staff/dashboard}" class="btn-home">
-                <i class="fas fa-home"></i>
-                <span>Accueil</span>
-            </a>
-        </div>
-
-        <h1>Catalogue des Livres</h1>
-
-        <!-- Barre de recherche -->
-        <div class="search-box">
+    <div class="container">
+        
+        <!-- Messages de succès/erreur -->
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+        
+        <!-- Barre de recherche et filtres -->
+        <div class="search-section">
             <form th:action="@{/staff/books}" method="get" class="search-form">
-                <div class="search-input-wrapper">
-                    <input type="text" 
-                           name="search" 
-                           th:value="${param.search}" 
-                           placeholder="Rechercher par titre, auteur..."
+                <div class="search-container">
+                    <input type="text"
+                           name="search"
+                           th:value="${search}"
+                           placeholder="Rechercher un livre..."
                            class="search-input">
                     <button type="submit" class="search-button">
                         <i class="fas fa-search"></i>
                     </button>
                 </div>
+                <!-- Conservation des paramètres existants -->
+                <input type="hidden" name="category" th:value="${selectedCategory}">
+                <input type="hidden" name="author" th:value="${selectedAuthor}">
+                <input type="hidden" name="startYear" th:value="${selectedStartYear}">
+                <input type="hidden" name="endYear" th:value="${selectedEndYear}">
+                <input type="hidden" name="available" th:value="${selectedAvailable}">
+                <input type="hidden" name="language" th:value="${selectedLanguage}">
+                <input type="hidden" name="sortBy" th:value="${selectedSortBy}">
+                <input type="hidden" name="ascending" th:value="${selectedAscending}">
+                <input type="hidden" name="page" value="0">
             </form>
         </div>
 
-        <!-- Filtrage par catégorie -->
-        <div class="category-filter">
-            <form th:action="@{/staff/books}" method="get" class="filter-form">
-                <select name="category" class="category-select" onchange="this.form.submit()">
-                    <option value="">Toutes les catégories</option>
-                    <option th:each="cat : ${categories}"
-                            th:value="${cat}"
-                            th:text="${cat}"
-                            th:selected="${cat == selectedCategory}">
-                    </option>
-                </select>
-            </form>
-        </div>
+        <!-- Bouton pour afficher la sidebar des catégories -->
+        <button class="toggle-categories-sidebar" id="toggleCategoriesSidebar">
+            <i class="fas fa-list"></i>
+        </button>
 
-        <div class="books-container">
-    <div th:each="book : ${books}" class="book-card">
-        <div class="book-image" th:data-book-id="${book.id}">
-            <img th:src="${book.imagePath != null && !book.imagePath.isEmpty() ? 
-                         (book.imagePath.startsWith('/') ? book.imagePath : '/uploads/' + book.imagePath) : 
-                         '/images/default-book.png'}"
-                 th:alt="${book.title}"
-                 class="book-cover"
-                 onerror="this.src='/images/default-book.png'">
-        </div>
-        
-        <div class="book-info">
-            <h3 class="book-title" th:text="${book.title}">Titre du livre</h3>
-            <p class="book-author">
-                <i class="fas fa-user-edit"></i>
-                <span th:text="${book.author}">Auteur</span>
-            </p>
-            <p class="book-category">
-                <i class="fas fa-bookmark"></i>
-                <span th:text="${book.category}">Catégorie</span>
-            </p>
-            
-            <div class="book-status">
-                <span th:class="${book.available ? 'status-badge available' : 'status-badge unavailable'}"
-                      th:text="${book.available ? 'Disponible' : 'Non disponible'}">
-                    Status
-                </span>
-
-                <button th:if="${book.available}" class="btn-borrow">
-                    <i class="fas fa-book-reader"></i> 
-                    Emprunter
+        <!-- Sidebar des catégories -->
+        <div class="categories-sidebar" id="categoriesSidebar">
+            <div class="sidebar-header">
+                <h3>Catégories</h3>
+                <button class="close-sidebar" id="closeCategoriesSidebar">
+                    <i class="fas fa-times"></i>
                 </button>
             </div>
+            <div class="categories-list">
+                <a href="#" class="category-item"
+                   th:classappend="${selectedCategory == null ? 'active' : ''}"
+                   th:href="@{/staff/books(search=${search}, author=${selectedAuthor}, startYear=${selectedStartYear}, endYear=${selectedEndYear}, available=${selectedAvailable}, language=${selectedLanguage}, sortBy=${selectedSortBy}, ascending=${selectedAscending}, page=0)}">
+                    Toutes les catégories
+                </a>
+                <a href="#" class="category-item"
+                   th:each="cat : ${categories}"
+                   th:classappend="${cat == selectedCategory ? 'active' : ''}"
+                   th:href="@{/staff/books(search=${search}, category=${cat}, author=${selectedAuthor}, startYear=${selectedStartYear}, endYear=${selectedEndYear}, available=${selectedAvailable}, language=${selectedLanguage}, sortBy=${selectedSortBy}, ascending=${selectedAscending}, page=0)}"
+                   th:text="${cat}">
+                    Catégorie
+                </a>
+            </div>
         </div>
-    </div>
-</div>
 
-        <!-- Pagination avec recherche -->
+        <!-- Options de tri -->
+        <div class="sort-container">
+            <span class="sort-label">Trier par:</span>
+            <div class="sort-options">
+                <a th:href="@{/staff/books(search=${search}, category=${selectedCategory}, author=${selectedAuthor}, startYear=${selectedStartYear}, endYear=${selectedEndYear}, available=${selectedAvailable}, language=${selectedLanguage}, sortBy='title', ascending=true, page=0)}"
+                   class="sort-option"
+                   th:classappend="${selectedSortBy == 'title' ? 'active' : ''}">
+                    Titre
+                    <span class="sort-direction" th:if="${selectedSortBy == 'title'}" th:classappend="${selectedAscending == true ? 'asc' : 'desc'}">
+                        <i class="fas fa-arrow-up"></i>
+                    </span>
+                </a>
+                <a th:href="@{/staff/books(search=${search}, category=${selectedCategory}, author=${selectedAuthor}, startYear=${selectedStartYear}, endYear=${selectedEndYear}, available=${selectedAvailable}, language=${selectedLanguage}, sortBy='author', ascending=true, page=0)}"
+                   class="sort-option"
+                   th:classappend="${selectedSortBy == 'author' ? 'active' : ''}">
+                    Auteur
+                    <span class="sort-direction" th:if="${selectedSortBy == 'author'}" th:classappend="${selectedAscending == true ? 'asc' : 'desc'}">
+                        <i class="fas fa-arrow-up"></i>
+                    </span>
+                </a>
+                <a th:href="@{/staff/books(search=${search}, category=${selectedCategory}, author=${selectedAuthor}, startYear=${selectedStartYear}, endYear=${selectedEndYear}, available=${selectedAvailable}, language=${selectedLanguage}, sortBy='year', ascending=false, page=0)}"
+                   class="sort-option"
+                   th:classappend="${selectedSortBy == 'year' ? 'active' : ''}">
+                    Date
+                    <span class="sort-direction" th:if="${selectedSortBy == 'year'}" th:classappend="${selectedAscending == true ? 'asc' : 'desc'}">
+                        <i class="fas fa-arrow-up"></i>
+                    </span>
+                </a>
+                <a th:href="@{/staff/books(search=${search}, category=${selectedCategory}, author=${selectedAuthor}, startYear=${selectedStartYear}, endYear=${selectedEndYear}, available=${selectedAvailable}, language=${selectedLanguage}, sortBy='popularity', ascending=false, page=0)}"
+                   class="sort-option"
+                   th:classappend="${selectedSortBy == 'popularity' ? 'active' : ''}">
+                    Popularité
+                </a>
+            </div>
+        </div>
+
+        <!-- Filtres avancés -->
+        <div class="filters-container">
+            <div class="filters-header">
+                <h3>Filtres avancés</h3>
+                <button type="button" class="filters-toggle" id="toggleFilters">
+                    <i class="fas fa-filter"></i> Afficher/Masquer les filtres
+                </button>
+            </div>
+            <div class="filters-content" id="filtersContent">
+                <form th:action="@{/staff/books}" method="get" id="advancedFiltersForm">
+                    <div class="filters-grid">
+                        <!-- Filtre par catégorie -->
+                        <div class="filter-group">
+                            <label for="category">Catégorie</label>
+                            <select name="category" id="category" class="filter-select">
+                                <option value="">Toutes les catégories</option>
+                                <option th:each="cat : ${categories}"
+                                        th:value="${cat}"
+                                        th:text="${cat}"
+                                        th:selected="${cat == selectedCategory}">
+                                </option>
+                            </select>
+                        </div>
+                        
+                        <!-- Filtre par auteur -->
+                        <div class="filter-group">
+                            <label for="author">Auteur</label>
+                            <select name="author" id="author" class="filter-select">
+                                <option value="">Tous les auteurs</option>
+                                <option th:each="auth : ${authors}"
+                                        th:value="${auth}"
+                                        th:text="${auth}"
+                                        th:selected="${auth == selectedAuthor}">
+                                </option>
+                            </select>
+                        </div>
+                        
+                        <!-- Filtre par année de publication -->
+                        <div class="filter-group">
+                            <label>Année de publication</label>
+                            <div class="range-inputs">
+                                <input type="number"
+                                       name="startYear"
+                                       placeholder="De"
+                                       class="filter-input"
+                                       th:value="${selectedStartYear}">
+                                <span class="range-separator">-</span>
+                                <input type="number"
+                                       name="endYear"
+                                       placeholder="À"
+                                       class="filter-input"
+                                       th:value="${selectedEndYear}">
+                            </div>
+                        </div>
+                        
+                        <!-- Filtre par disponibilité -->
+                        <div class="filter-group">
+                            <label for="available">Disponibilité</label>
+                            <select name="available" id="available" class="filter-select">
+                                <option value="">Tous</option>
+                                <option value="true" th:selected="${selectedAvailable == true}">Disponible</option>
+                                <option value="false" th:selected="${selectedAvailable == false}">Non disponible</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Filtre par langue -->
+                        <div class="filter-group">
+                            <label for="language">Langue</label>
+                            <select name="language" id="language" class="filter-select">
+                                <option value="">Toutes les langues</option>
+                                <option th:each="lang : ${languages}"
+                                        th:value="${lang}"
+                                        th:text="${lang}"
+                                        th:selected="${lang == selectedLanguage}">
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Boutons d'action pour les filtres -->
+                    <div class="filter-actions">
+                        <button type="reset" class="btn-reset">Réinitialiser</button>
+                        <button type="submit" class="btn-apply">Appliquer les filtres</button>
+                    </div>
+                    
+                    <!-- Champs cachés pour conserver les autres paramètres -->
+                    <input type="hidden" name="search" th:value="${search}">
+                    <input type="hidden" name="sortBy" th:value="${selectedSortBy}">
+                    <input type="hidden" name="ascending" th:value="${selectedAscending}">
+                    <input type="hidden" name="page" value="0">
+                </form>
+            </div>
+        </div>
+        
+        <div class="books-grid">
+            <div th:each="book : ${books}" class="book-card">
+                <div class="book-image" th:data-book-id="${book.id}">
+                    <img th:src="${book.imagePath != null && !book.imagePath.isEmpty() ?
+                                 (book.imagePath.startsWith('/') ? book.imagePath : '/uploads/' + book.imagePath) :
+                                 '/images/default-book.png'}"
+                         th:alt="${book.title}"
+                         class="book-cover"
+                         onerror="this.src='/images/default-book.png'">
+                </div>
+                       
+                <div class="book-info">
+                    <h3 th:text="${book.title}" th:class="${#strings.length(book.title) > 15 ? 'book-title scrolling-text' : 'book-title'}">Titre du livre</h3>
+                    <!-- Rating system based on number of borrows -->
+                    <div class="book-rating">
+                        <div class="stars-container">
+                            <!-- Calculate rating based on total borrows: 1-5 stars -->
+                            <th:block th:with="borrowCount=${book.totalBorrows != null ? book.totalBorrows : 0},
+                                              starRating=${borrowCount <= 1 ? 1 : (borrowCount <= 3 ? 2 : (borrowCount <= 6 ? 3 : (borrowCount <= 10 ? 4 : 5)))}">
+                                <span th:each="i : ${#numbers.sequence(1, 5)}"
+                                      th:class="${i <= starRating ? 'star filled' : 'star empty'}">
+                                    <i class="fas fa-star"></i>
+                                </span>
+                            </th:block>
+                        </div>
+                    </div>
+                    <div class="book-status">
+                        <a th:if="${book.availableQuantity > 0}" th:href="@{'/staff/books/borrow-confirmation/' + ${book.id}}" class="btn-borrow">
+                            <i class="fas fa-book"></i> Emprunter
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pagination avec tous les filtres -->
         <div class="pagination-container" th:if="${totalPages > 1}">
             <div class="pagination">
-                <a th:href="@{/staff/books(page=0, search=${param.search}, category=${selectedCategory})}" 
-                   class="page-link" 
+                <a th:href="@{/staff/books(page=0, search=${search}, category=${selectedCategory}, author=${selectedAuthor}, startYear=${selectedStartYear}, endYear=${selectedEndYear}, available=${selectedAvailable}, language=${selectedLanguage}, sortBy=${selectedSortBy}, ascending=${selectedAscending})}"
+                   class="page-link"
                    th:classappend="${currentPage == 0} ? 'disabled'">
                     <i class="fas fa-angle-double-left"></i>
                 </a>
-                
+                       
                 <a th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}"
-                   th:href="@{/staff/books(page=${pageNum}, search=${param.search}, category=${selectedCategory})}"
+                   th:href="@{/staff/books(page=${pageNum}, search=${search}, category=${selectedCategory}, author=${selectedAuthor}, startYear=${selectedStartYear}, endYear=${selectedEndYear}, available=${selectedAvailable}, language=${selectedLanguage}, sortBy=${selectedSortBy}, ascending=${selectedAscending})}"
                    class="page-link"
                    th:classappend="${pageNum == currentPage} ? 'active'"
                    th:text="${pageNum + 1}">1</a>
-                
-                <a th:href="@{/staff/books(page=${totalPages - 1}, search=${param.search}, category=${selectedCategory})}" 
-                   class="page-link" 
+                       
+                <a th:href="@{/staff/books(page=${totalPages - 1}, search=${search}, category=${selectedCategory}, author=${selectedAuthor}, startYear=${selectedStartYear}, endYear=${selectedEndYear}, available=${selectedAvailable}, language=${selectedLanguage}, sortBy=${selectedSortBy}, ascending=${selectedAscending})}"
+                   class="page-link"
                    th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
                     <i class="fas fa-angle-double-right"></i>
                 </a>
             </div>
         </div>
-
+        
         <a th:href="@{/staff/dashboard}" class="back-button">
             <i class="fas fa-arrow-left"></i> Retour au Dashboard
         </a>
     </div>
-
+    
     <script th:inline="javascript">
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialisation des gestionnaires d'événements
     initializeImageHandlers();
     initializeSidebarHandlers();
+    initializeFiltersAndCategories();
 });
 
 function initializeImageHandlers() {
-    // Gestion des images par défaut
     document.querySelectorAll('.book-cover').forEach(img => {
         img.onerror = function() {
             this.src = '/images/default-book.png';
         }
     });
-
-    // Rendre les images de livres cliquables
+    
     document.querySelectorAll('.book-image').forEach(bookImage => {
         bookImage.addEventListener('click', function() {
             const bookId = this.getAttribute('data-book-id');
@@ -153,7 +346,6 @@ function initializeImageHandlers() {
 }
 
 function initializeSidebarHandlers() {
-    // Gestionnaire pour le bouton de fermeture
     const closeButton = document.getElementById('closeSidebarBtn');
     if (closeButton) {
         closeButton.addEventListener('click', function(e) {
@@ -161,23 +353,88 @@ function initializeSidebarHandlers() {
             closeBookSidebar();
         });
     }
-
-    // Fermer la sidebar en cliquant en dehors
+    
     document.addEventListener('click', function(e) {
         const sidebar = document.getElementById('bookSidebar');
         const bookImages = document.querySelectorAll('.book-image');
-        
-        if (sidebar && sidebar.classList.contains('active') && 
-            !sidebar.contains(e.target) && 
+               
+        if (sidebar && sidebar.classList.contains('active') &&
+            !sidebar.contains(e.target) &&
             !Array.from(bookImages).some(img => img.contains(e.target))) {
             closeBookSidebar();
         }
     });
 }
 
-function showBookDetails(bookId) {
-    console.log('Fetching book details for ID:', bookId); // Pour le débogage
+function initializeFiltersAndCategories() {
+    // Gestion des filtres avancés
+    const toggleFiltersBtn = document.getElementById('toggleFilters');
+    const filtersContent = document.getElementById('filtersContent');
     
+    if (toggleFiltersBtn && filtersContent) {
+        toggleFiltersBtn.addEventListener('click', function() {
+            filtersContent.classList.toggle('active');
+            this.classList.toggle('active');
+        });
+    }
+    
+    // Gestion de la sidebar des catégories
+    const toggleCategoriesSidebarBtn = document.getElementById('toggleCategoriesSidebar');
+    const categoriesSidebar = document.getElementById('categoriesSidebar');
+    const closeCategoriesSidebarBtn = document.getElementById('closeCategoriesSidebar');
+    
+    if (toggleCategoriesSidebarBtn && categoriesSidebar) {
+        toggleCategoriesSidebarBtn.addEventListener('click', function() {
+            categoriesSidebar.classList.toggle('active');
+        });
+    }
+    
+    if (closeCategoriesSidebarBtn && categoriesSidebar) {
+        closeCategoriesSidebarBtn.addEventListener('click', function() {
+            categoriesSidebar.classList.remove('active');
+        });
+    }
+    
+    // Fermer la sidebar des catégories en cliquant en dehors
+    document.addEventListener('click', function(e) {
+        if (categoriesSidebar && categoriesSidebar.classList.contains('active') &&
+            !categoriesSidebar.contains(e.target) &&
+            !toggleCategoriesSidebarBtn.contains(e.target)) {
+            categoriesSidebar.classList.remove('active');
+        }
+    });
+    
+    // Gestion du bouton de réinitialisation des filtres
+    const resetBtn = document.querySelector('.btn-reset');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = '/staff/books';
+        });
+    }
+    
+    // Gestion du tri
+    document.querySelectorAll('.sort-option').forEach(option => {
+        option.addEventListener('click', function(e) {
+            const sortDirection = this.querySelector('.sort-direction');
+            if (sortDirection && this.classList.contains('active')) {
+                e.preventDefault();
+                
+                // Récupérer l'URL actuelle
+                const url = new URL(this.href);
+                
+                // Inverser la direction de tri
+                const currentAscending = url.searchParams.get('ascending') === 'true';
+                url.searchParams.set('ascending', !currentAscending);
+                
+                // Rediriger vers la nouvelle URL
+                window.location.href = url.toString();
+            }
+        });
+    });
+}
+
+function showBookDetails(bookId) {
     fetch(`/staff/books/details/${bookId}`)
         .then(response => {
             if (!response.ok) {
@@ -186,10 +443,44 @@ function showBookDetails(bookId) {
             return response.json();
         })
         .then(book => {
-            console.log('Book data received:', book); // Pour le débogage
+            console.log("Book details received:", book);
+            console.log("Book details type:", typeof book);
+            
+            // Log the full content of the array for debugging
+            if (Array.isArray(book)) {
+                console.log("Book is an array with length:", book.length);
+                for (let i = 0; i < book.length; i++) {
+                    console.log(`Book[${i}]:`, book[i]);
+                }
+                
+                // Handle different array formats
+                if (book.length === 2) {
+                    if (book[0] === 'java.util.HashMap' && book[1]) {
+                        book = book[1];
+                        console.log("Extracted book details from HashMap:", book);
+                    } else if (typeof book[0] === 'string' && book[0].includes('BookDetailsDTO') && book[1]) {
+                        // Handle the case where the first element is the class name
+                        book = book[1];
+                        console.log("Extracted book details from DTO array:", book);
+                    }
+                }
+            } else if (typeof book === 'string') {
+                try {
+                    book = JSON.parse(book);
+                    console.log("Parsed book details from string:", book);
+                } catch (e) {
+                    console.error("Failed to parse book details from string:", e);
+                }
+            }
             
             updateSidebarContent(book);
-            document.getElementById('bookSidebar').classList.add('active');
+            const sidebar = document.getElementById('bookSidebar');
+            sidebar.style.display = 'block';
+            // Use setTimeout to ensure the display change takes effect before adding the active class
+            setTimeout(() => {
+                sidebar.classList.add('active');
+                console.log("Sidebar activated");
+            }, 10);
         })
         .catch(error => {
             console.error('Erreur:', error);
@@ -198,46 +489,50 @@ function showBookDetails(bookId) {
 }
 
 function updateSidebarContent(book) {
-    // Mise à jour de l'image
     const coverImage = document.getElementById('sidebarBookCover');
-    coverImage.src = book.imagePath || '/images/default-book.png';
+    if (book.imagePath && typeof book.imagePath === 'string' && book.imagePath.trim() !== '') {
+        // Don't encode the path, use it directly as returned from the server
+        coverImage.src = book.imagePath;
+        console.log("Setting image path:", book.imagePath);
+    } else {
+        coverImage.src = '/images/default-book.png';
+        console.log("Using placeholder image");
+    }
     coverImage.onerror = function() {
+        console.log("Image error, using placeholder");
         this.src = '/images/default-book.png';
+        // Prevent infinite loop by removing the onerror handler after it's been called once
+        this.onerror = null;
     };
-
-    // Mise à jour des informations textuelles
+    
     document.getElementById('sidebarBookTitle').textContent = book.title || 'Sans titre';
     document.getElementById('sidebarBookAuthor').textContent = book.author || 'Auteur inconnu';
     document.getElementById('sidebarBookCategory').textContent = book.category || 'Non catégorisé';
     document.getElementById('sidebarBookIsbn').textContent = book.isbn || 'ISBN non spécifié';
     document.getElementById('sidebarBookQuantity').textContent = `Quantité totale: ${book.quantity || 0}`;
-    document.getElementById('sidebarBookAvailable').textContent = 
+    document.getElementById('sidebarBookAvailable').textContent =
         `Disponible: ${book.availableQuantity || 0}/${book.quantity || 0}`;
-    document.getElementById('sidebarBookDescription').textContent = 
+    document.getElementById('sidebarBookDescription').textContent =
         book.description || 'Aucune description disponible';
-
-    // Configuration des boutons d'action pour le staff
+    
+    // CORRECTION: Configuration correcte du bouton d'emprunt
     const borrowBtn = document.getElementById('sidebarBorrowBtn');
     const reserveBtn = document.getElementById('sidebarReserveBtn');
-
+    
     if (book.availableQuantity > 0) {
         borrowBtn.style.display = 'block';
         reserveBtn.style.display = 'none';
-        
+               
+        // Utiliser la même logique que le bouton de la liste principale
+        // S'assurer que book.id est un nombre simple
+        const bookId = typeof book.id === 'object' ? book.id.toString().split(',')[1] : book.id;
         borrowBtn.onclick = () => {
-            if (confirm('Voulez-vous emprunter ce livre ?')) {
-                window.location.href = `/staff/books/borrow/${book.id}`;
-            }
+            console.log('Book ID:', bookId);
+            window.location.href = '/staff/books/borrow-confirmation/' + bookId;
         };
     } else {
         borrowBtn.style.display = 'none';
         reserveBtn.style.display = 'block';
-        
-        reserveBtn.onclick = () => {
-            if (confirm('Voulez-vous réserver ce livre ?')) {
-                window.location.href = `/staff/books/reserve/${book.id}`;
-            }
-        };
     }
 }
 
@@ -245,60 +540,290 @@ function closeBookSidebar() {
     const sidebar = document.getElementById('bookSidebar');
     if (sidebar) {
         sidebar.classList.remove('active');
+        // Use setTimeout to ensure the animation completes before hiding the sidebar
+        setTimeout(() => {
+            sidebar.style.display = 'none';
+            console.log("Sidebar closed");
+        }, 300); // Match the transition duration in CSS (0.3s)
     }
 }
-</script>
+    </script>
+
+    <!-- Theme Toggle and Header JavaScript -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Theme Toggle Functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+        const root = document.documentElement;
+        const themeLabel = document.querySelector('.theme-label');
+        
+        // Check for saved theme preference or default to dark
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        
+        // Apply saved theme
+        if (savedTheme === 'light') {
+            body.classList.remove('dark-theme');
+            body.classList.add('light-theme');
+            root.classList.add('light-theme');
+            themeToggle.checked = false;
+            themeLabel.textContent = 'Mode clair';
+        } else {
+            body.classList.remove('light-theme');
+            body.classList.add('dark-theme');
+            root.classList.remove('light-theme');
+            themeToggle.checked = true;
+            themeLabel.textContent = 'Mode sombre';
+        }
+        
+        // Theme toggle event listener
+        themeToggle.addEventListener('change', function() {
+            if (this.checked) {
+                // Switch to dark theme
+                body.classList.remove('light-theme');
+                body.classList.add('dark-theme');
+                root.classList.remove('light-theme');
+                themeLabel.textContent = 'Mode sombre';
+                localStorage.setItem('theme', 'dark');
+                
+                // Add smooth transition effect
+                body.style.transition = 'all 0.3s ease';
+                setTimeout(() => {
+                    body.style.transition = '';
+                }, 300);
+            } else {
+                // Switch to light theme
+                body.classList.remove('dark-theme');
+                body.classList.add('light-theme');
+                root.classList.add('light-theme');
+                themeLabel.textContent = 'Mode clair';
+                localStorage.setItem('theme', 'light');
+                
+                // Add smooth transition effect
+                body.style.transition = 'all 0.3s ease';
+                setTimeout(() => {
+                    body.style.transition = '';
+                }, 300);
+            }
+        });
+        
+        // Date and Time Update Function
+        function updateDateTime() {
+            const now = new Date();
+            
+            const dateElement = document.getElementById('currentDate');
+            const timeElement = document.getElementById('currentTime');
+            
+            if (dateElement) {
+                dateElement.textContent = now.toLocaleDateString('fr-FR', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            }
+            
+            if (timeElement) {
+                timeElement.textContent = now.toLocaleTimeString('fr-FR', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+            }
+        }
+        
+        // Update date/time immediately and then every second
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+        
+        // Smooth scroll for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // Add loading animation for theme transitions
+        function addLoadingEffect() {
+            const header = document.querySelector('.modern-header');
+            if (header) {
+                header.style.opacity = '0.8';
+                setTimeout(() => {
+                    header.style.opacity = '1';
+                }, 200);
+            }
+        }
+        
+        // Enhanced theme toggle with loading effect
+        themeToggle.addEventListener('change', addLoadingEffect);
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl/Cmd + Shift + T to toggle theme
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'T') {
+                e.preventDefault();
+                themeToggle.click();
+            }
+            
+            // Escape key to close any open modals/sidebars
+            if (e.key === 'Escape') {
+                // Close book sidebar if open
+                const bookSidebar = document.getElementById('bookSidebar');
+                if (bookSidebar && bookSidebar.classList.contains('active')) {
+                    closeBookSidebar();
+                }
+                
+                // Close categories sidebar if open
+                const categoriesSidebar = document.getElementById('categoriesSidebar');
+                if (categoriesSidebar && categoriesSidebar.classList.contains('active')) {
+                    categoriesSidebar.classList.remove('active');
+                }
+            }
+        });
+        
+        // Add hover effects for interactive elements
+        const interactiveElements = document.querySelectorAll('.nav-btn, .theme-toggle, .user-profile-header');
+        interactiveElements.forEach(element => {
+            element.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-1px)';
+            });
+            
+            element.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+        
+        // Add ripple effect to buttons
+        function createRipple(event) {
+            const button = event.currentTarget;
+            const circle = document.createElement('span');
+            const diameter = Math.max(button.clientWidth, button.clientHeight);
+            const radius = diameter / 2;
+            
+            circle.style.width = circle.style.height = `${diameter}px`;
+            circle.style.left = `${event.clientX - button.offsetLeft - radius}px`;
+            circle.style.top = `${event.clientY - button.offsetTop - radius}px`;
+            circle.classList.add('ripple');
+            
+            const ripple = button.getElementsByClassName('ripple')[0];
+            if (ripple) {
+                ripple.remove();
+            }
+            
+            button.appendChild(circle);
+        }
+        
+        // Apply ripple effect to nav buttons
+        document.querySelectorAll('.nav-btn').forEach(button => {
+            button.addEventListener('click', createRipple);
+        });
+        
+        console.log('Modern header with theme toggle initialized successfully for Staff');
+    });
+
+    // CSS for ripple effect
+    const rippleStyle = document.createElement('style');
+    rippleStyle.textContent = `
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple 600ms linear;
+            background-color: rgba(255, 255, 255, 0.6);
+            pointer-events: none;
+        }
+        
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+        
+        .nav-btn {
+            position: relative;
+            overflow: hidden;
+        }
+    `;
+    document.head.appendChild(rippleStyle);
+    </script>
+    
     <!-- Book Sidebar -->
-<div class="book-sidebar" id="bookSidebar">
-    <div class="sidebar-content">
-        <div class="sidebar-header">
-            <h2>Détails du livre</h2>
-            <button class="close-sidebar" id="closeSidebarBtn">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="book-details">
-            <div class="book-image-large">
-                <img id="sidebarBookCover" src="" alt="Couverture du livre">
-            </div>
-            <div class="book-info">
-                <h3 id="sidebarBookTitle"></h3>
-                <p class="book-author">
-                    <i class="fas fa-user-edit"></i>
-                    <span id="sidebarBookAuthor"></span>
-                </p>
-                <p class="book-isbn">
-                    <i class="fas fa-barcode"></i>
-                    <span id="sidebarBookIsbn"></span>
-                </p>
-                <p class="book-category">
-                    <i class="fas fa-bookmark"></i>
-                    <span id="sidebarBookCategory"></span>
-                </p>
-                <p class="book-quantity">
-                    <i class="fas fa-cubes"></i>
-                    <span id="sidebarBookQuantity"></span>
-                </p>
-                <p class="book-availability">
-                    <i class="fas fa-check-circle"></i>
-                    <span id="sidebarBookAvailable"></span>
-                </p>
-            </div>
-            <div class="book-description">
-                <h4>Description</h4>
-                <p id="sidebarBookDescription"></p>
-            </div>
-            <div class="book-actions">
-                <!-- Pour Student -->
-                <button id="sidebarBorrowBtn" class="btn-borrow">
-                    <i class="fas fa-book-reader"></i> Emprunter
+    <div class="book-sidebar" id="bookSidebar">
+        <div class="sidebar-content">
+            <div class="sidebar-header">
+                <h2>Détails du livre</h2>
+                <button class="close-sidebar" id="closeSidebarBtn">
+                    <i class="fas fa-times"></i>
                 </button>
-                <button id="sidebarReserveBtn" class="btn-reserve">
-                    <i class="fas fa-clock"></i> Réserver
-                </button>
+            </div>
+            <div class="book-details">
+                <div class="book-image-large">
+                    <img id="sidebarBookCover" src="" alt="Couverture du livre">
+                </div>
+                <div class="book-info">
+                    <h3 id="sidebarBookTitle"></h3>
+                    <p class="book-author">
+                        <i class="fas fa-user-edit"></i>
+                        <span id="sidebarBookAuthor"></span>
+                    </p>
+                    <p class="book-isbn">
+                        <i class="fas fa-barcode"></i>
+                        <span id="sidebarBookIsbn"></span>
+                    </p>
+                    <p class="book-category">
+                        <i class="fas fa-bookmark"></i>
+                        <span id="sidebarBookCategory"></span>
+                    </p>
+                    <p class="book-quantity">
+                        <i class="fas fa-cubes"></i>
+                        <span id="sidebarBookQuantity"></span>
+                    </p>
+                    <p class="book-availability">
+                        <i class="fas fa-check-circle"></i>
+                        <span id="sidebarBookAvailable"></span>
+                    </p>
+                </div>
+                <div class="book-description">
+                    <h4>Description</h4>
+                    <p id="sidebarBookDescription"></p>
+                </div>
+                <div class="book-actions">
+                    <button id="sidebarBorrowBtn" class="btn-borrow">
+                        <i class="fas fa-book-reader"></i> Emprunter
+                    </button>
+                    <button id="sidebarReserveBtn" class="btn-reserve">
+                        <i class="fas fa-clock"></i> Réserver
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-</div>
+    
+    <!-- Styles pour les alertes -->
+    <style>
+        .alert {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
 </body>
 </html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layouts/main}">
+
+<head>
+    <title>Confirmation d'emprunt - Bibliothèque Universitaire</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/borrow-confirmation.css}">
+    <link rel="stylesheet" href="/fontawesome/all.min.css">
+</head>
+<body>
+    <div layout:fragment="content">
+        <!-- Borrow Header -->
+        <section class="borrow-header">
+            <div class="container">
+                <h1>Confirmation d'emprunt</h1>
+                <p>Vérifiez les détails de votre emprunt avant de confirmer</p>
+            </div>
+        </section>
+        
+        <div class="container">
+            <div class="borrow-confirmation-container">
+                <!-- Nouvelle mise en page moderne -->
+                <div class="modern-layout">
+                    <!-- Colonne gauche: Image du livre -->
+                    <div class="book-image-column">
+                        <!-- Logique améliorée pour l'affichage de l'image avec gestion des chemins /images/ -->
+                        <img th:with="imagePath=${book.coverImageUrl != null ? book.coverImageUrl : 'default-book.jpg'}"
+                             th:src="${imagePath.startsWith('/images/') ? imagePath : '/files/book-covers/' + imagePath}"
+                             class="book-image-large"
+                             th:attr="data-original-path=${book.coverImageUrl != null ? book.coverImageUrl : 'default-book.jpg'},
+                                     data-image-name=${book.coverImageUrl != null ? book.coverImageUrl : 'default-book.jpg'},
+                                     data-is-images-path=${book.coverImageUrl != null && book.coverImageUrl.startsWith('/images/') ? 'true' : 'false'}"
+                             alt="Couverture du livre"
+                             onerror="handleImageError(this)">
+                        
+                        <div class="book-status">
+                            <span class="status-badge">Disponible</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Colonne droite: Informations du livre et détails d'emprunt -->
+                    <div class="book-details-column">
+                        <!-- En-tête du livre -->
+                        <div class="book-header">
+                            <h2 class="book-title" th:text="${book.title}">Titre du livre</h2>
+                            <div class="book-meta">
+                                <p class="book-author"><i class="fas fa-user-edit"></i> <span th:text="${book.author}">Auteur</span></p>
+                                <p class="book-isbn" th:if="${book.isbn != null}"><i class="fas fa-barcode"></i> <span th:text="${book.isbn}">ISBN</span></p>
+                                <p class="book-category"><i class="fas fa-bookmark"></i> <span th:text="${book.category != null ? book.category : 'Non catégorisé'}">Catégorie</span></p>
+                            </div>
+                        </div>
+                        
+                        <!-- Informations d'emprunt -->
+                        <div class="borrow-info-card">
+                            <h3><i class="fas fa-info-circle"></i> Informations d'emprunt</h3>
+                            
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <i class="fas fa-calendar-check"></i>
+                                    <div class="info-content">
+                                        <span class="label">Date d'emprunt</span>
+                                        <span class="value" th:text="${#temporals.format(#temporals.createNow(), 'dd MMMM yyyy')}">01 Janvier 2023</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="info-item">
+                                    <i class="fas fa-calendar-times"></i>
+                                    <div class="info-content">
+                                        <span class="label">Date de retour</span>
+                                        <span class="value highlight" th:text="${#temporals.format(expectedReturnDate, 'dd MMMM yyyy')}">15 Janvier 2023</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Subscription Information -->
+                                <div class="info-item" th:if="${subscription != null}">
+                                    <i class="fas fa-id-card"></i>
+                                    <div class="info-content">
+                                        <span class="label">Abonnement</span>
+                                        <span class="value" th:text="${subscriptionType.displayName}">Type</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="info-item" th:if="${subscription != null}">
+                                    <i class="fas fa-book"></i>
+                                    <div class="info-content">
+                                        <span class="label">Livres restants</span>
+                                        <span class="value" th:if="${subscriptionType != null && #strings.toString(subscriptionType) == 'PREMIUM'}">Illimité</span>
+                                        <span class="value" th:unless="${subscriptionType != null && #strings.toString(subscriptionType) == 'PREMIUM'}" th:text="${booksRemaining + ' livres'}">0 livres</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Wallet Information -->
+                                <div class="info-item" th:if="${walletBalance != null}">
+                                    <i class="fas fa-wallet"></i>
+                                    <div class="info-content">
+                                        <span class="label">Solde disponible</span>
+                                        <span class="value" th:text="${#numbers.formatDecimal(walletBalance, 1, 2) + ' €'}">0.00 €</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="important-notice">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <p>Veuillez retourner le livre avant la date de retour pour éviter des pénalités.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Terms Information -->
+                        <div class="terms-section">
+                            <h3><i class="fas fa-file-contract"></i> Conditions d'emprunt</h3>
+                            <p>En confirmant cet emprunt, vous acceptez les conditions d'utilisation de la bibliothèque et vous vous engagez à:</p>
+                            <ul>
+                                <li><i class="fas fa-check"></i> Retourner le livre dans l'état dans lequel vous l'avez reçu</li>
+                                <li><i class="fas fa-check"></i> Respecter la date de retour prévue</li>
+                                <li><i class="fas fa-check"></i> Payer les éventuelles pénalités en cas de retard ou de dégradation</li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="action-buttons">
+                            <a th:href="@{/books}" class="btn btn-cancel">
+                                <i class="fas fa-times"></i> Annuler
+                            </a>
+                            
+                            <form th:action="@{/borrow/{id}(id=${book.id})}" method="post">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <button type="submit" class="btn btn-confirm">
+                                    <i class="fas fa-check"></i> Confirmer l'emprunt
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Script amélioré pour gérer les erreurs d'image -->
+                <script th:inline="javascript">
+                    function handleImageError(img) {
+                        console.log('Erreur de chargement de l\'image:', img.getAttribute('data-original-path'));
+                        
+                        // Vérifier si l'image est dans le répertoire /images/
+                        const isImagesPath = img.getAttribute('data-is-images-path') === 'true';
+                        const originalPath = img.getAttribute('data-original-path');
+                        const imageName = img.getAttribute('data-image-name');
+                        
+                        console.log('Est dans /images/:', isImagesPath);
+                        console.log('Chemin original:', originalPath);
+                        console.log('Nom de l\'image:', imageName);
+                        
+                        // Essayer plusieurs stratégies pour charger l'image
+                        let strategies = [];
+                        
+                        if (isImagesPath) {
+                            // Stratégies pour les images dans /images/
+                            strategies = [
+                                // 1. Essayer directement avec le chemin original
+                                () => {
+                                    console.log('Tentative avec le chemin original:', originalPath);
+                                    return originalPath;
+                                },
+                                // 2. Essayer avec le nom de fichier dans /images/
+                                () => {
+                                    const fileName = originalPath.substring(originalPath.lastIndexOf('/') + 1);
+                                    console.log('Tentative avec le nom de fichier dans /images/:', '/images/' + fileName);
+                                    return '/images/' + fileName;
+                                },
+                                // 3. Essayer avec le chemin dans /static/images/
+                                () => {
+                                    const fileName = originalPath.substring(originalPath.lastIndexOf('/') + 1);
+                                    console.log('Tentative avec /static/images/:', '/static/images/' + fileName);
+                                    return '/static/images/' + fileName;
+                                }
+                            ];
+                        } else {
+                            // Stratégies pour les images dans book-covers
+                            strategies = [
+                                // 1. Essayer avec le nom en minuscules
+                                () => {
+                                    const lowercaseName = imageName.toLowerCase();
+                                    console.log('Tentative avec le nom en minuscules:', lowercaseName);
+                                    return '/files/book-covers/' + lowercaseName;
+                                },
+                                // 2. Essayer en remplaçant les espaces par des underscores
+                                () => {
+                                    const nameWithUnderscores = imageName.replace(/ /g, '_');
+                                    console.log('Tentative avec underscores:', nameWithUnderscores);
+                                    return '/files/book-covers/' + nameWithUnderscores;
+                                },
+                                // 3. Essayer dans le répertoire /images/
+                                () => {
+                                    console.log('Tentative dans le répertoire /images/:', '/images/' + imageName);
+                                    return '/images/' + imageName;
+                                },
+                                // 4. Essayer l'image par défaut
+                                () => {
+                                    console.log('Tentative avec l\'image par défaut');
+                                    return '/files/book-covers/default-book.jpg';
+                                }
+                            ];
+                        }
+                        
+                        // Fonction pour essayer la stratégie suivante
+                        function tryNextStrategy(index) {
+                            if (index >= strategies.length) {
+                                // Toutes les stratégies ont échoué, afficher un message
+                                console.log('Toutes les stratégies ont échoué');
+                                img.style.display = 'none';
+                                img.insertAdjacentHTML('afterend', '<div class="no-image">Pas d\'image disponible</div>');
+                                return;
+                            }
+                            
+                            // Essayer la stratégie actuelle
+                            img.src = strategies[index]();
+                            img.onerror = function() {
+                                // Si ça échoue, essayer la stratégie suivante
+                                tryNextStrategy(index + 1);
+                            };
+                        }
+                        
+                        // Commencer avec la première stratégie
+                        tryNextStrategy(0);
+                    }
+                </script>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

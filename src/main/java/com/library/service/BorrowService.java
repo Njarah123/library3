@@ -1,6 +1,8 @@
 package com.library.service;
 
+import com.library.dto.Activity;
 import com.library.model.Book;
+import com.library.enums.UserType;
 import com.library.model.Borrow;
 import com.library.model.User;
 import com.library.repository.BookRepository;
@@ -14,10 +16,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class BorrowService {
+
+    private static final Logger logger = LoggerFactory.getLogger(BorrowService.class);
 
     @Autowired
     private BorrowRepository borrowRepository;
@@ -27,7 +41,7 @@ public class BorrowService {
     @Autowired
     private BookRepository bookRepository;
     @Autowired
-    private StaffRepository staffRepository; 
+    private StaffRepository staffRepository;
 @Transactional
     public Borrow createBorrowForStaff(String username, Long bookId) {
         User user = userRepository.findByUsername(username)
@@ -51,7 +65,7 @@ public class BorrowService {
         borrow.setExpectedReturnDate(LocalDateTime.now().plusDays(14));
         borrow.setStatus("EMPRUNTÉ");
 
-        book.setAvailable(false);
+        book.decrementAvailableQuantity();
         bookRepository.save(book);
 
         return borrowRepository.save(borrow);
@@ -63,7 +77,16 @@ public class BorrowService {
       public List<Borrow> getCurrentBorrowsByStaff(String username) {
         return borrowRepository.findCurrentBorrowsByStaffUsername(username);
     }
+    @Transactional
     public Borrow saveBorrow(Borrow borrow) {
+        // Si c'est un nouvel emprunt (pas encore sauvegardé), décrémenter la quantité
+        if (borrow.getId() == null && "EMPRUNTÉ".equals(borrow.getStatus())) {
+            Book book = borrow.getBook();
+            if (book != null && book.getAvailableQuantity() > 0) {
+                book.decrementAvailableQuantity();
+                bookRepository.save(book);
+            }
+        }
         return borrowRepository.save(borrow);
     }
 
@@ -79,11 +102,13 @@ public class BorrowService {
     }
    
     public boolean hasUserBorrowedBook(Long userId, Long bookId) {
-        return borrowRepository.existsByUserIdAndBookIdAndStatus(userId, bookId, "BORROWED");
+        // Vérifier avec les deux statuts possibles pour éviter les incohérences
+        return borrowRepository.existsByUserIdAndBookIdAndStatus(userId, bookId, "BORROWED") ||
+               borrowRepository.existsByUserIdAndBookIdAndStatus(userId, bookId, "EMPRUNTÉ");
     }
 
     public List<Borrow> getAllActiveBorrows() {
-        return borrowRepository.findByStatus("BORROWED");
+        return borrowRepository.findByStatus("EMPRUNTÉ");
     }
 
     @Transactional
@@ -100,9 +125,55 @@ public void returnBook(Long borrowId) {
     
     // Rendre le livre disponible
     Book book = borrow.getBook();
-    book.setAvailable(true);
+    book.incrementAvailableQuantity();
     bookRepository.save(book);
     
     borrowRepository.save(borrow);
 }
+
+    public List<Map<String, Object>> getRecentActivities() {
+        List<Map<String, Object>> activities = new ArrayList<>();
+        try {
+            List<Borrow> allBorrows = borrowRepository.findActivitiesByStudentAndStaff();
+            logger.info("Found {} borrow records for students and staff", allBorrows.size());
+
+            for (Borrow borrow : allBorrows) {
+                // Create a borrow activity
+                Map<String, Object> borrowActivity = new HashMap<>();
+                borrowActivity.put("type", "EMPRUNTÉ");
+                borrowActivity.put("description", String.format("%s a emprunté \"%s\"",
+                    borrow.getUser().getUsername(), borrow.getBook().getTitle()));
+                borrowActivity.put("timestamp", borrow.getBorrowDate());
+                activities.add(borrowActivity);
+
+                // If the book has been returned, create a return activity
+                if (borrow.getReturnDate() != null) {
+                    Map<String, Object> returnActivity = new HashMap<>();
+                    returnActivity.put("type", "RETOURNÉ");
+                    returnActivity.put("description", String.format("%s a retourné \"%s\"",
+                        borrow.getUser().getUsername(), borrow.getBook().getTitle()));
+                    returnActivity.put("timestamp", borrow.getReturnDate());
+                    activities.add(returnActivity);
+                }
+            }
+
+            // Sort activities by timestamp in descending order
+            activities.sort(Comparator.comparing((Map<String, Object> a) -> (LocalDateTime) a.get("timestamp")).reversed());
+
+        } catch (Exception e) {
+            logger.error("Error fetching recent activities", e);
+        }
+        
+        logger.info("Returning {} recent activities", activities.size());
+        return activities.stream().limit(10).map(activity -> {
+            Map<String, Object> formattedActivity = new HashMap<>(activity);
+            LocalDateTime timestamp = (LocalDateTime) formattedActivity.get("timestamp");
+            if (timestamp != null) {
+                formattedActivity.put("timestamp", timestamp.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            } else {
+                formattedActivity.put("timestamp", "Date non disponible");
+            }
+            return formattedActivity;
+        }).collect(Collectors.toList());
+    }
 }

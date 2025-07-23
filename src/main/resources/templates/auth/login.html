@@ -1,62 +1,593 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Connexion</title>
+    <title>Connexion - Joanjarah</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" th:href="@{/css/login.css}">
+    <link rel="stylesheet" th:href="@{/fontawesome/all.min.css}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Background avec image floutée */
+        .background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.5)), 
+                        url('/images/sabi.avif') center/cover;
+            filter: blur(2px);
+            z-index: -2;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: -1;
+        }
+
+        /* Header avec logo et navigation */
+        .header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .logo::before {
+            content: "📚";
+            margin-right: 10px;
+            font-size: 24px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: white;
+        }
+
+        /* Container principal */
+        .auth-container {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* Formulaire de connexion */
+        .login-form {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 50px 40px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Logo central */
+        .form-logo {
+            background: rgba(255, 255, 255, 0.2);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            font-size: 36px;
+            color: white;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Groupes de champs */
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: none;
+        }
+
+        /* Champs de saisie avec effet translucide */
+        .form-input {
+            width: 100%;
+            padding: 18px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            color: white;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 300;
+        }
+
+        .form-input:focus {
+            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Icônes dans les champs */
+        .form-input.username {
+            padding-left: 50px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="rgba(255,255,255,0.7)" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: 18px center;
+            background-size: 20px;
+        }
+
+        .form-input.password {
+            padding-left: 50px;
+            padding-right: 50px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="rgba(255,255,255,0.7)" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: 18px center;
+            background-size: 20px;
+        }
+
+        /* Password toggle eye icon */
+        .password-toggle {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            font-size: 18px;
+            transition: color 0.3s ease;
+            z-index: 10;
+        }
+
+        .password-toggle:hover {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+
+        /* Checkbox Remember Me */
+        .remember-me {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            margin-bottom: 30px;
+        }
+
+        .remember-me input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+
+        .remember-me label {
+            display: block;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* Bouton principal */
+        .btn-primary {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #ff6b6b, #ff5722);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(255, 107, 107, 0.4);
+            background: linear-gradient(135deg, #ff5722, #ff6b6b);
+        }
+
+        .btn-primary:active {
+            transform: translateY(-1px);
+        }
+
+        /* Liens en bas */
+        .auth-links {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .btn-link {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s ease;
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-link:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Alertes */
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+        }
+
+        .alert-error {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            color: #ffcdd2;
+        }
+
+        .alert-success {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            color: #c8e6c9;
+        }
+
+        /* Footer */
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .footer a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px 20px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .login-form {
+                padding: 40px 30px;
+                margin: 20px;
+            }
+
+            .auth-links {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-form {
+                padding: 30px 25px;
+            }
+
+            .form-logo {
+                width: 60px;
+                height: 60px;
+                font-size: 28px;
+            }
+        }
+
+        /* Multi-user remembered accounts */
+        .remembered-users-container {
+            position: absolute;
+            top: 80px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 20;
+        }
+
+        .remembered-user-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 8px 15px;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            transform: translateX(-300px);
+            animation: slideIn 0.5s forwards;
+            position: relative;
+        }
+
+        .remembered-user-card:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(-300px) scale(1.05);
+        }
+
+        .remembered-user-card img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .remembered-user-card span {
+            color: white;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .remove-user-btn {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 22px;
+            height: 22px;
+            background: rgba(255, 82, 82, 0.8);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0;
+        }
+
+        .remembered-user-card:hover .remove-user-btn {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        @keyframes slideIn {
+            to {
+                transform: translateX(0);
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="auth-container">
-        <div class="auth-box">
+    <div class="background"></div>
+    <div class="overlay"></div>
 
-            <div class="auth-image-side">
-                <img src="/images/livre2.png" alt="Illustration de livres pour une librairie">
-            </div>
-
-            <div class="auth-form-side">
-                <h2>Connexion</h2>
-
-                <div th:if="${param.error}" class="alert alert-error">
-                    Nom d'utilisateur ou mot de passe incorrect.
-                </div>
-                
-                <div th:if="${param.logout}" class="alert alert-success">
-                    Vous avez été déconnecté avec succès.
-                </div>
-                
-                <div th:if="${param.registered}" class="alert alert-success">
-                    Inscription réussie ! Vous pouvez maintenant vous connecter.
-                </div>
-
-                <form th:action="@{/auth/login}" method="post">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                    <div class="form-group">
-                        <label for="username">Nom d'utilisateur</label>
-                        <input type="text" id="username" name="username" required autofocus>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="password">Mot de passe</label>
-                        <input type="password" id="password" name="password" required>
-                    </div>
-
-                    <div class="form-group remember-me">
-                        <input type="checkbox" id="remember-me" name="remember-me">
-                        <label for="remember-me">Se souvenir de moi</label>
-                    </div>
-
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-primary">Se connecter</button>
-                    </div>
-                </form>
-
-                <div class="auth-links">
-                    <a th:href="@{/auth/register}" class="btn btn-link">Créer un compte</a>
-                    <a th:href="@{/auth/forgot-password}" class="btn btn-link">Mot de passe oublié ?</a>
-                </div>
-            </div>
-
+    <!-- Floating menu for remembered users -->
+    <div class="remembered-users-container" th:if="${rememberedUsers != null and not #lists.isEmpty(rememberedUsers)}">
+        <div th:each="user, iterStat : ${rememberedUsers}"
+             class="remembered-user-card"
+             th:style="'animation-delay: ' + ${iterStat.index * 0.1} + 's;'"
+             th:data-username="${user.username}"
+             onclick="loginWithProfile(this.getAttribute('data-username'))">
+            <img th:src="@{${user.profileImage}}" alt="Profile Picture" onerror="this.src='/uploads/profiles/default-profile.png'">
+            <span th:text="${user.name}"></span>
+            <div class="remove-user-btn" th:data-username="${user.username}" onclick="event.stopPropagation(); removeUser(this.getAttribute('data-username'));">×</div>
         </div>
     </div>
+
+    <div class="header">
+        <a href="/" class="logo">
+            <img src="/images/Logobnk.png" alt="Logobnk" style="height: 95px; width: auto; max-width: 300px; object-fit: contain;" />
+        </a>
+        <div class="nav-links">
+            <a th:href="@{/}">Accueil</a>
+            <a th:href="@{/auth/login}">Connexion</a>
+            <a th:href="@{/info/about}">À propos</a>
+            <a th:href="@{/auth/register}">S'inscrire</a>
+            <a th:href="@{/info/contact}">Contact</a>
+        </div>
+    </div>
+
+    <!-- Container principal -->
+    <div class="auth-container">
+        <div class="login-form">
+            <!-- Logo central -->
+            <div class="form-logo">📚</div>
+
+            <!-- Messages d'alerte -->
+            <div th:if="${param.error}" class="alert alert-error">
+                Nom d'utilisateur ou mot de passe incorrect.
+            </div>
+            
+            <div th:if="${param.logout}" class="alert alert-success">
+                Vous avez été déconnecté avec succès.
+            </div>
+            
+            <div th:if="${param.registered}" class="alert alert-success">
+                Inscription réussie ! Vous pouvez maintenant vous connecter.
+            </div>
+
+            <!-- Formulaire de connexion -->
+            <form id="loginForm" th:action="@{/auth/login}" method="post" onsubmit="return validateForm()">
+                <div class="form-group">
+                    <label for="username">Nom d'utilisateur</label>
+                    <input type="text" id="username" name="username" class="form-input username"
+                           placeholder="Nom d'utilisateur" required autofocus>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Mot de passe</label>
+                    <input type="password" id="password" name="password" class="form-input password"
+                           placeholder="Mot de passe" required>
+                    <i class="fas fa-eye password-toggle" id="togglePassword" onclick="togglePasswordVisibility()"></i>
+                </div>
+
+                <div class="form-group remember-me">
+                    <input type="checkbox" id="remember-me" name="remember-me">
+                    <label for="remember-me">Se souvenir de moi</label>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn-primary">Se connecter</button>
+                </div>
+            </form>
+
+            <!-- Liens supplémentaires -->
+            <div class="auth-links">
+                <a th:href="@{/auth/register}" class="btn-link">Pas encore de compte? Inscrivez-vous ici !</a>
+            </div>
+        </div>
+    </div>
+
+    <form id="rememberedLoginForm" th:action="@{/auth/login-remembered}" method="post" style="display: none;">
+        <input type="hidden" id="rememberedUsername" name="username"/>
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+    </form>
+
+    <form id="removeUserForm" th:action="@{/auth/remove-remembered-user}" method="post" style="display: none;">
+        <input type="hidden" id="removeUsername" name="username"/>
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+    </form>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div>
+            <a th:href="@{/info/about}">À propos</a>
+            <a th:href="@{/info/privacy}">Politique de confidentialité</a>
+            <a th:href="@{/info/terms}">Conditions d'utilisation</a>
+        </div>
+        <div style="margin-top: 10px;">
+            © 2025 Logobnk. Tous droits réservés | Design by Hasinjara
+        </div>
+    </div>
+
+    <script>
+        function togglePasswordVisibility() {
+            const passwordField = document.getElementById('password');
+            const toggleIcon = document.getElementById('togglePassword');
+            
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordField.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+
+        function loginWithProfile(username) {
+            document.getElementById('rememberedUsername').value = username;
+            document.getElementById('rememberedLoginForm').submit();
+        }
+
+        function removeUser(username) {
+            if (confirm('Voulez-vous vraiment supprimer ce profil de la liste ?')) {
+                document.getElementById('removeUsername').value = username;
+                document.getElementById('removeUserForm').submit();
+            }
+        }
+
+        function validateForm() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            
+            if (!username) {
+                alert('Veuillez saisir votre nom d\'utilisateur');
+                document.getElementById('username').focus();
+                return false;
+            }
+            
+            if (!password) {
+                alert('Veuillez saisir votre mot de passe');
+                document.getElementById('password').focus();
+                return false;
+            }
+            
+            return true;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('.login-form');
+            form.style.opacity = '0';
+            form.style.transform = 'translateY(30px)';
+            
+            setTimeout(() => {
+                form.style.transition = 'all 0.8s ease';
+                form.style.opacity = '1';
+                form.style.transform = 'translateY(0)';
+            }, 200);
+        });
+
+        // Effet de parallaxe léger sur le background
+        document.addEventListener('mousemove', function(e) {
+            const background = document.querySelector('.background');
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+            
+            background.style.transform = `translate(${x * 20}px, ${y * 20}px) scale(1.1)`;
+        });
+    </script>
 </body>
 </html>

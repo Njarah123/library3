@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Abonnements | Bibliothèque</title>
+    <link rel="stylesheet" href="/fontawesome/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/librarian-dashboard.css}">
+    <link rel="stylesheet" th:href="@{/css/notification-panel.css}">
+    <style>
+        .subscription-card {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+            margin-bottom: 20px;
+        }
+        .subscription-card:hover {
+            transform: translateY(-5px);
+        }
+        .card-header {
+            border-radius: 10px 10px 0 0;
+        }
+        .stats-card {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .stats-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #0d6efd;
+        }
+        .filter-form {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .subscription-type-badge {
+            font-size: 0.8rem;
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+        .discovery {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+        .standard {
+            background-color: #cfe2ff;
+            color: #084298;
+        }
+        .premium {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+        .expiring-soon {
+            border-left: 5px solid #ffc107;
+        }
+        .zero-quota {
+            border-left: 5px solid #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 bg-dark sidebar">
+                <div class="sidebar-sticky">
+                    <div class="logo-container">
+                        <img src="/images/logo.png" alt="Logo" class="logo">
+                        <h5 class="text-white">Bibliothèque</h5>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/librarian/dashboard">
+                                <i class="fas fa-tachometer-alt"></i> Tableau de bord
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/librarian/books">
+                                <i class="fas fa-book"></i> Livres
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/librarian/members">
+                                <i class="fas fa-users"></i> Membres
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/librarian/borrows">
+                                <i class="fas fa-exchange-alt"></i> Emprunts
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/librarian/subscriptions">
+                                <i class="fas fa-credit-card"></i> Abonnements
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/librarian/reports">
+                                <i class="fas fa-chart-bar"></i> Rapports
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/librarian/settings">
+                                <i class="fas fa-cog"></i> Paramètres
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main content -->
+            <div class="col-md-10 main-content">
+                <!-- Top navigation -->
+                <nav class="navbar navbar-expand-lg navbar-light bg-white">
+                    <div class="container-fluid">
+                        <h4>Gestion des Abonnements</h4>
+                        <div class="d-flex">
+                            <div class="notification-container">
+                                <button id="notificationButton" class="btn btn-light position-relative">
+                                    <i class="fas fa-bell"></i>
+                                    <span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" 
+                                          style="display: none;">
+                                        0
+                                    </span>
+                                </button>
+                                <div id="notificationPanel" class="notification-panel">
+                                    <div class="notification-header">
+                                        <h6>Notifications</h6>
+                                        <button id="markAllAsRead" class="btn btn-sm btn-outline-primary">Tout marquer comme lu</button>
+                                    </div>
+                                    <div id="notificationList" class="notification-list">
+                                        <!-- Notifications will be loaded here -->
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="dropdown ms-3">
+                                <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-user-circle"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
+                                    <li><a class="dropdown-item" href="/profile">Profil</a></li>
+                                    <li><a class="dropdown-item" href="/logout">Déconnexion</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+
+                <!-- Alert messages -->
+                <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <span th:text="${success}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <span th:text="${error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <div th:if="${warning}" class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <span th:text="${warning}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+
+                <!-- Statistics cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted">Abonnements actifs</h6>
+                                    <div class="stats-number" th:text="${totalActiveSubscriptions}">0</div>
+                                </div>
+                                <i class="fas fa-credit-card fa-2x text-primary"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted">Abonnements expirant bientôt</h6>
+                                    <div class="stats-number" th:text="${expiringSubscriptions}">0</div>
+                                </div>
+                                <i class="fas fa-clock fa-2x text-warning"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted">Quota épuisé</h6>
+                                    <div class="stats-number" th:text="${zeroQuotaSubscriptions}">0</div>
+                                </div>
+                                <i class="fas fa-exclamation-triangle fa-2x text-danger"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stats-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="text-muted">Résultats filtrés</h6>
+                                    <div class="stats-number" th:text="${filteredCount != null ? filteredCount : totalActiveSubscriptions}">0</div>
+                                </div>
+                                <i class="fas fa-filter fa-2x text-info"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions buttons -->
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <a href="/librarian/subscriptions/user-search?query=" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Créer un abonnement
+                        </a>
+                        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                            <i class="fas fa-filter"></i> Filtrer
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filter form -->
+                <div class="collapse mb-4" id="filterCollapse">
+                    <div class="filter-form">
+                        <form th:action="@{/librarian/subscriptions/filter}" method="get">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="type" class="form-label">Type d'abonnement</label>
+                                        <select class="form-select" id="type" name="type">
+                                            <option value="">Tous</option>
+                                            <option th:each="type : ${subscriptionTypes}" 
+                                                    th:value="${type}" 
+                                                    th:text="${type.displayName}"
+                                                    th:selected="${selectedType == type}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="startDate" class="form-label">Date de début</label>
+                                        <input type="datetime-local" class="form-control" id="startDate" name="startDate" th:value="${startDate}">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="endDate" class="form-label">Date de fin</label>
+                                        <input type="datetime-local" class="form-control" id="endDate" name="endDate" th:value="${endDate}">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="hasQuota" class="form-label">Quota disponible</label>
+                                        <select class="form-select" id="hasQuota" name="hasQuota">
+                                            <option value="">Tous</option>
+                                            <option value="true" th:selected="${hasQuota == true}">Avec quota</option>
+                                            <option value="false" th:selected="${hasQuota == false}">Sans quota</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-end">
+                                <button type="submit" class="btn btn-primary">Appliquer</button>
+                                <a th:href="@{/librarian/subscriptions}" class="btn btn-outline-secondary ms-2">Réinitialiser</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Subscriptions list -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <div th:if="${subscriptions.empty}" class="alert alert-info">
+                            Aucun abonnement trouvé.
+                        </div>
+                        <div th:unless="${subscriptions.empty}" class="row">
+                            <div th:each="subscription : ${subscriptions}" class="col-md-4">
+                                <div class="card subscription-card" 
+                                     th:classappend="${subscription.daysRemaining <= 7 ? 'expiring-soon' : ''} + ' ' + ${subscription.booksRemaining == 0 && subscription.subscriptionType.name() != 'PREMIUM' ? 'zero-quota' : ''}">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <span class="subscription-type-badge" 
+                                              th:classappend="${subscription.subscriptionType.name() == 'DISCOVERY' ? 'discovery' : subscription.subscriptionType.name() == 'STANDARD' ? 'standard' : 'premium'}"
+                                              th:text="${subscription.subscriptionType.displayName}">Type</span>
+                                        <span th:if="${subscription.daysRemaining <= 7}" class="badge bg-warning">Expire bientôt</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <h5 class="card-title" th:text="${subscription.userName}">Nom de l'utilisateur</h5>
+                                        <p class="card-text">
+                                            <small class="text-muted" th:text="${subscription.userEmail}">email@example.com</small>
+                                        </p>
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span>Livres restants:</span>
+                                            <span th:if="${subscription.subscriptionType.name() == 'PREMIUM'}">Illimité</span>
+                                            <span th:unless="${subscription.subscriptionType.name() == 'PREMIUM'}" 
+                                                  th:text="${subscription.booksRemaining}"
+                                                  th:class="${subscription.booksRemaining == 0 ? 'text-danger fw-bold' : ''}">0</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span>Jours restants:</span>
+                                            <span th:text="${subscription.daysRemaining}"
+                                                  th:class="${subscription.daysRemaining <= 7 ? 'text-warning fw-bold' : ''}">0</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Date d'expiration:</span>
+                                            <span th:text="${#temporals.format(subscription.endDate, 'dd/MM/yyyy')}">01/01/2023</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <a th:href="@{/librarian/subscriptions/{id}(id=${subscription.id})}" class="btn btn-sm btn-primary w-100">
+                                            <i class="fas fa-eye"></i> Détails
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/notifications.js}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize notifications
+            initializeNotifications();
+        });
+    </script>
+</body>
+</html>

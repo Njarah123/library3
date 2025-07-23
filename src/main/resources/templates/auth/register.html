@@ -1,130 +1,606 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Inscription</title>
+    <title>Inscription - Bibliothèque</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" th:href="@{/css/register.css}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/fontawesome/all.min.css}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Background avec image floutée */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.5)), 
+                        url('/images/face2.jpg') center/cover;
+            filter: blur(2px);
+            z-index: -2;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: -1;
+        }
+
+        /* Header avec logo et navigation */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .logo::before {
+            content: "📚";
+            margin-right: 10px;
+            font-size: 24px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: white;
+        }
+
+        /* Container principal */
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 100px 20px 20px;
+        }
+
+        /* Formulaire d'inscription */
+        .register-form {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Logo central */
+        .form-logo {
+            background: rgba(255, 255, 255, 0.2);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            font-size: 36px;
+            color: white;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .form-title {
+            color: white;
+            font-size: 28px;
+            font-weight: 300;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+
+        /* Groupes de champs */
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        /* Champs de saisie */
+        .form-input {
+            width: 100%;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            color: white;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .form-input:focus {
+            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Select */
+        select.form-input {
+            cursor: pointer;
+        }
+
+        select.form-input option {
+            background: rgba(30, 30, 30, 0.95);
+            color: white;
+            padding: 10px;
+        }
+
+        /* Password toggle eye icon */
+        .password-toggle {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            font-size: 18px;
+            transition: color 0.3s ease;
+            z-index: 10;
+            margin-top: -12px; /* Ajustement pour centrer par rapport au label */
+        }
+
+        .password-toggle:hover {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Password strength indicator */
+        .password-strength {
+            margin-top: 8px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .password-strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .password-strength.weak .password-strength-bar {
+            width: 33%;
+            background: #ff4757;
+        }
+
+        .password-strength.medium .password-strength-bar {
+            width: 66%;
+            background: #ffa502;
+        }
+
+        .password-strength.strong .password-strength-bar {
+            width: 100%;
+            background: #2ed573;
+        }
+
+        .password-strength-text {
+            font-size: 12px;
+            margin-top: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .password-strength.weak .password-strength-text {
+            color: #ff4757;
+        }
+
+        .password-strength.medium .password-strength-text {
+            color: #ffa502;
+        }
+
+        .password-strength.strong .password-strength-text {
+            color: #2ed573;
+        }
+
+        .form-input.password {
+            padding-right: 50px;
+        }
+
+        /* Champs conditionnels */
+        #studentFields, #staffFields {
+            display: none;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        /* Bouton principal */
+        .btn-primary {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #ff6b6b, #ff5722);
+            border: none;
+            border-radius: 15px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+            margin-top: 20px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(255, 107, 107, 0.4);
+            background: linear-gradient(135deg, #ff5722, #ff6b6b);
+        }
+
+        /* Liens en bas */
+        .auth-links {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .btn-link {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s ease;
+            padding: 10px 20px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            display: inline-block;
+        }
+
+        .btn-link:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Messages d'erreur */
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+        }
+
+        .alert-error {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            color: #ffcdd2;
+        }
+
+        .error-field {
+            display: block;
+            color: #ffcdd2;
+            font-size: 12px;
+            margin-top: 5px;
+            background: rgba(244, 67, 54, 0.1);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px 20px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .register-form {
+                padding: 30px 25px;
+                margin: 20px 10px;
+            }
+
+            .form-title {
+                font-size: 24px;
+            }
+
+            .image-preview {
+                width: 80px;
+                height: 80px;
+            }
+
+            .form-logo {
+                width: 60px;
+                height: 60px;
+                font-size: 28px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .register-form {
+                padding: 25px 20px;
+            }
+
+            .form-input {
+                padding: 12px 15px;
+            }
+        }
+
+        /* Animations */
+        .form-group {
+            animation: slideInUp 0.6s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .form-group:nth-child(1) { animation-delay: 0.1s; }
+        .form-group:nth-child(2) { animation-delay: 0.2s; }
+        .form-group:nth-child(3) { animation-delay: 0.3s; }
+        .form-group:nth-child(4) { animation-delay: 0.4s; }
+        .form-group:nth-child(5) { animation-delay: 0.5s; }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 </head>
 <body>
+    <!-- Background avec image floutée -->
+    <div class="background"></div>
+    <div class="overlay"></div>
+
+    <!-- Header avec navigation -->
+    <div class="header">
+        <a href="/" class="logo">
+            <img src="/images/Logobnk.png" alt="Logobnk" style="height: 95px; width: auto; max-width: 300px; object-fit: contain;" />
+        </a>
+        <div class="nav-links">
+            <a th:href="@{/}">Accueil</a>
+            <a th:href="@{/auth/login}">Connexion</a>
+            <a th:href="@{/info/about}">À propos</a>
+            <a th:href="@{/auth/register}">S'inscrire</a>
+            <a th:href="@{/info/contact}">Contact</a>
+        </div>
+    </div>
+
+    <!-- Container principal -->
     <div class="auth-container">
-        <div class="auth-box">
+        <div class="register-form">
+            <!-- Logo central -->
+            <div class="form-logo">📚</div>
+            <h2 class="form-title">Inscription</h2>
 
-            <div class="auth-image-side">
-                <img src="/images/livre2.png" alt="Illustration de livres pour une librairie">
+            <!-- Message d'erreur -->
+            <div th:if="${errorMessage}" class="alert alert-error">
+                <div th:text="${errorMessage}"></div>
             </div>
+            
+            <form id="mainForm" th:action="@{/auth/register}" method="post" th:object="${user}">
+                <!-- Token CSRF requis pour Spring Security -->
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
-            <div class="auth-form-side">
-                <h2>Inscription</h2>
-        
-                <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
-                
-                <form th:action="@{/auth/register}" method="post" th:object="${user}" enctype="multipart/form-data">
-                    <!-- Ajout de la section photo de profil -->
-                    <div class="profile-image-upload">
-                        <div class="image-preview">
-                            <img id="imagePreview" src="/images/default-profile.png" alt="Preview">
-                        </div>
-                        <div class="upload-button">
-                            <label for="profileImage" class="custom-file-upload">
-                                <i class="fas fa-camera"></i> Choisir une photo
-                            </label>
-                            <input type="file" 
-                                   id="profileImage" 
-                                   name="profileImage" 
-                                   accept="image/*"
-                                   onchange="previewImage(this);"
-                                   style="display: none;">
-                        </div>
-                    </div>
-
-                    <!-- Reste du formulaire existant -->
-                    <div class="form-group">
-                        <label for="username">Nom d'utilisateur*</label>
-                        <input type="text" id="username" th:field="*{username}" required>
-                        <span th:if="${#fields.hasErrors('username')}" class="error-field" th:errors="*{username}"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="name">Nom complet*</label>
-                        <input type="text" id="name" th:field="*{name}" required>
-                        <span th:if="${#fields.hasErrors('name')}" class="error-field" th:errors="*{name}"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="email">Email*</label>
-                        <input type="email" id="email" th:field="*{email}" required>
-                        <span th:if="${#fields.hasErrors('email')}" class="error-field" th:errors="*{email}"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="password">Mot de passe*</label>
-                        <input type="password" id="password" th:field="*{password}" required>
-                        <span th:if="${#fields.hasErrors('password')}" class="error-field" th:errors="*{password}"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="confirmPassword">Confirmer le mot de passe*</label>
-                        <input type="password" id="confirmPassword" th:field="*{confirmPassword}" required>
-                        <span th:if="${#fields.hasErrors('confirmPassword')}" class="error-field" th:errors="*{confirmPassword}"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="userType">Type d'utilisateur*</label>
-                        <select id="userType" th:field="*{userType}" required onchange="toggleFields()">
-                            <option value="">Sélectionner un type</option>
-                            <option value="STUDENT">Étudiant</option>
-                            <option value="STAFF">Personnel</option>
-                            <option value="LIBRARIAN">Bibliothécaire</option>
-                        </select>
-                        <span th:if="${#fields.hasErrors('userType')}" class="error-field" th:errors="*{userType}"></span>
-                    </div>
-
-                    <div id="studentFields">
-                        <div class="form-group">
-                            <label for="studentId">Numéro étudiant*</label>
-                            <input type="text" id="studentId" th:field="*{studentId}">
-                        </div>
-                        <div class="form-group">
-                            <label for="className">Classe*</label>
-                            <input type="text" id="className" th:field="*{className}">
-                        </div>
-                    </div>
-
-                    <div id="staffFields">
-                        <div class="form-group">
-                            <label for="employeeId">Numéro employé*</label>
-                            <input type="text" id="employeeId" th:field="*{employeeId}">
-                        </div>
-                        <div class="form-group">
-                            <label for="dept">Département</label>
-                            <input type="text" id="dept" th:field="*{dept}">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-primary">S'inscrire</button>
-                    </div>
-                </form>
-                
-                <div class="auth-links">
-                    <a th:href="@{/auth/login}" class="btn btn-link">Déjà inscrit ? Se connecter</a>
+                <!-- Champs du formulaire -->
+                <div class="form-group">
+                    <label for="username">Nom d'utilisateur*</label>
+                    <input type="text" id="username" th:field="*{username}" class="form-input" required>
+                    <span th:if="${#fields.hasErrors('username')}" class="error-field" th:errors="*{username}"></span>
                 </div>
-            </div>
 
+                <div class="form-group">
+                    <label for="name">Nom complet*</label>
+                    <input type="text" id="name" th:field="*{name}" class="form-input" required>
+                    <span th:if="${#fields.hasErrors('name')}" class="error-field" th:errors="*{name}"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email*</label>
+                    <input type="email" id="email" th:field="*{email}" class="form-input" required>
+                    <span th:if="${#fields.hasErrors('email')}" class="error-field" th:errors="*{email}"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Mot de passe*</label>
+                    <input type="password" id="password" th:field="*{password}" class="form-input password" required minlength="6" oninput="checkPasswordStrength()">
+                    <i class="fas fa-eye password-toggle" id="togglePassword" onclick="togglePasswordVisibility('password', 'togglePassword')"></i>
+                    <div class="password-strength" id="passwordStrength">
+                        <div class="password-strength-bar"></div>
+                    </div>
+                    <div class="password-strength-text" id="passwordStrengthText"></div>
+                    <span th:if="${#fields.hasErrors('password')}" class="error-field" th:errors="*{password}"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirmer le mot de passe*</label>
+                    <input type="password" id="confirmPassword" th:field="*{confirmPassword}" class="form-input password" required oninput="checkPasswordMatch()">
+                    <i class="fas fa-eye password-toggle" id="toggleConfirmPassword" onclick="togglePasswordVisibility('confirmPassword', 'toggleConfirmPassword')"></i>
+                    <div id="passwordMatchText" style="font-size: 12px; margin-top: 5px; transition: all 0.3s ease;"></div>
+                    <span th:if="${#fields.hasErrors('confirmPassword')}" class="error-field" th:errors="*{confirmPassword}"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="userType">Type d'utilisateur*</label>
+                    <select id="userType" th:field="*{userType}" class="form-input" required onchange="toggleFields()">
+                        <option value="">Sélectionner un type</option>
+                        <option value="STUDENT">Étudiant</option>
+                        <option value="STAFF">Personnel</option>
+                        <option value="LIBRARIAN">Bibliothécaire</option>
+                    </select>
+                    <span th:if="${#fields.hasErrors('userType')}" class="error-field" th:errors="*{userType}"></span>
+                </div>
+
+                <!-- Champs conditionnels pour étudiants -->
+                <div id="studentFields">
+                    <div class="form-group">
+                        <label for="className">Classe*</label>
+                        <input type="text" id="className" th:field="*{className}" class="form-input" placeholder="Ex: L3 Informatique">
+                        <small style="color: rgba(255, 255, 255, 0.7); font-size: 12px;">Votre numéro étudiant sera généré automatiquement</small>
+                    </div>
+                </div>
+
+                <!-- Champs conditionnels pour le personnel -->
+                <div id="staffFields">
+                    <div class="form-group">
+                        <label for="dept">Département</label>
+                        <input type="text" id="dept" th:field="*{dept}" class="form-input" placeholder="Ex: Informatique, Bibliothèque">
+                        <small style="color: rgba(255, 255, 255, 0.7); font-size: 12px;">Votre numéro employé sera généré automatiquement</small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn-primary">S'inscrire</button>
+                </div>
+            </form>
+            
+            
+            <div class="auth-links">
+                <a th:href="@{/auth/login}" class="btn-link">Déjà inscrit ? Se connecter</a>
+            </div>
         </div>
     </div>
 
     <script>
-        function previewImage(input) {
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    document.getElementById('imagePreview').setAttribute('src', e.target.result);
-                }
-                
-                reader.readAsDataURL(input.files[0]);
+        function togglePasswordVisibility(fieldId, toggleId) {
+            const passwordField = document.getElementById(fieldId);
+            const toggleIcon = document.getElementById(toggleId);
+            
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordField.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        }
+
+        function checkPasswordStrength() {
+            const password = document.getElementById('password').value;
+            const strengthIndicator = document.getElementById('passwordStrength');
+            const strengthText = document.getElementById('passwordStrengthText');
+            
+            if (password.length === 0) {
+                strengthIndicator.className = 'password-strength';
+                strengthText.textContent = '';
+                return;
+            }
+            
+            let strength = 0;
+            let feedback = [];
+            
+            // Longueur minimum
+            if (password.length >= 6) strength++;
+            else feedback.push('au moins 6 caractères');
+            
+            // Contient des lettres minuscules
+            if (/[a-z]/.test(password)) strength++;
+            else feedback.push('lettres minuscules');
+            
+            // Contient des lettres majuscules
+            if (/[A-Z]/.test(password)) strength++;
+            else feedback.push('lettres majuscules');
+            
+            // Contient des chiffres
+            if (/\d/.test(password)) strength++;
+            else feedback.push('chiffres');
+            
+            // Contient des caractères spéciaux
+            if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) strength++;
+            else feedback.push('caractères spéciaux');
+            
+            // Déterminer le niveau de force
+            if (strength <= 2) {
+                strengthIndicator.className = 'password-strength weak';
+                strengthText.textContent = 'Faible - Ajoutez: ' + feedback.slice(0, 2).join(', ');
+            } else if (strength <= 3) {
+                strengthIndicator.className = 'password-strength medium';
+                strengthText.textContent = 'Moyen - Améliorez avec: ' + feedback.slice(0, 1).join(', ');
+            } else {
+                strengthIndicator.className = 'password-strength strong';
+                strengthText.textContent = 'Fort - Excellent mot de passe !';
+            }
+            
+            // Vérifier aussi la correspondance si le champ de confirmation n'est pas vide
+            checkPasswordMatch();
+        }
+
+        function checkPasswordMatch() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const matchText = document.getElementById('passwordMatchText');
+            
+            if (confirmPassword.length === 0) {
+                matchText.textContent = '';
+                return;
+            }
+            
+            if (password === confirmPassword) {
+                matchText.style.color = '#2ed573';
+                matchText.textContent = '✓ Les mots de passe correspondent';
+            } else {
+                matchText.style.color = '#ff4757';
+                matchText.textContent = '✗ Les mots de passe ne correspondent pas';
             }
         }
 
@@ -133,26 +609,67 @@
             const studentFields = document.getElementById('studentFields');
             const staffFields = document.getElementById('staffFields');
             
+            // Masquer tous les champs
             studentFields.style.display = 'none';
             staffFields.style.display = 'none';
             
             const studentInputs = studentFields.querySelectorAll('input');
             const staffInputs = staffFields.querySelectorAll('input');
 
+            // Réinitialiser les champs requis
             studentInputs.forEach(input => input.required = false);
             staffInputs.forEach(input => input.required = false);
             
+            // Afficher les champs appropriés avec animation
             if (userType === 'STUDENT') {
                 studentFields.style.display = 'block';
-                studentInputs.forEach(input => input.required = true);
+                studentFields.style.animation = 'slideInUp 0.5s ease-out';
+                // Seule la classe est requise pour les étudiants
+                document.getElementById('className').required = true;
             } else if (userType === 'STAFF' || userType === 'LIBRARIAN') {
                 staffFields.style.display = 'block';
-                document.getElementById('employeeId').required = true;
+                staffFields.style.animation = 'slideInUp 0.5s ease-out';
+                // Le département n'est pas obligatoire
                 document.getElementById('dept').required = false;
             }
         }
 
-        document.addEventListener('DOMContentLoaded', toggleFields);
+        // Animation d'entrée pour le formulaire
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('.register-form');
+            form.style.opacity = '0';
+            form.style.transform = 'translateY(30px)';
+            
+            setTimeout(() => {
+                form.style.transition = 'all 0.8s ease';
+                form.style.opacity = '1';
+                form.style.transform = 'translateY(0)';
+            }, 200);
+            
+            // Initialiser les champs conditionnels
+            toggleFields();
+        });
+
+        // Effet de parallaxe léger sur le background
+        document.addEventListener('mousemove', function(e) {
+            const background = document.querySelector('.background');
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+            
+            background.style.transform = `translate(${x * 15}px, ${y * 15}px) scale(1.05)`;
+        });
+
+        // Validation du formulaire principal
+        document.querySelector('#mainForm').addEventListener('submit', function(e) {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                e.preventDefault();
+                alert('Les mots de passe ne correspondent pas.');
+                return false;
+            }
+        });
     </script>
 </body>
 </html>

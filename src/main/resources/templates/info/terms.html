@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Conditions d'utilisation - Bibliothèque numérique</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Background avec image floutée */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.5)), 
+                        url('/images/sabi.avif') center/cover;
+            filter: blur(2px);
+            z-index: -2;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: -1;
+        }
+
+        /* Header avec logo et navigation */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: white;
+        }
+
+        /* Container principal */
+        .content-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 120px 20px 40px;
+        }
+
+        /* Contenu principal */
+        .content-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 50px 40px;
+            width: 100%;
+            max-width: 900px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.3);
+            color: white;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .content-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .content-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #ff6b6b, #ff5722);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .content-header p {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+        }
+
+        .content-section {
+            margin-bottom: 35px;
+        }
+
+        .content-section h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #ff6b6b;
+            border-bottom: 2px solid rgba(255, 107, 107, 0.3);
+            padding-bottom: 8px;
+        }
+
+        .content-section h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            margin-top: 20px;
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        .content-section p {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 15px;
+        }
+
+        .content-section ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .content-section li {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .highlight-box p {
+            margin-bottom: 0;
+            font-weight: 500;
+        }
+
+        .warning-box {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .warning-box p {
+            margin-bottom: 0;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #ff6b6b, #ff5722);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            margin-top: 30px;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+        }
+
+        .back-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(255, 107, 107, 0.4);
+        }
+
+        /* Scrollbar personnalisée */
+        .content-card::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .content-card::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .content-card::-webkit-scrollbar-thumb {
+            background: rgba(255, 107, 107, 0.5);
+            border-radius: 4px;
+        }
+
+        .content-card::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 107, 107, 0.7);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px 20px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .content-card {
+                padding: 40px 30px;
+                margin: 20px;
+                max-height: 85vh;
+            }
+
+            .content-header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .content-card {
+                padding: 30px 25px;
+            }
+
+            .content-header h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background"></div>
+    <div class="overlay"></div>
+
+    <div class="header">
+        <a href="/" class="logo">
+            <img src="/images/Logobnk.png" alt="Bibliothèque numérique" style="height: 95px; width: auto; max-width: 300px; object-fit: contain;" />
+        </a>
+        <div class="nav-links">
+            <a th:href="@{/}">Accueil</a>
+            <a th:href="@{/auth/login}">Connexion</a>
+            <a th:href="@{/info/about}">À propos</a>
+            <a th:href="@{/auth/register}">S'inscrire</a>
+            <a th:href="@{/info/contact}">Contact</a>
+        </div>
+    </div>
+
+    <div class="content-container">
+        <div class="content-card">
+            <div class="content-header">
+                <h1>Conditions d'utilisation</h1>
+                <p>Dernière mise à jour : 22 juillet 2025</p>
+            </div>
+
+            <div class="content-section">
+                <h2>1. Acceptation des conditions</h2>
+                <p>En accédant et en utilisant la plateforme Bibliothèque numérique, vous acceptez d'être lié par ces conditions d'utilisation. Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser notre service.</p>
+
+                <div class="highlight-box">
+                    <p>Ces conditions constituent un accord légal entre vous et Bibliothèque numérique. Veuillez les lire attentivement.</p>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <h2>2. Description du service</h2>
+                <p>Bibliothèque numérique est une plateforme de gestion de bibliothèque numérique qui permet :</p>
+                <ul>
+                    <li>La consultation et la recherche de livres</li>
+                    <li>L'emprunt et le retour de livres</li>
+                    <li>La gestion des comptes utilisateurs</li>
+                    <li>Le suivi des emprunts et de l'historique</li>
+                    <li>La gestion des abonnements et des paiements</li>
+                </ul>
+            </div>
+
+            <div class="content-section">
+                <h2>3. Inscription et compte utilisateur</h2>
+                
+                <h3>3.1 Éligibilité</h3>
+                <p>Pour utiliser Bibliothèque numérique, vous devez :</p>
+                <ul>
+                    <li>Être âgé d'au moins 16 ans ou avoir l'autorisation parentale</li>
+                    <li>Fournir des informations exactes et complètes</li>
+                    <li>Maintenir la confidentialité de vos identifiants</li>
+                </ul>
+
+                <h3>3.2 Responsabilité du compte</h3>
+                <p>Vous êtes responsable de toutes les activités effectuées sous votre compte. Vous devez nous notifier immédiatement de toute utilisation non autorisée.</p>
+            </div>
+
+            <div class="content-section">
+                <h2>4. Règles d'utilisation</h2>
+                
+                <h3>4.1 Utilisation autorisée</h3>
+                <p>Vous pouvez utiliser Bibliothèque numérique pour :</p>
+                <ul>
+                    <li>Rechercher et emprunter des livres disponibles</li>
+                    <li>Gérer vos emprunts et votre profil</li>
+                    <li>Accéder aux services selon votre type d'abonnement</li>
+                </ul>
+
+                <h3>4.2 Utilisation interdite</h3>
+                <p>Il est strictement interdit de :</p>
+                <ul>
+                    <li>Partager vos identifiants avec des tiers</li>
+                    <li>Utiliser la plateforme à des fins commerciales non autorisées</li>
+                    <li>Tenter de contourner les mesures de sécurité</li>
+                    <li>Endommager ou perturber le fonctionnement du service</li>
+                    <li>Violer les droits de propriété intellectuelle</li>
+                </ul>
+            </div>
+
+            <div class="content-section">
+                <h2>5. Emprunts et retours</h2>
+                
+                <h3>5.1 Conditions d'emprunt</h3>
+                <ul>
+                    <li>Les emprunts sont limités selon votre type d'abonnement</li>
+                    <li>La durée d'emprunt standard est de 14 jours</li>
+                    <li>Les renouvellements sont possibles si le livre n'est pas réservé</li>
+                </ul>
+
+                <h3>5.2 Retards et amendes</h3>
+                <div class="warning-box">
+                    <p>Les retards d'emprunt entraînent des amendes automatiques. Le non-paiement peut suspendre votre compte.</p>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <h2>6. Abonnements et paiements</h2>
+                
+                <h3>6.1 Types d'abonnements</h3>
+                <ul>
+                    <li><strong>Discovery :</strong> 3 livres simultanés</li>
+                    <li><strong>Standard :</strong> 10 livres simultanés</li>
+                    <li><strong>Premium :</strong> Emprunts illimités</li>
+                </ul>
+
+                <h3>6.2 Facturation</h3>
+                <p>Les abonnements sont facturés mensuellement. Les paiements sont non remboursables sauf disposition légale contraire.</p>
+            </div>
+
+            <div class="content-section">
+                <h2>7. Propriété intellectuelle</h2>
+                <p>Tous les contenus de la plateforme (textes, images, logos, logiciels) sont protégés par les droits de propriété intellectuelle. Toute reproduction non autorisée est interdite.</p>
+            </div>
+
+            <div class="content-section">
+                <h2>8. Limitation de responsabilité</h2>
+                <p>Bibliothèque numérique ne peut être tenu responsable de :</p>
+                <ul>
+                    <li>L'interruption temporaire du service</li>
+                    <li>La perte de données due à des problèmes techniques</li>
+                    <li>Les dommages indirects ou consécutifs</li>
+                    <li>L'utilisation inappropriée de la plateforme par les utilisateurs</li>
+                </ul>
+            </div>
+
+            <div class="content-section">
+                <h2>9. Suspension et résiliation</h2>
+                
+                <h3>9.1 Suspension</h3>
+                <p>Nous pouvons suspendre votre compte en cas de :</p>
+                <ul>
+                    <li>Violation des conditions d'utilisation</li>
+                    <li>Non-paiement des amendes ou abonnements</li>
+                    <li>Activité suspecte ou frauduleuse</li>
+                </ul>
+
+                <h3>9.2 Résiliation</h3>
+                <p>Vous pouvez résilier votre compte à tout moment. Nous pouvons résilier votre compte en cas de violation grave des conditions.</p>
+            </div>
+
+            <div class="content-section">
+                <h2>10. Modifications des conditions</h2>
+                <p>Nous nous réservons le droit de modifier ces conditions à tout moment. Les modifications importantes seront notifiées par email ou via la plateforme.</p>
+            </div>
+
+            <div class="content-section">
+                <h2>11. Droit applicable</h2>
+                <p>Ces conditions sont régies par le droit malgache. Tout litige sera soumis aux tribunaux compétents d'Antananarivo, Madagascar.</p>
+            </div>
+
+            <div class="content-section">
+                <h2>12. Contact</h2>
+                <p>Pour toute question concernant ces conditions d'utilisation :</p>
+                <ul>
+                    <li>Email : legal@logobnk.com</li>
+                    <li>Téléphone : +261 34 12 345 67</li>
+                    <li>Adresse : 123 Avenue de la Bibliothèque, Antananarivo, Madagascar</li>
+                </ul>
+            </div>
+
+            <a th:href="@{/auth/login}" class="back-btn">
+                ← Retour à la connexion
+            </a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const card = document.querySelector('.content-card');
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            
+            setTimeout(() => {
+                card.style.transition = 'all 0.8s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 200);
+        });
+
+        // Effet de parallaxe léger sur le background
+        document.addEventListener('mousemove', function(e) {
+            const background = document.querySelector('.background');
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+            
+            background.style.transform = `translate(${x * 20}px, ${y * 20}px) scale(1.1)`;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Notifications</title>
+    <link rel="stylesheet" th:href="@{/css/notification-panel-new.css}">
+</head>
+<body>
+
+<!-- Nouveau panneau de notification avec overlay -->
+<div th:fragment="notification-panel">
+    <!-- Le panneau de notification -->
+    <div id="notificationPanel" class="notification-panel" data-no-close="true">
+        <div class="notification-header" data-no-close="true">
+            <h6 data-no-close="true">Notifications</h6>
+            <button id="markAllReadBtn" class="mark-all-read" onclick="markAllNotificationsAsRead(event)" data-no-close="true"
+                style="background: linear-gradient(135deg, #1877f2, #4267B2); border: none; color: white; font-size: 13px; font-weight: 600;
+                padding: 8px 14px; border-radius: 20px; box-shadow: 0 4px 10px rgba(24, 119, 242, 0.25); display: flex; align-items: center;">
+                <i class="fas fa-check-double" data-no-close="true" style="margin-right: 6px; font-size: 12px;"></i> Tout marquer comme lu
+            </button>
+        </div>
+        <div id="notificationList" class="notification-list" data-no-close="true">
+            <!-- Les notifications seront chargées ici par JavaScript -->
+        </div>
+        <div class="notification-footer" data-no-close="true">
+            <div class="empty-notification" id="emptyNotification" style="display: none;" data-no-close="true">
+                <i class="fas fa-bell-slash" data-no-close="true"></i>
+                <h5 data-no-close="true">Aucune notification</h5>
+                <p data-no-close="true">Vous n'avez pas de nouvelles notifications</p>
+            </div>
+            <div class="loading-notification" id="loadingNotification" style="display: none;" data-no-close="true">
+                <div class="spinner" data-no-close="true"></div>
+                <p data-no-close="true">Chargement des notifications...</p>
+            </div>
+            <div class="error-notification" id="errorNotification" style="display: none;" data-no-close="true">
+                <i class="fas fa-exclamation-circle" data-no-close="true"></i>
+                <h5 data-no-close="true">Erreur</h5>
+                <p data-no-close="true">Impossible de charger les notifications</p>
+                <button class="retry-btn" onclick="fetchNotifications()" data-no-close="true"
+                    style="background: linear-gradient(135deg, #1877f2, #4267B2); border: none; color: white; font-size: 14px; font-weight: 600;
+                    padding: 10px 20px; border-radius: 20px; box-shadow: 0 4px 10px rgba(24, 119, 242, 0.25);">Réessayer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- L'overlay de notification -->
+    <div id="notificationOverlay" class="notification-overlay"></div>
+</div>
+
+</body>
+</html>

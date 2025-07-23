@@ -6,5 +6,5 @@ public enum BorrowingStatus {
     EMPRUNTE,
     RETOURNE,
     EN_RETARD,
-    PERDU, EN_COURS;
+    PERDU, EN_COURS, REJETE;
 }

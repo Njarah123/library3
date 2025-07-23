@@ -1,463 +1,378 @@
-/* staff-borrows.css - Ultra Modern & Stylish Borrow Management Interface */
+/* ==========================================================================
+   FEUILLE DE STYLE MAESTRO - MES EMPRUNTS (VUE STAFF)
+   Version: 2.0 (Édition Prestige)
+   Description: Une interface épurée et motivante pour le personnel,
+                avec un design responsive, des messages clairs et des
+                actions de bouton satisfaisantes.
+   ========================================================================== */
 
-/* ----------- Base & Reset ----------- */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Poppins', 'Segoe UI', system-ui, -apple-system, sans-serif;
+/* --- Importation des polices --- */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Poppins:wght@400;600;700;800&display=swap');
+
+/* --- Définition des variables globales (Palette cohérente) --- */
+:root {
+    /* Palette de couleurs */
+    --primary-color: #1a253c;
+    --secondary-color: #2c7be5;
+    --accent-color: #e63946;
+    --success-color: #28a745;
+    --warning-color: #fca311;
+    
+    /* Nuances de fond et de texte */
+    --bg-main: #f0f2f5;
+    --bg-card: #ffffff;
+    --text-primary: #333;
+    --text-secondary: #6c757d;
+    --border-color: #dee2e6;
+    --row-hover-color: #f8f9fa;
+    
+    /* Propriétés de design */
+    --card-shadow-light: 0 4px 6px rgba(0, 0, 0, 0.04);
+    --card-shadow-heavy: 0 10px 25px rgba(0, 0, 0, 0.08);
+    --border-radius-sm: 8px;
+    --border-radius-md: 12px;
+    --transition-fast: 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    --transition-smooth: 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+    /* Polices */
+    --font-body: 'Roboto', sans-serif;
+    --font-heading: 'Poppins', sans-serif;
 }
 
-html {
-    font-size: 16px;
-    scroll-behavior: smooth;
-    background: linear-gradient(135deg, #f8f9ff 0%, #e8ecff 100%);
-    min-height: 100vh;
-}
+/* ==========================================================================
+   Styles de base et animations
+   ========================================================================== */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
 
 body {
-    min-height: 100vh;
-    color: #2a3252;
+    font-family: var(--font-body);
+    background-color: var(--bg-main);
+    color: var(--text-primary);
     line-height: 1.6;
     overflow-x: hidden;
 }
 
-/* ----------- Container & Layout ----------- */
+::selection { background-color: var(--secondary-color); color: white; }
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   Conteneur principal et En-tête de page
+   ========================================================================== */
 .container {
-    max-width: 1400px;
-    width: 95%;
-    margin: 0 auto;
-    padding: 2rem 1.5rem 4rem;
-    position: relative;
-}
-
-/* Glassmorphism Effect */
-.container::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-radius: 2rem;
-    z-index: -1;
-    box-shadow: 0 25px 80px rgba(69, 86, 255, 0.15);
-}
-
-/* ----------- Header Styles ----------- */
-header {
-    margin-bottom: 3rem;
-    position: relative;
-    padding-bottom: 2rem;
-}
-
-header::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: linear-gradient(90deg, #4a6bff, #8aa4ff);
-    border-radius: 2px;
-    opacity: 0.3;
+    max-width: 900px; /* Plus centré pour une liste simple */
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+    animation: fadeInUp 0.5s ease-out;
 }
 
 h1 {
-    font-size: 3.2rem;
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 5vw, 2.5rem);
     font-weight: 800;
-    background: linear-gradient(90deg, #4a6bff, #8aa4ff);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
     margin-bottom: 1rem;
-    letter-spacing: -0.5px;
-    text-shadow: 0 4px 15px rgba(74, 107, 255, 0.2);
+    color: var(--primary-color);
+    text-align: center;
 }
 
+/* --- Bloc d'information utilisateur --- */
 .user-info {
+    background: var(--bg-card);
+    padding: 1rem 1.5rem;
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--card-shadow-light);
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
     margin-bottom: 2rem;
-    font-size: 1.1rem;
-    color: #5a6a9a;
-    font-weight: 500;
+    border-left: 5px solid var(--secondary-color);
 }
 
-/* ----------- Navigation ----------- */
+.user-info p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.user-info p span {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+/* --- Navigation --- */
 nav {
+    background: var(--bg-card);
+    padding: 0.8rem;
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--card-shadow-light);
     display: flex;
-    gap: 1.5rem;
-    margin-top: 2rem;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
 }
 
 nav a {
     text-decoration: none;
-    color: #5a6a9a;
+    color: var(--text-secondary);
     font-weight: 600;
-    font-size: 1.1rem;
-    padding: 0.8rem 1.5rem;
-    border-radius: 2rem;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    position: relative;
-    overflow: hidden;
-}
-
-nav a::before {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background: #4a6bff;
-    transform: scaleX(0);
-    transform-origin: right;
-    transition: transform 0.3s ease;
+    padding: 0.6rem 1.2rem;
+    border-radius: var(--border-radius-sm);
+    transition: all var(--transition-fast);
 }
 
 nav a:hover {
-    color: #4a6bff;
-    background: rgba(74, 107, 255, 0.08);
-}
-
-nav a:hover::before {
-    transform: scaleX(1);
-    transform-origin: left;
+    background-color: var(--row-hover-color);
+    color: var(--secondary-color);
 }
 
 nav a.active {
+    background-color: var(--secondary-color);
     color: white;
-    background: linear-gradient(90deg, #4a6bff, #8aa4ff);
-    box-shadow: 0 8px 24px rgba(74, 107, 255, 0.3);
 }
 
-/* ----------- Alerts ----------- */
-.alert {
-    padding: 1.2rem 1.8rem;
-    border-radius: 1rem;
-    margin-bottom: 2.5rem;
+/* ==========================================================================
+   Messages de statut (Succès / Erreur)
+   ========================================================================== */
+.success-message, .error-message {
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: var(--border-radius-sm);
     font-weight: 600;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    animation: fadeInUp 0.4s ease-out;
 }
 
-.alert::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 5px;
-    height: 100%;
+.success-message::before, .error-message::before {
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 1.2rem;
 }
 
-.alert-success {
-    background: #e8f9f0;
-    color: #1a7d4e;
-    border-left: 5px solid #1a7d4e;
+.success-message {
+    background-color: #d4edda;
+    color: #155724;
+    border-left: 5px solid var(--success-color);
 }
+.success-message::before { content: '\f058'; /* check-circle */ }
 
-.alert-error {
-    background: #ffebee;
-    color: #d32f2f;
-    border-left: 5px solid #d32f2f;
+.error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    border-left: 5px solid var(--accent-color);
 }
+.error-message::before { content: '\f071'; /* exclamation-triangle */ }
 
-/* ----------- Borrow Table ----------- */
+
+/* ==========================================================================
+   Tableau des emprunts
+   ========================================================================== */
 .borrow-table {
     width: 100%;
-    border-collapse: separate;
-    border-spacing: 0 1rem;
-    margin-top: 2rem;
+    border-collapse: collapse;
+    background-color: var(--bg-card);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--card-shadow-heavy);
+    overflow: hidden; /* Pour que le radius s'applique aux coins */
+}
+
+.borrow-table th, .borrow-table td {
+    padding: 1.25rem 1.5rem;
+    text-align: left;
 }
 
 .borrow-table thead {
-    position: sticky;
-    top: 1rem;
-    z-index: 10;
+    background-color: #f8f9fa;
+    border-bottom: 2px solid var(--border-color);
 }
 
 .borrow-table th {
-    background: linear-gradient(90deg, #4a6bff, #8aa4ff);
-    color: white;
-    font-weight: 600;
-    padding: 1.2rem 1.5rem;
-    text-align: left;
-    position: relative;
-    overflow: hidden;
-}
-
-.borrow-table th:first-child {
-    border-top-left-radius: 1rem;
-    border-bottom-left-radius: 1rem;
-}
-
-.borrow-table th:last-child {
-    border-top-right-radius: 1rem;
-    border-bottom-right-radius: 1rem;
-}
-
-.borrow-table th::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.3));
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-}
-
-.borrow-table th:hover::after {
-    transform: translateX(0);
+    font-family: var(--font-heading);
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .borrow-table tbody tr {
-    background: white;
-    border-radius: 1rem;
-    box-shadow: 0 5px 20px rgba(74, 107, 255, 0.08);
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    position: relative;
-    overflow: hidden;
+    border-bottom: 1px solid #f0f2f5;
+    transition: background-color var(--transition-fast);
 }
-
+.borrow-table tbody tr:last-child {
+    border-bottom: none;
+}
 .borrow-table tbody tr:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 30px rgba(74, 107, 255, 0.15);
-}
-
-.borrow-table tbody tr::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    background: linear-gradient(to bottom, #4a6bff, #8aa4ff);
-    transition: width 0.3s ease;
-}
-
-.borrow-table tbody tr:hover::before {
-    width: 8px;
-}
-
-.borrow-table td {
-    padding: 1.5rem;
-    vertical-align: middle;
+    background-color: var(--row-hover-color);
 }
 
 .borrow-table td:first-child {
-    border-top-left-radius: 1rem;
-    border-bottom-left-radius: 1rem;
-}
-
-.borrow-table td:last-child {
-    border-top-right-radius: 1rem;
-    border-bottom-right-radius: 1rem;
+    font-weight: 600;
+    color: var(--primary-color);
 }
 
 /* Status Labels */
 .status-label {
     display: inline-block;
     padding: 0.5rem 1rem;
-    border-radius: 2rem;
+    border-radius: var(--border-radius-sm);
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
 }
 
 .status-emprunte {
-    background: #e3f2fd;
+    background-color: #e3f2fd;
     color: #1976d2;
 }
 
 .status-retourne {
-    background: #e8f5e9;
+    background-color: #e8f5e9;
     color: #388e3c;
 }
 
 .status-retard {
-    background: #ffebee;
+    background-color: #ffebee;
     color: #d32f2f;
 }
 
-/* Return Button */
+/* Bouton "Retourner" */
 .btn-return {
-    background: linear-gradient(90deg, #4a6bff, #8aa4ff);
-    color: white;
-    border: none;
-    padding: 0.8rem 1.5rem;
-    border-radius: 2rem;
+    font-family: var(--font-heading);
     font-weight: 600;
+    font-size: 0.9rem;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: var(--border-radius-sm);
+    color: white;
+    background: var(--warning-color);
+    box-shadow: 0 2px 8px rgba(252, 163, 17, 0.3);
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 5px 15px rgba(74, 107, 255, 0.3);
-    position: relative;
-    overflow: hidden;
-}
-
-.btn-return::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, rgba(255,255,255,0.2), rgba(255,255,255,0));
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
+    transition: all var(--transition-fast);
 }
 
 .btn-return:hover {
+    background: #e89102; /* Plus foncé */
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(74, 107, 255, 0.4);
+    box-shadow: 0 4px 12px rgba(252, 163, 17, 0.4);
+}
+.btn-return:active {
+    transform: translateY(0);
 }
 
-.btn-return:hover::after {
-    transform: translateX(0);
-}
-
-/* Empty State */
-.borrow-table tbody tr td[colspan="5"] {
+/* ==========================================================================
+   Message "Aucun emprunt"
+   ========================================================================== */
+.no-borrows {
     text-align: center;
-    padding: 3rem;
-    color: #8a94b5;
-    font-size: 1.1rem;
-    font-weight: 500;
+    padding: 3rem 2rem;
+    margin-top: 2rem;
+    background-color: var(--bg-card);
+    border-radius: var(--border-radius-md);
+    border: 2px dashed var(--border-color);
 }
 
-/* ----------- Responsive Design ----------- */
-@media (max-width: 1024px) {
+.no-borrows p {
+    font-family: var(--font-heading);
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.no-borrows::before {
+    content: '\f5da'; /* Font Awesome book-open */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 1rem;
+    color: var(--border-color);
+}
+
+/* ==========================================================================
+   Navigation inférieure
+   ========================================================================== */
+.navigation {
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.navigation .btn {
+    text-decoration: none;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 0.8rem 2rem;
+    border-radius: 50px; /* Pill shape */
+    transition: all var(--transition-smooth);
+    display: inline-block;
+}
+
+/* Style primaire pour l'action principale */
+.navigation .btn:first-child {
+    background-color: var(--secondary-color);
+    color: white;
+    box-shadow: 0 4px 15px rgba(44, 123, 229, 0.2);
+}
+.navigation .btn:first-child:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(44, 123, 229, 0.3);
+}
+
+/* Style secondaire pour l'action alternative */
+.navigation .btn:last-child {
+    background-color: transparent;
+    color: var(--secondary-color);
+    box-shadow: inset 0 0 0 2px var(--secondary-color);
+}
+.navigation .btn:last-child:hover {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+/* ==========================================================================
+   Responsive Design
+   ========================================================================== */
+@media (max-width: 600px) {
     .container {
-        padding: 1.5rem 1rem 3rem;
+        padding: 0 1rem;
+        margin-top: 1rem;
     }
-    
-    h1 {
-        font-size: 2.8rem;
-    }
-    
-    nav {
-        flex-wrap: wrap;
-        gap: 1rem;
-    }
-    
-    .borrow-table {
-        display: block;
-        overflow-x: auto;
-    }
-}
 
-@media (max-width: 768px) {
-    h1 {
-        font-size: 2.4rem;
-    }
-    
     .user-info {
         flex-direction: column;
-        gap: 0.5rem;
+        align-items: flex-start;
     }
-    
-    nav a {
-        padding: 0.6rem 1rem;
-        font-size: 1rem;
+
+    /* Pour les petits écrans, le tableau peut nécessiter un défilement horizontal */
+    /* L'astuce est d'envelopper la table dans un div si ce n'est pas déjà fait */
+    div:has(> .borrow-table) {
+        overflow-x: auto;
     }
-    
-    .borrow-table th, 
-    .borrow-table td {
+
+    .borrow-table th, .borrow-table td {
         padding: 1rem;
-        font-size: 0.95rem;
-    }
-    
-    .status-label {
-        font-size: 0.8rem;
-        padding: 0.4rem 0.8rem;
-    }
-    
-    .btn-return {
-        padding: 0.6rem 1.2rem;
         font-size: 0.9rem;
+        white-space: nowrap; /* Empêche le retour à la ligne qui casse le design */
+    }
+
+    .navigation {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
     }
 }
-
-@media (max-width: 480px) {
-    h1 {
-        font-size: 2rem;
-    }
-    
-    nav {
-        justify-content: center;
-    }
-    
-    .borrow-table {
-        border-spacing: 0 0.5rem;
-    }
-    
-    .borrow-table thead {
-        display: none;
-    }
-    
-    .borrow-table tbody tr {
-        display: block;
-        margin-bottom: 1.5rem;
-        border-radius: 1rem;
-    }
-    
-    .borrow-table td {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.8rem 1rem;
-        text-align: right;
-    }
-    
-    .borrow-table td::before {
-        content: attr(data-label);
-        font-weight: 600;
-        color: #5a6a9a;
-        margin-right: 1rem;
-    }
-    
-    .borrow-table td:first-child {
-        border-top-left-radius: 1rem;
-        border-top-right-radius: 1rem;
-        padding-top: 1.2rem;
-    }
-    
-    .borrow-table td:last-child {
-        border-bottom-left-radius: 1rem;
-        border-bottom-right-radius: 1rem;
-        padding-bottom: 1.2rem;
-    }
-    
-    .status-label {
-        margin-left: auto;
-    }
-}
-
-/* Animations */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.container {
-    animation: fadeIn 0.6s ease-out;
-}
-
-.borrow-table tbody tr {
-    animation: fadeIn 0.4s ease-out forwards;
-    opacity: 0;
-}
-
-.borrow-table tbody tr:nth-child(1) { animation-delay: 0.1s; }
-.borrow-table tbody tr:nth-child(2) { animation-delay: 0.2s; }
-.borrow-table tbody tr:nth-child(3) { animation-delay: 0.3s; }
-.borrow-table tbody tr:nth-child(4) { animation-delay: 0.4s; }
-.borrow-table tbody tr:nth-child(5) { animation-delay: 0.5s; }

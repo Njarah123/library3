@@ -10,4 +10,7 @@ import com.library.model.Staff;
 public interface StaffRepository extends JpaRepository<Staff, Long> {
      @Query("SELECT COUNT(s) > 0 FROM Staff s WHERE s.id = :userId")
     boolean existsByUserId(@Param("userId") Long userId);
+    
+    java.util.Optional<Staff> findByEmployeeId(String employeeId);
+    boolean existsByEmployeeId(String employeeId);
 }

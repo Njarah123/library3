@@ -2,6 +2,8 @@ package com.library.model;
 
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -11,8 +13,12 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Data
+@EqualsAndHashCode(exclude = {"user"})
+@ToString(exclude = {"user"})
 @Entity
 @Table(name = "accounts")
 public class Account {
@@ -23,6 +29,7 @@ public class Account {
     
     @OneToOne
 @JoinColumn(name = "user_id")
+@JsonIgnoreProperties({"account", "borrowings", "reservations", "password"})
 private User user;
     @Column(name = "no_borrowed_books", nullable = false)
     private int noBorrowedBooks = 0;

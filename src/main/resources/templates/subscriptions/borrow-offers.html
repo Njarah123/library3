@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscription Required - Library Management System</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/fontawesome/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .subscription-card {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 20px;
+            height: 100%;
+        }
+        
+        .subscription-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        
+        .subscription-card .card-header {
+            border-radius: 10px 10px 0 0;
+            font-weight: bold;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .subscription-card .card-body {
+            padding: 20px;
+        }
+        
+        .subscription-card .price {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .subscription-card .features {
+            margin-bottom: 20px;
+        }
+        
+        .subscription-card .features li {
+            margin-bottom: 10px;
+        }
+        
+        .subscription-card .btn {
+            width: 100%;
+            border-radius: 5px;
+            padding: 10px;
+            font-weight: bold;
+        }
+        
+        .discovery-card .card-header {
+            background-color: #17a2b8;
+            color: white;
+        }
+        
+        .standard-card .card-header {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .premium-card .card-header {
+            background-color: #6f42c1;
+            color: white;
+        }
+        
+        .balance-section {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .balance-amount {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #28a745;
+        }
+        
+        .book-info {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+        }
+        
+        .book-cover {
+            width: 100px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-right: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .book-details h4 {
+            margin-bottom: 10px;
+            color: #343a40;
+        }
+        
+        .book-details p {
+            margin-bottom: 5px;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-3" th:text="${upgradeNeeded != null && upgradeNeeded ? 'Subscription Upgrade Required' : (hasActiveSubscription ? 'Choose or Continue with Your Subscription' : 'Subscription Required')}">Subscription Required</h1>
+        <p class="text-center mb-5" th:text="${upgradeNeeded != null && upgradeNeeded ? 'You have reached your borrowing limit. Please upgrade your subscription to borrow more books:' : (hasActiveSubscription ? 'You can continue with your current subscription or choose a new one:' : 'To borrow this book, you need an active subscription. Choose a plan below:')}">To borrow this book, you need an active subscription. Choose a plan below:</p>
+        
+        <!-- Alert for upgrade case -->
+        <div class="alert alert-warning mb-4" th:if="${upgradeNeeded != null && upgradeNeeded}">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>Your current subscription limit has been reached. Upgrading will give you access to more books.</span>
+        </div>
+        
+        <!-- Current Subscription Info (if user has one) -->
+        <div class="alert alert-success mb-4" th:if="${hasActiveSubscription && (upgradeNeeded == null || !upgradeNeeded)}">
+            <div class="row">
+                <div class="col-md-8">
+                    <i class="fas fa-check-circle"></i>
+                    <span>You have an active <strong th:text="${currentSubscription.subscriptionType.displayName}">Standard</strong> subscription with
+                    <strong th:text="${currentSubscription.subscriptionType.name() == 'PREMIUM' ? 'unlimited' : currentSubscription.booksRemaining}">5</strong>
+                    books remaining.</span>
+                </div>
+                <div class="col-md-4 text-right">
+                    <form th:action="@{/borrow/{id}(id=${book.id})}" method="post">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check"></i> Continue with Current Subscription
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Book Information -->
+        <div class="book-info">
+            <img th:if="${book.imagePath}" th:src="@{${book.imagePath}}" alt="Book Cover" class="book-cover">
+            <img th:unless="${book.imagePath}" th:src="@{/images/default-book.png}" alt="Book Cover" class="book-cover">
+            <div class="book-details">
+                <h4 th:text="${book.title}">Book Title</h4>
+                <p><strong>Author:</strong> <span th:text="${book.author}">Author Name</span></p>
+                <p><strong>Category:</strong> <span th:text="${book.category}">Category</span></p>
+                <p><strong>Available:</strong> <span th:text="${book.availableQuantity} + '/' + ${book.quantity}">5/10</span></p>
+            </div>
+        </div>
+        
+        <!-- User Balance -->
+        <div class="balance-section">
+            <div class="row">
+                <div class="col-md-6">
+                    <h4>Your Balance</h4>
+                    <p class="balance-amount"><span th:text="${#numbers.formatDecimal(user.balance != null ? user.balance : 0.0, 1, 0)}">0</span> Ar</p>
+                </div>
+                <div class="col-md-6 text-right">
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#addFundsModal">
+                        <i class="fas fa-plus-circle"></i> Add Funds
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- Discovery Plan (hidden when upgrading) -->
+            <div class="col-md-4" th:unless="${upgradeNeeded != null && upgradeNeeded}">
+                <div class="card subscription-card discovery-card">
+                    <div class="card-header">
+                        Discovery
+                    </div>
+                    <div class="card-body">
+                        <div class="price">1000 Ar</div>
+                        <p class="text-center text-muted mb-4">Perfect for casual readers</p>
+                        <ul class="features">
+                            <li><i class="fas fa-book"></i> Borrow up to 3 books</li>
+                            <li><i class="fas fa-calendar-alt"></i> Valid for 7 days</li>
+                            <li><i class="fas fa-clock"></i> Quick access to new releases</li>
+                        </ul>
+                        <a th:href="@{/subscriptions/checkout/discovery(bookId=${book.id})}" class="btn btn-info">
+                            Select Plan
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Standard Plan -->
+            <div th:class="${upgradeNeeded != null && upgradeNeeded ? 'col-md-6' : 'col-md-4'}">
+                <div class="card subscription-card standard-card">
+                    <div class="card-header">
+                        Standard
+                    </div>
+                    <div class="card-body">
+                        <div class="price">3000 Ar</div>
+                        <p class="text-center text-muted mb-4">Most popular choice</p>
+                        <ul class="features">
+                            <li><i class="fas fa-book"></i> Borrow up to 10 books</li>
+                            <li><i class="fas fa-calendar-alt"></i> Valid for 30 days</li>
+                            <li><i class="fas fa-bookmark"></i> Priority reservations</li>
+                        </ul>
+                        <a th:href="@{/subscriptions/checkout/standard(bookId=${book.id})}" class="btn btn-primary">
+                            Select Plan
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Premium Plan -->
+            <div th:class="${upgradeNeeded != null && upgradeNeeded ? 'col-md-6' : 'col-md-4'}">
+                <div class="card subscription-card premium-card">
+                    <div class="card-header">
+                        Premium
+                    </div>
+                    <div class="card-body">
+                        <div class="price">5000 Ar</div>
+                        <p class="text-center text-muted mb-4">For avid readers</p>
+                        <ul class="features">
+                            <li><i class="fas fa-infinity"></i> Unlimited books</li>
+                            <li><i class="fas fa-calendar-alt"></i> Valid for 30 days</li>
+                            <li><i class="fas fa-star"></i> Exclusive access to rare books</li>
+                        </ul>
+                        <a th:href="@{/subscriptions/checkout/premium(bookId=${book.id})}" class="btn btn-purple" style="background-color: #6f42c1; color: white;">
+                            Select Plan
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4 mb-5">
+            <a th:href="@{/student/books}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Books
+            </a>
+        </div>
+    </div>
+    
+    <!-- Add Funds Modal -->
+    <div class="modal fade" id="addFundsModal" tabindex="-1" role="dialog" aria-labelledby="addFundsModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addFundsModalLabel">Add Funds to Your Account</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="addFundsForm" method="post" action="/account/add-funds">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <input type="hidden" name="redirectUrl" th:value="@{/borrow-attempt/{id}(id=${book.id})}" />
+                        <div class="form-group">
+                            <label for="amount">Amount (Ar)</label>
+                            <input type="number" class="form-control" id="amount" name="amount" min="0" max="200000" step="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="cardNumber">Card Number</label>
+                            <input type="text" class="form-control" id="cardNumber" placeholder="**** **** **** ****" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="expiryDate">Expiry Date</label>
+                                    <input type="text" class="form-control" id="expiryDate" placeholder="MM/YY" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="cvv">CVV</label>
+                                    <input type="text" class="form-control" id="cvv" placeholder="***" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> This is a simulation. No actual payment will be processed.
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="simulatePayment()">Add Funds</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script th:inline="javascript">
+        // Get CSRF token values
+        const csrfParameterName = /*[[${_csrf.parameterName}]]*/ '_csrf';
+        const csrfToken = /*[[${_csrf.token}]]*/ 'token';
+        const bookId = /*[[${book.id}]]*/ '0';
+        
+        function simulatePayment() {
+            const amount = document.getElementById('amount').value;
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+            
+            // Simulate payment processing
+            setTimeout(function() {
+                // Create a form and submit it
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/account/add-funds';
+                
+                const amountInput = document.createElement('input');
+                amountInput.type = 'hidden';
+                amountInput.name = 'amount';
+                amountInput.value = amount;
+                
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = '_csrf';
+                csrfInput.value = csrfToken;
+                
+                // Add redirectUrl to return to the current page
+                const redirectInput = document.createElement('input');
+                redirectInput.type = 'hidden';
+                redirectInput.name = 'redirectUrl';
+                redirectInput.value = '/borrow-attempt/' + bookId;
+                
+                form.appendChild(amountInput);
+                form.appendChild(csrfInput);
+                form.appendChild(redirectInput);
+                document.body.appendChild(form);
+                form.submit();
+            }, 1500);
+            
+            // Show loading message
+            const modalBody = document.querySelector('#addFundsModal .modal-body');
+            modalBody.innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div><p class="mt-3">Processing payment...</p></div>';
+            
+            const modalFooter = document.querySelector('#addFundsModal .modal-footer');
+            modalFooter.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

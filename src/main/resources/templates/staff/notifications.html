@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Mes Notifications - Personnel</title>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <link rel="stylesheet" th:href="@{/css/dashboards.css}" />
+    <link rel="stylesheet" href="/fontawesome/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Product+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script th:src="@{/js/notifications.js}"></script>
+    
+    <style>
+        /* Styles spécifiques pour la page de notifications */
+        .staff-theme {
+            --primary-color: #10b981;
+            --secondary-color: #059669;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #3b82f6;
+        }
+
+        .notifications-container {
+            padding: 20px;
+        }
+
+        .notifications-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .notifications-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .notifications-filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .filter-btn {
+            background: none;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #6b7280;
+        }
+
+        .filter-btn:hover {
+            background-color: #f3f4f6;
+        }
+
+        .filter-btn.active {
+            background-color: #e7f3ff;
+            color: #1877f2;
+            font-weight: 500;
+        }
+
+        .type-filter {
+            position: relative;
+        }
+
+        .type-filter-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: none;
+            border: 1px solid #e5e7eb;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .type-filter-btn:hover {
+            background-color: #f3f4f6;
+        }
+
+        .type-filter-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 250px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            z-index: 100;
+            padding: 10px;
+            display: none;
+            margin-top: 5px;
+        }
+
+        .type-filter-dropdown.show {
+            display: block;
+        }
+
+        .type-option {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .type-option:hover {
+            background: #f3f4f6;
+        }
+
+        .type-option input {
+            margin-right: 10px;
+        }
+
+        .notifications-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .notification-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            border: 1px solid #e5e7eb;
+        }
+
+        .notification-item:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .notification-item.unread {
+            background-color: #f0f7ff;
+            border-left: 3px solid #1877f2;
+        }
+
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e7f3ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .notification-icon i {
+            color: #1877f2;
+            font-size: 18px;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-message {
+            font-size: 15px;
+            color: #1f2937;
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+
+        .notification-meta {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .notification-time {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .notification-type {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            background: #f3f4f6;
+        }
+
+        .notification-actions {
+            display: flex;
+            gap: 10px;
+            margin-left: auto;
+        }
+
+        .notification-btn {
+            background: none;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #6b7280;
+        }
+
+        .notification-btn:hover {
+            background: #f3f4f6;
+            color: #1f2937;
+        }
+
+        .notification-btn.mark-read {
+            color: #1877f2;
+        }
+
+        .notification-btn.delete {
+            color: #ef4444;
+        }
+
+        .empty-notifications {
+            text-align: center;
+            padding: 40px 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .empty-notifications i {
+            font-size: 48px;
+            color: #d1d5db;
+            margin-bottom: 15px;
+        }
+
+        .empty-notifications h3 {
+            font-size: 18px;
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+
+        .empty-notifications p {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 30px;
+        }
+
+        .pagination-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: white;
+            border: 1px solid #e5e7eb;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .pagination-btn:hover {
+            background: #f3f4f6;
+        }
+
+        .pagination-btn.active {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+        }
+
+        .pagination-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Styles pour les types de notifications */
+        .notification-type-book_borrowed {
+            background-color: #e7f3ff;
+            color: #1877f2;
+        }
+
+        .notification-type-book_returned {
+            background-color: #dcfce7;
+            color: #10b981;
+        }
+
+        .notification-type-overdue_reminder {
+            background-color: #fee2e2;
+            color: #ef4444;
+        }
+
+        .notification-type-due_soon_reminder {
+            background-color: #fff7ed;
+            color: #f59e0b;
+        }
+
+        .notification-type-new_book_added {
+            background-color: #f3e8ff;
+            color: #8b5cf6;
+        }
+
+        .notification-type-book_update {
+            background-color: #eff6ff;
+            color: #3b82f6;
+        }
+
+        .notification-type-reservation_available {
+            background-color: #ecfdf5;
+            color: #10b981;
+        }
+
+        .notification-type-reservation_confirmed {
+            background-color: #dcfce7;
+            color: #10b981;
+        }
+
+        .notification-type-reservation_cancelled {
+            background-color: #fee2e2;
+            color: #ef4444;
+        }
+
+        .notification-type-reservation_expired {
+            background-color: #fef3c7;
+            color: #f59e0b;
+        }
+
+        .notification-type-fine_added {
+            background-color: #fee2e2;
+            color: #ef4444;
+        }
+
+        .notification-type-fine_paid {
+            background-color: #dcfce7;
+            color: #10b981;
+        }
+
+        .notification-type-low_book_stock {
+            background-color: #fef3c7;
+            color: #f59e0b;
+        }
+
+        .notification-type-book_damage_reported {
+            background-color: #fee2e2;
+            color: #ef4444;
+        }
+
+        .notification-type-new_member_registered {
+            background-color: #f3e8ff;
+            color: #8b5cf6;
+        }
+
+        .notification-type-book_lost_reported {
+            background-color: #fee2e2;
+            color: #ef4444;
+        }
+
+        .notification-type-approval_required {
+            background-color: #fef3c7;
+            color: #f59e0b;
+        }
+
+        .notification-type-task_assigned {
+            background-color: #eff6ff;
+            color: #3b82f6;
+        }
+
+        .notification-type-account_status_change {
+            background-color: #f3e8ff;
+            color: #8b5cf6;
+        }
+
+        .notification-type-book_renewal_confirmed {
+            background-color: #dcfce7;
+            color: #10b981;
+        }
+
+        .notification-type-book_renewal_rejected {
+            background-color: #fee2e2;
+            color: #ef4444;
+        }
+
+        .notification-type-general_message {
+            background-color: #f3f4f6;
+            color: #6b7280;
+        }
+
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .notifications-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .notifications-filters {
+                flex-wrap: wrap;
+            }
+
+            .notification-item {
+                flex-direction: column;
+            }
+
+            .notification-icon {
+                margin-bottom: 10px;
+            }
+
+            .notification-actions {
+                margin-left: 0;
+                margin-top: 10px;
+                width: 100%;
+                justify-content: flex-end;
+            }
+        }
+    </style>
+</head>
+<body class="staff-theme">
+    <!-- Sidebar Navigation -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="/staff/dashboard" class="logo">
+                <img src="/images/Logobnk.png" alt="Logobnk" />
+            </a>
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        
+        <div class="sidebar-menu">
+            <div class="menu-section">
+                <h3>Mon Espace</h3>
+                <a href="/staff/dashboard" class="menu-item">
+                    <i class="fas fa-home"></i>
+                    <span>Tableau de bord</span>
+                </a>
+                <a href="/staff/books" class="menu-item">
+                    <i class="fas fa-book"></i>
+                    <span>Catalogue</span>
+                    <span class="notification-badge" th:if="${newBooksCount != null && newBooksCount > 0}" th:text="${newBooksCount}"></span>
+                </a>
+                <a href="/staff/borrows" class="menu-item">
+                    <i class="fas fa-book-reader"></i>
+                    <span>Mes emprunts</span>
+                    <span class="notification-badge" th:if="${pendingBorrowsCount != null && pendingBorrowsCount > 0}" th:text="${pendingBorrowsCount}"></span>
+                </a>
+                <a href="/staff/history" class="menu-item">
+                    <i class="fas fa-history"></i>
+                    <span>Historique</span>
+                </a>
+            </div>
+            
+            <div class="menu-section">
+                <h3>Gestion</h3>
+                <a href="/staff/students" class="menu-item">
+                    <i class="fas fa-user-graduate"></i>
+                    <span>Étudiants</span>
+                </a>
+                <a href="/staff/reports" class="menu-item">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Rapports</span>
+                </a>
+                <a href="/notifications/all" class="menu-item active">
+                    <i class="fas fa-bell"></i>
+                    <span>Notifications</span>
+                    <span class="notification-badge" th:if="${notificationCount > 0}" th:text="${notificationCount}"></span>
+                </a>
+            </div>
+        </div>
+        
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <img th:if="${user != null and user.profileImagePath != null}"
+                     th:src="${user.profileImagePath}"
+                     class="profile-avatar"
+                     onerror="this.src='/images/default-staff.png'"
+                     alt="Photo de profil">
+                <img th:unless="${user != null and user.profileImagePath != null}"
+                     src="/images/default-staff.png"
+                     class="profile-avatar"
+                     alt="Photo de profil par défaut">
+                <div class="user-info">
+                    <div class="user-name" th:text="${user.name}">Nom personnel</div>
+                    <div class="user-role">Personnel</div>
+                </div>
+            </div>
+            <form th:action="@{/logout}" method="post" class="logout-form">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Top Header -->
+        <div class="top-header">
+            <div class="header-left">
+                <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Mes Notifications</h1>
+            </div>
+            
+            <div class="header-right">
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Rechercher une notification...">
+                </div>
+                
+                <div class="header-actions">
+                    <button class="action-btn notification-btn" onclick="toggleNotificationPanel()">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" th:if="${notificationCount > 0}" th:text="${notificationCount}"></span>
+                    </button>
+                    
+                    <!-- User Info Button -->
+                    <div class="user-info" id="userInfoButton">
+                        <img th:if="${user != null and user.profileImagePath != null}"
+                             th:src="${user.profileImagePath}"
+                             onerror="this.src='/images/default-staff.png'"
+                             alt="Photo de profil"
+                             class="user-avatar">
+                        <img th:unless="${user != null and user.profileImagePath != null}"
+                             src="/images/default-staff.png"
+                             alt="Photo de profil par défaut"
+                             class="user-avatar">
+                        <span th:text="${user.name}">Nom personnel</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Panel -->
+        <div th:replace="~{fragments/notifications :: notification-panel}"></div>
+
+        <!-- Notifications Container -->
+        <div class="notifications-container">
+            <div class="notifications-header">
+                <div class="notifications-title">
+                    <h2>Historique des notifications</h2>
+                    <p>Consultez toutes vos notifications et restez informé</p>
+                </div>
+                <div class="mark-all-read-container">
+                    <button id="markAllReadBtn" class="btn btn-primary" th:if="${notificationCount > 0}">
+                        <i class="fas fa-check-double"></i>
+                        Tout marquer comme lu
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="notifications-filters">
+                <button class="filter-btn active" data-filter="all">Toutes</button>
+                <button class="filter-btn" data-filter="unread">Non lues</button>
+                <button class="filter-btn" data-filter="read">Lues</button>
+                
+                <div class="type-filter">
+                    <button class="type-filter-btn" id="typeFilterBtn">
+                        <span>Type</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="type-filter-dropdown" id="typeFilterDropdown">
+                        <div class="type-option">
+                            <input type="radio" name="type" id="type-all" value="" checked>
+                            <label for="type-all">Tous les types</label>
+                        </div>
+                        <div class="type-option" th:each="type : ${notificationTypes}">
+                            <input type="radio" name="type" th:id="'type-' + ${type}" th:value="${type}">
+                            <label th:for="'type-' + ${type}" th:text="${type.toString().replace('_', ' ')}">Type</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications List -->
+            <div class="notifications-list">
+                <div th:if="${notifications.isEmpty()}" class="empty-notifications">
+                    <i class="fas fa-bell-slash"></i>
+                    <h3>Aucune notification</h3>
+                    <p>Vous n'avez pas encore reçu de notifications</p>
+                </div>
+
+                <div th:each="notification : ${notifications}" th:class="'notification-item' + (${!notification.read} ? ' unread' : '')">
+                    <div class="notification-icon">
+                        <i th:class="${'fas ' + getIconForNotificationType(notification.type)}"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-message" th:text="${notification.message}">
+                            Message de notification
+                        </div>
+                        <div class="notification-meta">
+                            <div class="notification-time">
+                                <i class="fas fa-clock"></i>
+                                <span th:text="${#temporals.format(notification.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2023 12:00</span>
+                            </div>
+                            <div th:class="'notification-type notification-type-' + ${notification.type.toString().toLowerCase()}" th:text="${notification.type.toString().replace('_', ' ')}">
+                                Type
+                            </div>
+                        </div>
+                    </div>
+                    <div class="notification-actions">
+                        <button th:if="${!notification.read}" class="notification-btn mark-read" th:onclick="'markAsRead(' + ${notification.id} + ')'">
+                            <i class="fas fa-check"></i>
+                            Marquer comme lu
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" th:if="${!notifications.isEmpty()}">
+                <button class="pagination-btn" th:classappend="${currentPage == 0 ? 'disabled' : ''}">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="pagination-btn" th:each="i : ${#numbers.sequence(0, totalPages - 1)}" 
+                        th:text="${i + 1}" 
+                        th:classappend="${currentPage == i ? 'active' : ''}">
+                </button>
+                <button class="pagination-btn" th:classappend="${currentPage == totalPages - 1 ? 'disabled' : ''}">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlays -->
+    <div class="profile-overlay" id="profileOverlay"></div>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    <div class="notification-overlay" id="notificationOverlay" onclick="toggleNotificationPanel()"></div>
+
+    <!-- JavaScript -->
+    <script th:inline="javascript">
+        // Variables globales
+        let currentFilter = 'all';
+        let currentType = '';
+        let currentPage = /*[[${currentPage}]]*/ 0;
+        let totalPages = /*[[${totalPages}]]*/ 1;
+
+        // SIDEBAR FUNCTIONS
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            if (sidebar && mainContent && overlay) {
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+                overlay.classList.toggle('active');
+            }
+        }
+
+        // PROFILE DROPDOWN FUNCTIONS
+        function toggleProfileDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            const overlay = document.getElementById('profileOverlay');
+            
+            if (dropdown.classList.contains('show')) {
+                dropdown.classList.remove('show');
+                overlay.classList.remove('show');
+            } else {
+                dropdown.classList.add('show');
+                overlay.classList.add('show');
+            }
+        }
+
+        function closeProfileDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            const overlay = document.getElementById('profileOverlay');
+            dropdown.classList.remove('show');
+            overlay.classList.remove('show');
+        }
+
+        // TYPE FILTER FUNCTIONS
+        function toggleTypeFilter() {
+            const dropdown = document.getElementById('typeFilterDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        function closeTypeFilter() {
+            const dropdown = document.getElementById('typeFilterDropdown');
+            dropdown.classList.remove('show');
+        }
+
+        // NOTIFICATION FUNCTIONS
+        function markAsRead(notificationId) {
+            // Get CSRF token
+            const token = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+            const header = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+            
+            // Create headers with CSRF token
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            headers[header] = token;
+            
+            fetch(`/notifications/mark-as-read/${notificationId}`, {
+                method: 'POST',
+                headers: headers
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Update UI
+                    const notificationItem = document.querySelector(`.notification-item[data-id="${notificationId}"]`);
+                    if (notificationItem) {
+                        notificationItem.classList.remove('unread');
+                        const actionBtn = notificationItem.querySelector('.notification-btn.mark-read');
+                        if (actionBtn) {
+                            actionBtn.remove();
+                        }
+                    }
+                    
+                    // Update count
+                    const unreadCount = parseInt(document.querySelector('.notification-badge').textContent) - 1;
+                    document.querySelector('.notification-badge').textContent = unreadCount;
+                    if (unreadCount === 0) {
+                        document.querySelector('.notification-badge').style.display = 'none';
+                    }
+                }
+            })
+            .catch(error => console.error('Error marking notification as read:', error));
+        }
+
+        function markAllAsRead() {
+            // Get CSRF token
+            const token = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+            const header = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+            
+            // Create headers with CSRF token
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            headers[header] = token;
+            
+            fetch('/notifications/mark-all-read', {
+                method: 'POST',
+                headers: headers
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Update UI
+                    const notificationItems = document.querySelectorAll('.notification-item.unread');
+                    notificationItems.forEach(item => {
+                        item.classList.remove('unread');
+                        const actionBtn = item.querySelector('.notification-btn.mark-read');
+                        if (actionBtn) {
+                            actionBtn.remove();
+                        }
+                    });
+                    
+                    // Update count
+                    const badges = document.querySelectorAll('.notification-badge');
+                    badges.forEach(badge => {
+                        badge.textContent = '0';
+                        badge.style.display = 'none';
+                    });
+                    
+                    // Hide mark all read button
+                    document.getElementById('markAllReadBtn').style.display = 'none';
+                }
+            })
+            .catch(error => console.error('Error marking all notifications as read:', error));
+        }
+
+        function applyFilters() {
+            const url = new URL(window.location.href);
+            
+            // Add filter parameters
+            if (currentFilter !== 'all') {
+                url.searchParams.set('unreadOnly', currentFilter === 'unread' ? 'true' : 'false');
+            } else {
+                url.searchParams.delete('unreadOnly');
+            }
+            
+            // Add type parameter
+            if (currentType) {
+                url.searchParams.set('type', currentType);
+            } else {
+                url.searchParams.delete('type');
+            }
+            
+            // Navigate to filtered URL
+            window.location.href = url.toString();
+        }
+
+        // SEARCH FUNCTION
+        function initSearch() {
+            const searchInput = document.querySelector('.search-container input');
+            if (searchInput) {
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        const query = this.value.trim();
+                        if (query) {
+                            // Implement notification search
+                            console.log('Searching for:', query);
+                            // TODO: Implement search functionality
+                        }
+                    }
+                });
+            }
+        }
+
+        // PAGINATION FUNCTIONS
+        function goToPage(page) {
+            if (page < 0 || page >= totalPages) return;
+            
+            const url = new URL(window.location.href);
+            url.searchParams.set('page', page);
+            window.location.href = url.toString();
+        }
+
+        // EVENT LISTENERS
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize search
+            initSearch();
+            
+            // Filter buttons
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFilter = this.getAttribute('data-filter');
+                    applyFilters();
+                });
+            });
+            
+            // Type filter
+            const typeFilterBtn = document.getElementById('typeFilterBtn');
+            if (typeFilterBtn) {
+                typeFilterBtn.addEventListener('click', toggleTypeFilter);
+            }
+            
+            // Type options
+            const typeOptions = document.querySelectorAll('input[name="type"]');
+            typeOptions.forEach(option => {
+                option.addEventListener('change', function() {
+                    currentType = this.value;
+                    closeTypeFilter();
+                    applyFilters();
+                });
+            });
+            
+            // Mark all as read button
+            const markAllReadBtn = document.getElementById('markAllReadBtn');
+            if (markAllReadBtn) {
+                markAllReadBtn.addEventListener('click', markAllAsRead);
+            }
+            
+            // Pagination buttons
+            const paginationButtons = document.querySelectorAll('.pagination-btn');
+            paginationButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    if (this.classList.contains('disabled')) return;
+                    
+                    if (this.querySelector('.fa-chevron-left')) {
+                        goToPage(currentPage - 1);
+                    } else if (this.querySelector('.fa-chevron-right')) {
+                        goToPage(currentPage + 1);
+                    } else {
+                        goToPage(parseInt(this.textContent) - 1);
+                    }
+                });
+            });
+            
+            // Close type filter when clicking outside
+            document.addEventListener('click', function(event) {
+                const typeFilter = document.querySelector('.type-filter');
+                const typeFilterBtn = document.getElementById('typeFilterBtn');
+                
+                if (typeFilter && !typeFilter.contains(event.target) && typeFilterBtn !== event.target) {
+                    closeTypeFilter();
+                }
+            });
+            
+            // User info button
+            const userInfoBtn = document.getElementById('userInfoButton');
+            if (userInfoBtn) {
+                userInfoBtn.addEventListener('click', toggleProfileDropdown);
+            }
+            
+            // Profile overlay
+            const profileOverlay = document.getElementById('profileOverlay');
+            if (profileOverlay) {
+                profileOverlay.addEventListener('click', closeProfileDropdown);
+            }
+            
+            // Set initial filter state based on URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const unreadOnly = urlParams.get('unreadOnly');
+            const type = urlParams.get('type');
+            
+            if (unreadOnly === 'true') {
+                currentFilter = 'unread';
+                document.querySelector('.filter-btn[data-filter="unread"]').classList.add('active');
+                document.querySelector('.filter-btn[data-filter="all"]').classList.remove('active');
+            } else if (unreadOnly === 'false') {
+                currentFilter = 'read';
+                document.querySelector('.filter-btn[data-filter="read"]').classList.add('active');
+                document.querySelector('.filter-btn[data-filter="all"]').classList.remove('active');
+            }
+            
+            if (type) {
+                currentType = type;
+                const typeOption = document.querySelector(`input[name="type"][value="${type}"]`);
+                if (typeOption) {
+                    typeOption.checked = true;
+                }
+            }
+        });
+
+        // Helper function to get icon for notification type
+        function getIconForNotificationType(type) {
+            const typeMap = {
+                'BOOK_BORROWED': 'fa-book',
+                'BOOK_RETURNED': 'fa-undo',
+                'OVERDUE_REMINDER': 'fa-exclamation-circle',
+                'DUE_SOON_REMINDER': 'fa-clock',
+                'NEW_BOOK_ADDED': 'fa-plus-circle',
+                'BOOK_UPDATE': 'fa-edit',
+                'RESERVATION_AVAILABLE': 'fa-bookmark',
+                'RESERVATION_CONFIRMED': 'fa-check-circle',
+                'RESERVATION_CANCELLED': 'fa-times-circle',
+                'RESERVATION_EXPIRED': 'fa-calendar-times',
+                'FINE_ADDED': 'fa-money-bill',
+                'FINE_PAID': 'fa-receipt',
+                'LOW_BOOK_STOCK': 'fa-exclamation-triangle',
+                'BOOK_DAMAGE_REPORTED': 'fa-tools',
+                'NEW_MEMBER_REGISTERED': 'fa-user-plus',
+                'BOOK_LOST_REPORTED': 'fa-search',
+                'APPROVAL_REQUIRED': 'fa-clipboard-check',
+                'TASK_ASSIGNED': 'fa-tasks',
+                'ACCOUNT_STATUS_CHANGE': 'fa-user-cog',
+                'BOOK_RENEWAL_CONFIRMED': 'fa-sync',
+                'BOOK_RENEWAL_REJECTED': 'fa-ban',
+                'GENERAL_MESSAGE': 'fa-bell'
+            };
+            
+            return typeMap[type] || 'fa-bell';
+        }
+    </script>

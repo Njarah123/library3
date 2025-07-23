@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layouts/main}">
+
+<head>
+    <title>Historique des abonnements</title>
+    <link rel="stylesheet" th:href="@{/css/subscription-history.css}">
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container mt-4">
+            <div class="subscription-history-container">
+                <div class="subscription-header">
+                    <h2>Historique des abonnements</h2>
+                </div>
+
+                <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+                <div class="subscription-summary">
+                    <div class="summary-item" th:if="${activeSubscription != null}">
+                        <div class="summary-label">Abonnement actif</div>
+                        <div class="summary-value active-subscription" th:text="${activeSubscription.subscriptionType.displayName}"></div>
+                    </div>
+                    <div class="summary-item" th:if="${activeSubscription != null}">
+                        <div class="summary-label">Livres restants</div>
+                        <div class="summary-value" th:text="${activeSubscription.booksRemaining == 2147483647 ? 'Illimité' : activeSubscription.booksRemaining}"></div>
+                    </div>
+                    <div class="summary-item" th:if="${activeSubscription != null}">
+                        <div class="summary-label">Date d'expiration</div>
+                        <div class="summary-value" th:text="${#temporals.format(activeSubscription.endDate, 'dd/MM/yyyy')}"></div>
+                    </div>
+                    <div class="summary-item" th:if="${activeSubscription == null}">
+                        <div class="summary-label">Statut d'abonnement</div>
+                        <div class="summary-value expired-subscription">Aucun abonnement actif</div>
+                    </div>
+                    <div class="summary-item">
+                        <a th:href="@{/subscriptions/plans}" class="btn-new-subscription">Gérer mon abonnement</a>
+                    </div>
+                </div>
+                
+                <!-- Filter options -->
+                <div class="filter-section">
+                    <h4>Filtrer les abonnements</h4>
+                    <form th:action="@{/subscriptions/history}" method="get" class="filter-form">
+                        <div class="filter-group">
+                            <label for="type">Type d'abonnement:</label>
+                            <select name="type" id="type" class="form-control">
+                                <option value="">Tous les types</option>
+                                <option th:each="type : ${subscriptionTypes}"
+                                        th:value="${type}"
+                                        th:text="${type.displayName}"
+                                        th:selected="${type == selectedType}"></option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="status">Statut:</label>
+                            <select name="status" id="status" class="form-control">
+                                <option value="">Tous les statuts</option>
+                                <option value="active" th:selected="${'active' == selectedStatus}">Actif</option>
+                                <option value="expired" th:selected="${'expired' == selectedStatus}">Expiré</option>
+                            </select>
+                        </div>
+                        <div class="filter-actions">
+                            <button type="submit" class="btn btn-primary">Filtrer</button>
+                            <a th:href="@{/subscriptions/history}" class="btn btn-secondary">Réinitialiser</a>
+                        </div>
+                    </form>
+                </div>
+
+                <div th:if="${#lists.isEmpty(subscriptions)}" class="no-subscriptions">
+                    <p>Aucun abonnement ne correspond à vos critères de recherche.</p>
+                </div>
+
+                <table th:if="${not #lists.isEmpty(subscriptions)}" class="subscription-table">
+                    <thead>
+                        <tr>
+                            <th>Date de début</th>
+                            <th>Date de fin</th>
+                            <th>Type d'abonnement</th>
+                            <th>Livres restants</th>
+                            <th>Statut</th>
+                            <th>Paiements</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="subscription : ${subscriptions}">
+                            <td th:text="${#temporals.format(subscription.startDate, 'dd/MM/yyyy')}"></td>
+                            <td th:text="${#temporals.format(subscription.endDate, 'dd/MM/yyyy')}"></td>
+                            <td>
+                                <span th:if="${subscription.subscriptionType.name() == 'DISCOVERY'}" class="subscription-type-discovery" th:text="${subscription.subscriptionType.displayName}"></span>
+                                <span th:if="${subscription.subscriptionType.name() == 'STANDARD'}" class="subscription-type-standard" th:text="${subscription.subscriptionType.displayName}"></span>
+                                <span th:if="${subscription.subscriptionType.name() == 'PREMIUM'}" class="subscription-type-premium" th:text="${subscription.subscriptionType.displayName}"></span>
+                            </td>
+                            <td>
+                                <span th:text="${subscription.subscriptionType.name() == 'PREMIUM' ? 'Illimité' : subscription.booksRemaining}"></span>
+                            </td>
+                            <td>
+                                <span th:if="${subscription.active}" class="status-active">Actif</span>
+                                <span th:unless="${subscription.active}" class="status-expired">Expiré</span>
+                            </td>
+                            <td>
+                                <!-- Find related payments for this subscription -->
+                                <div th:each="payment : ${subscriptionPayments}" th:if="${payment.subscription != null && payment.subscription.id == subscription.id}">
+                                    <span th:if="${payment.paymentType == 'SUBSCRIPTION'}" class="badge badge-primary">Abonnement</span>
+                                    <span th:if="${payment.paymentType == 'SUBSCRIPTION_CHANGE'}" class="badge badge-warning">Changement</span>
+                                    <span th:if="${payment.paymentType == 'REFUND'}" class="badge badge-success">Remboursement</span>
+                                    <a th:href="@{/payments/receipt/{id}(id=${payment.id})}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-receipt"></i> Reçu
+                                    </a>
+                                </div>
+                                <span th:if="${#lists.isEmpty(#arrays.asList(subscriptionPayments).?[subscription != null && subscription.id == __${subscription.id}__])}">
+                                    Aucun paiement associé
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

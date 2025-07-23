@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Paramètres - Personnel</title>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <link rel="stylesheet" th:href="@{/css/dashboards.css}" />
+    <link rel="stylesheet" href="/fontawesome/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Product+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/notification-panel-ultra.css}" />
+    <script th:src="@{/js/notification-panel-ultra.js}"></script>
+    
+    <style>
+        /* Styles spécifiques pour les paramètres personnel */
+        .staff-theme {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #3b82f6;
+        }
+
+        .settings-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .settings-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+
+        .settings-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.15);
+        }
+
+        .settings-card h3 {
+            color: #374151;
+            margin-bottom: 1.5rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .settings-card h3 i {
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #374151;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+            background: #f9fafb;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .settings-action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            min-height: 48px;
+            gap: 8px;
+            margin-top: 1rem;
+        }
+
+        .settings-action-btn.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .settings-action-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .settings-action-btn.secondary {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            color: #374151;
+            border: 1px solid #d1d5db;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .settings-action-btn.secondary:hover {
+            background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .settings-action-btn.danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .settings-action-btn.danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+        }
+
+        /* Legacy btn classes for compatibility */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .profile-image-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .profile-image-preview {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            border: 4px solid #e5e7eb;
+            object-fit: cover;
+            transition: all 0.3s ease;
+        }
+
+        .profile-image-preview:hover {
+            border-color: #667eea;
+            transform: scale(1.05);
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .file-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            color: #374151;
+            transition: all 0.3s ease;
+        }
+
+        .file-input-label:hover {
+            background: #e5e7eb;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .password-strength {
+            margin-top: 0.5rem;
+            height: 4px;
+            background: #e5e7eb;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .password-strength-fill {
+            height: 100%;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .strength-weak { background: #ef4444; width: 25%; }
+        .strength-fair { background: #f59e0b; width: 50%; }
+        .strength-good { background: #10b981; width: 75%; }
+        .strength-strong { background: #059669; width: 100%; }
+
+        .password-requirements {
+            margin-top: 0.75rem;
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .requirement {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .requirement.met {
+            color: #10b981;
+        }
+
+        .requirement.met i {
+            color: #10b981;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: #065f46;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #991b1b;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        @media (max-width: 768px) {
+            .settings-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .settings-container {
+                padding: 1rem;
+            }
+
+            .settings-action-btn {
+                min-height: 52px;
+                font-size: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .settings-action-btn {
+                padding: 1.2rem 1rem;
+                min-height: 56px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body class="staff-theme">
+    <!-- Sidebar Navigation -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="/staff/dashboard" class="logo">
+                <img src="/images/Logobnk.png" alt="Logobnk" />
+            </a>
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        
+        <div class="sidebar-menu">
+            <div class="menu-section">
+                <h3>Mon Espace</h3>
+                <a href="/staff/dashboard" class="menu-item">
+                    <i class="fas fa-home"></i>
+                    <span>Tableau de bord</span>
+                </a>
+                <a href="/staff/books" class="menu-item">
+                    <i class="fas fa-book"></i>
+                    <span>Catalogue</span>
+                </a>
+                <a href="/staff/borrows" class="menu-item">
+                    <i class="fas fa-book-reader"></i>
+                    <span>Mes emprunts</span>
+                </a>
+               
+            </div>
+            
+            <div class="menu-section">
+                <h3>Compte</h3>
+                <a href="/staff/settings" class="menu-item active">
+                    <i class="fas fa-cog"></i>
+                    <span>Paramètres</span>
+                </a>
+            </div>
+        </div>
+        
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <img th:if="${user != null and user.profileImagePath != null}"
+                     th:src="${user.profileImagePath}"
+                     class="profile-avatar"
+                     onerror="this.src='/images/default-staff.png'"
+                     alt="Photo de profil">
+                <img th:unless="${user != null and user.profileImagePath != null}"
+                     src="/images/default-staff.png"
+                     class="profile-avatar"
+                     alt="Photo de profil par défaut">
+                <div class="user-info">
+                    <div class="user-name" th:text="${user.name}">Nom personnel</div>
+                    <div class="user-role">Personnel</div>
+                </div>
+            </div>
+            <form th:action="@{/logout}" method="post" class="logout-form">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Top Header -->
+        <div class="top-header">
+            <div class="header-left">
+                <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Paramètres</h1>
+            </div>
+            
+            <div class="header-right">
+                <div class="header-actions">
+                    <button class="action-btn notification-btn" id="notificationButton">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" th:if="${unreadNotifications > 0}" th:text="${unreadNotifications}"></span>
+                    </button>
+                    
+                    <div class="user-info">
+                        <img th:if="${user != null and user.profileImagePath != null}"
+                             th:src="${user.profileImagePath}"
+                             onerror="this.src='/images/default-staff.png'"
+                             alt="Photo de profil"
+                             class="user-avatar">
+                        <img th:unless="${user != null and user.profileImagePath != null}"
+                             src="/images/default-staff.png"
+                             alt="Photo de profil par défaut"
+                             class="user-avatar">
+                        <span th:text="${user.name}">Nom personnel</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Panel Ultra -->
+        <div th:replace="~{fragments/notification-panel-ultra :: notification-panel-ultra}"></div>
+
+        <!-- Settings Content -->
+        <div class="settings-container">
+            <!-- Success/Error Messages -->
+            <div th:if="${success}" class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                <span th:text="${success}"></span>
+            </div>
+            
+            <div th:if="${error}" class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span th:text="${error}"></span>
+            </div>
+
+            <!-- Welcome Section -->
+            <div class="welcome-section">
+                <div class="welcome-content">
+                    <h2>Paramètres du compte</h2>
+                    <p>Gérez vos informations personnelles et préférences</p>
+                </div>
+            </div>
+
+            <!-- Settings Grid -->
+            <div class="settings-grid">
+                <!-- Personal Information -->
+                <div class="settings-card">
+                    <h3>
+                        <i class="fas fa-user"></i>
+                        Informations personnelles
+                    </h3>
+                    
+                    <form th:action="@{/staff/settings/profile/update}" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        
+                        <div class="form-group">
+                            <label for="name">Nom complet</label>
+                            <input type="text" id="name" name="name" class="form-control" 
+                                   th:value="${user.name}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Adresse email</label>
+                            <input type="email" id="email" name="email" class="form-control" 
+                                   th:value="${user.email}" required>
+                        </div>
+                        
+                        <button type="submit" class="settings-action-btn primary">
+                            <i class="fas fa-save"></i>
+                            Mettre à jour
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Profile Picture -->
+                <div class="settings-card">
+                    <h3>
+                        <i class="fas fa-camera"></i>
+                        Photo de profil
+                    </h3>
+                    
+                    <div class="profile-image-section">
+                        <img id="profileImagePreview" 
+                             th:src="${user.profileImagePath != null ? user.profileImagePath : '/images/default-staff.png'}"
+                             alt="Photo de profil" 
+                             class="profile-image-preview"
+                             onerror="this.src='/images/default-staff.png'">
+                        
+                        <form th:action="@{/staff/settings/profile-image/upload}" method="post" enctype="multipart/form-data">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            
+                            <div class="file-input-wrapper">
+                                <input type="file" id="profileImage" name="profileImage" 
+                                       class="file-input" accept="image/*" onchange="previewImage(this)">
+                                <label for="profileImage" class="file-input-label">
+                                    <i class="fas fa-upload"></i>
+                                    Choisir une image
+                                </label>
+                            </div>
+                            
+                            <button type="submit" class="settings-action-btn primary">
+                                <i class="fas fa-save"></i>
+                                Sauvegarder
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Statistics -->
+                <div class="settings-card">
+                    <h3>
+                        <i class="fas fa-chart-bar"></i>
+                        Mes statistiques
+                    </h3>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number" th:text="${totalBorrowings}">0</div>
+                            <div class="stat-label">Livres empruntés</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" th:text="${currentBorrowings}">0</div>
+                            <div class="stat-label">Emprunts actuels</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" th:text="${overdueBorrowings}">0</div>
+                            <div class="stat-label">Livres en retard</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" th:text="'Niveau ' + ${readingLevel}">Niveau 1</div>
+                            <div class="stat-label">Niveau de lecture</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Password Change -->
+                <div class="settings-card">
+                    <h3>
+                        <i class="fas fa-lock"></i>
+                        Changer le mot de passe
+                    </h3>
+                    
+                    <form th:action="@{/staff/settings/password/change}" method="post">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        
+                        <div class="form-group">
+                            <label for="currentPassword">Mot de passe actuel</label>
+                            <input type="password" id="currentPassword" name="currentPassword" 
+                                   class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="newPassword">Nouveau mot de passe</label>
+                            <input type="password" id="newPassword" name="newPassword" 
+                                   class="form-control" required onkeyup="checkPasswordStrength()">
+                            <div class="password-strength">
+                                <div id="passwordStrengthFill" class="password-strength-fill"></div>
+                            </div>
+                            <div class="password-requirements">
+                                <div class="requirement" id="lengthReq">
+                                    <i class="fas fa-times"></i>
+                                    <span>Au moins 6 caractères</span>
+                                </div>
+                                <div class="requirement" id="upperReq">
+                                    <i class="fas fa-times"></i>
+                                    <span>Une lettre majuscule</span>
+                                </div>
+                                <div class="requirement" id="lowerReq">
+                                    <i class="fas fa-times"></i>
+                                    <span>Une lettre minuscule</span>
+                                </div>
+                                <div class="requirement" id="numberReq">
+                                    <i class="fas fa-times"></i>
+                                    <span>Un chiffre</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirmer le mot de passe</label>
+                            <input type="password" id="confirmPassword" name="confirmPassword" 
+                                   class="form-control" required onkeyup="checkPasswordMatch()">
+                            <div id="passwordMatchMessage" style="margin-top: 0.5rem; font-size: 0.75rem;"></div>
+                        </div>
+                        
+                        <button type="submit" class="settings-action-btn danger" id="changePasswordBtn" disabled>
+                            <i class="fas fa-key"></i>
+                            Changer le mot de passe
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlays -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- JavaScript -->
+    <script th:inline="javascript">
+        // Initialize notification panel
+        let notificationPanel;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize notification panel ultra
+            if (typeof NotificationPanelUltra !== 'undefined') {
+                notificationPanel = new NotificationPanelUltra('notificationButton');
+                console.log('NotificationPanelUltra initialized for staff settings');
+            }
+        });
+
+        // Sidebar toggle function
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.querySelector('.main-content');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            if (window.innerWidth <= 768) {
+                sidebar.classList.toggle('collapsed');
+                overlay.classList.toggle('active');
+            } else {
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+            }
+        }
+
+        // Profile image preview
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('profileImagePreview').src = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Password strength checker
+        function checkPasswordStrength() {
+            const password = document.getElementById('newPassword').value;
+            const strengthFill = document.getElementById('passwordStrengthFill');
+            
+            // Requirements
+            const lengthReq = document.getElementById('lengthReq');
+            const upperReq = document.getElementById('upperReq');
+            const lowerReq = document.getElementById('lowerReq');
+            const numberReq = document.getElementById('numberReq');
+            
+            let score = 0;
+            
+            // Check length
+            if (password.length >= 6) {
+                lengthReq.classList.add('met');
+                lengthReq.querySelector('i').className = 'fas fa-check';
+                score++;
+            } else {
+                lengthReq.classList.remove('met');
+                lengthReq.querySelector('i').className = 'fas fa-times';
+            }
+            
+            // Check uppercase
+            if (/[A-Z]/.test(password)) {
+                upperReq.classList.add('met');
+                upperReq.querySelector('i').className = 'fas fa-check';
+                score++;
+            } else {
+                upperReq.classList.remove('met');
+                upperReq.querySelector('i').className = 'fas fa-times';
+            }
+            
+            // Check lowercase
+            if (/[a-z]/.test(password)) {
+                lowerReq.classList.add('met');
+                lowerReq.querySelector('i').className = 'fas fa-check';
+                score++;
+            } else {
+                lowerReq.classList.remove('met');
+                lowerReq.querySelector('i').className = 'fas fa-times';
+            }
+            
+            // Check number
+            if (/[0-9]/.test(password)) {
+                numberReq.classList.add('met');
+                numberReq.querySelector('i').className = 'fas fa-check';
+                score++;
+            } else {
+                numberReq.classList.remove('met');
+                numberReq.querySelector('i').className = 'fas fa-times';
+            }
+            
+            // Update strength bar
+            strengthFill.className = 'password-strength-fill';
+            if (score === 1) {
+                strengthFill.classList.add('strength-weak');
+            } else if (score === 2) {
+                strengthFill.classList.add('strength-fair');
+            } else if (score === 3) {
+                strengthFill.classList.add('strength-good');
+            } else if (score === 4) {
+                strengthFill.classList.add('strength-strong');
+            }
+            
+            checkPasswordMatch();
+        }
+
+        // Password match checker
+        function checkPasswordMatch() {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const message = document.getElementById('passwordMatchMessage');
+            const submitBtn = document.getElementById('changePasswordBtn');
+            
+            if (confirmPassword === '') {
+                message.textContent = '';
+                submitBtn.disabled = true;
+                return;
+            }
+            
+            if (newPassword === confirmPassword) {
+                message.textContent = '✓ Les mots de passe correspondent';
+                message.style.color = '#10b981';
+                
+                // Check if password meets requirements
+                const hasLength = newPassword.length >= 6;
+                const hasUpper = /[A-Z]/.test(newPassword);
+                const hasLower = /[a-z]/.test(newPassword);
+                const hasNumber = /[0-9]/.test(newPassword);
+                
+                submitBtn.disabled = !(hasLength && hasUpper && hasLower && hasNumber);
+            } else {
+                message.textContent = '✗ Les mots de passe ne correspondent pas';
+                message.style.color = '#ef4444';
+                submitBtn.disabled = true;
+            }
+        }
+
+        // Auto-hide alerts
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.opacity = '0';
+                    alert.style.transform = 'translateY(-10px)';
+                    setTimeout(() => {
+                        alert.remove();
+                    }, 300);
+                }, 5000);
+            });
+        });
+    </script>
+</body>
+</html>

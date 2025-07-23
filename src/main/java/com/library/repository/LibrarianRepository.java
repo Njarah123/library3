@@ -5,4 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface LibrarianRepository extends JpaRepository<Librarian, Long> {
     boolean existsByEmployeeId(String employeeId);
+    java.util.Optional<Librarian> findByEmployeeId(String employeeId);
 }

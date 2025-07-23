@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Rapports et Statistiques - Bibliothécaire</title>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <link rel="stylesheet" th:href="@{/css/dashboards.css}" />
+    <link rel="stylesheet" href="/fontawesome/all.min.css">
+    <link rel="stylesheet" href="/fonts/poppins.css">
+    <script src="/js/libs/chart.js"></script>
+    <script src="/js/libs/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script th:src="@{/js/notification-panel-ultra.js}"></script>
+    <link rel="stylesheet" th:href="@{/css/notification-panel-ultra.css}">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="/librarian/dashboard" class="logo">
+                <img src="/images/Logobnk.png" alt="Logobnk" />
+            </a>
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+               
+        <div class="sidebar-menu">
+            <div class="menu-section">
+                <h3>Principal</h3>
+                <a href="/librarian/dashboard" class="menu-item">
+                    <i class="fas fa-home"></i>
+                    <span>Tableau de bord</span>
+                </a>
+                <a href="/librarian/books" class="menu-item">
+                    <i class="fas fa-book"></i>
+                    <span>Livres</span>
+                </a>
+                <a href="/librarian/members" class="menu-item">
+                    <i class="fas fa-users"></i>
+                    <span>Membres</span>
+                </a>
+                <a href="/librarian/borrows-books" class="menu-item">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Emprunts</span>
+                </a>
+            </div>
+                       
+            <div class="menu-section">
+                <h3>Gestion</h3>
+                <a href="/librarian/books/add" class="menu-item">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Ajouter livre</span>
+                </a>
+                <a href="/librarian/books/update-total-borrows" class="menu-item">
+                    <i class="fas fa-sync-alt"></i>
+                    <span>Mettre à jour emprunts</span>
+                </a>
+                <a href="/librarian/reports" class="menu-item active">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Rapports</span>
+                </a>
+                <a href="/librarian/settings" class="menu-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Paramètres</span>
+                </a>
+            </div>
+        </div>
+               
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <img th:if="${user != null and user.profileImagePath != null}"
+                     th:src="${user.profileImagePath}"
+                     class="profile-avatar"
+                     onerror="this.src='/images/default-librarian.png'"
+                     alt="Photo de profil">
+                <img th:unless="${user != null and user.profileImagePath != null}"
+                     src="/images/default-librarian.png"
+                     class="profile-avatar"
+                     alt="Photo de profil par défaut">
+                <div class="user-info">
+                    <div class="user-name" th:text="${user != null ? user.name : #authentication.name}">Nom utilisateur</div>
+                    <div class="user-role">Bibliothécaire</div>
+                </div>
+            </div>
+            <form th:action="@{/logout}" method="post" class="logout-form">
+                <button type="submit" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Top Header -->
+        <div class="top-header">
+            <div class="header-left">
+                <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Rapports et Statistiques</h1>
+            </div>
+                       
+            <div class="header-right">
+                <div class="search-container">
+                    <!-- Search functionality can be added here if needed -->
+                </div>
+                               
+                <div class="header-actions">
+                    <button class="action-btn notification-btn" id="notificationButton">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" th:if="${unreadNotifications > 0}" th:text="${unreadNotifications}"></span>
+                    </button>
+                    
+                    <!-- User Info Button -->
+                    <div class="user-info" id="userInfoButton">
+                        <img th:if="${user != null and user.profileImagePath != null}"
+                             th:src="${user.profileImagePath}"
+                             onerror="this.src='/images/default-librarian.png'"
+                             alt="Photo de profil"
+                             class="user-avatar">
+                        <img th:unless="${user != null and user.profileImagePath != null}"
+                             src="/images/default-librarian.png"
+                             alt="Photo de profil par défaut"
+                             class="user-avatar">
+                        <span th:text="${user != null ? user.name : #authentication.name}">Nom utilisateur</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Panel Ultra -->
+        <div th:replace="~{fragments/notification-panel-ultra :: notification-panel-ultra}"></div>
+
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <div class="welcome-content">
+                <h2>Rapports et Statistiques 📊</h2>
+                <p>Analysez les performances et l'activité de votre bibliothèque</p>
+            </div>
+            <div class="date-display">
+                <div class="current-date" id="currentDate"></div>
+                <div class="current-time" id="currentTime"></div>
+            </div>
+        </div>
+
+        <!-- Error Alert -->
+        <div th:if="${error}" class="alert alert-error" style="position: relative; margin: 0 2rem 2rem; top: 0;">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span th:text="${error}"></span>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card primary">
+                <div class="stat-icon">
+                    <i class="fas fa-book"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Total des livres</h3>
+                    <div class="stat-number" th:text="${totalBooks ?: 0}">0</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-books"></i>
+                        <span>Collection complète</span>
+                    </div>
+                </div>
+            </div>
+                       
+            <div class="stat-card success">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Total des utilisateurs</h3>
+                    <div class="stat-number" th:text="${totalUsers ?: 0}">0</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Membres inscrits</span>
+                    </div>
+                </div>
+            </div>
+                       
+            <div class="stat-card info">
+                <div class="stat-icon">
+                    <i class="fas fa-book-reader"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Emprunts actifs</h3>
+                    <div class="stat-number" th:text="${activeBorrowings ?: 0}">0</div>
+                    <div class="stat-change neutral">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>En circulation</span>
+                    </div>
+                </div>
+            </div>
+                       
+            <div class="stat-card warning">
+                <div class="stat-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Emprunts en retard</h3>
+                    <div class="stat-number" th:text="${overdueBorrowings ?: 0}">0</div>
+                    <div class="stat-change" th:class="${overdueBorrowings != null && overdueBorrowings > 0} ? 'negative' : 'positive'">
+                        <i th:class="${overdueBorrowings != null && overdueBorrowings > 0} ? 'fas fa-exclamation' : 'fas fa-check'"></i>
+                        <span th:text="${overdueBorrowings != null && overdueBorrowings > 0} ? 'Attention requise' : 'Parfait'">Parfait</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Member Statistics -->
+            <div class="dashboard-card" style="grid-column: span 6;">
+                <div class="card-header">
+                    <h3><i class="fas fa-users"></i> Statistiques des Membres</h3>
+                    <a href="/librarian/members" class="view-all-link">Gérer</a>
+                </div>
+                <div class="card-content">
+                    <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                        <div class="stat-item">
+                            <span class="stat-label">Membres actifs</span>
+                            <span class="stat-value" th:text="${activeMembers ?: 0}">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Membres inactifs</span>
+                            <span class="stat-value" th:text="${inactiveMembers ?: 0}">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Nouveaux membres (30j)</span>
+                            <span class="stat-value" th:text="${newMembers ?: 0}">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export Actions -->
+            <div class="dashboard-card" style="grid-column: span 6;">
+                <div class="card-header">
+                    <h3><i class="fas fa-download"></i> Exporter les Rapports</h3>
+                </div>
+                <div class="card-content">
+                    <div class="quick-actions" style="grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <button onclick="exportToPDF()" class="quick-action-btn" style="border: none; cursor: pointer; background: linear-gradient(135deg, #dc2626, #ef4444); color: white;">
+                            <i class="fas fa-file-pdf"></i>
+                            <span>Exporter PDF</span>
+                        </button>
+                        
+                        <button onclick="exportToExcel()" class="quick-action-btn success" style="border: none; cursor: pointer;">
+                            <i class="fas fa-file-excel"></i>
+                            <span>Exporter Excel</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activities -->
+            <div class="dashboard-card" style="grid-column: span 8;">
+                <div class="card-header">
+                    <h3><i class="fas fa-history"></i> Activités Récentes</h3>
+                    <a href="/librarian/borrows-books" class="view-all-link">Voir tout</a>
+                </div>
+                <div class="card-content">
+                    <div class="activity-list" th:if="${recentActivities != null and !recentActivities.isEmpty()}">
+                        <div class="activity-item" th:each="activity, iterStat : ${recentActivities}" th:if="${iterStat.index < 5}">
+                            <div class="activity-icon" th:class="${activity.type == 'RETOURNE'} ? 'success' : 'primary'">
+                                <i th:class="${activity.type == 'RETOURNE'} ? 'fas fa-undo' : 'fas fa-book-reader'"></i>
+                            </div>
+                            <div class="activity-info">
+                                <p th:text="${activity.description}">Description de l'activité</p>
+                                <span class="activity-time" th:text="${activity.timestamp}">Date</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- No activities message -->
+                    <div th:if="${recentActivities == null or recentActivities.isEmpty()}" class="no-data">
+                        <i class="fas fa-clock"></i>
+                        <p>Aucune activité récente</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Information -->
+            <div class="dashboard-card" style="grid-column: span 4;">
+                <div class="card-header">
+                    <h3><i class="fas fa-info-circle"></i> Informations Système</h3>
+                </div>
+                <div class="card-content">
+                    <div class="info-list">
+                        <div class="info-item">
+                            <i class="fas fa-calendar"></i>
+                            <div>
+                                <strong>Rapport généré le :</strong>
+                                <span th:text="${currentDateTime != null ? currentDateTime : #dates.format(#dates.createNow(), 'dd/MM/yyyy HH:mm')}">Date actuelle</span>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-user"></i>
+                            <div>
+                                <strong>Généré par :</strong>
+                                <span th:text="${username != null ? username : #authentication.name}">Utilisateur</span>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-server"></i>
+                            <div>
+                                <strong>Version système :</strong>
+                                <span>Bibliothèque v2.0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Overdue Books (if any) -->
+            <div class="dashboard-card" style="grid-column: span 12;" th:if="${overdueBooks != null and !overdueBooks.isEmpty()}">
+                <div class="card-header">
+                    <h3><i class="fas fa-exclamation-circle"></i> Livres en Retard</h3>
+                    <a href="/librarian/borrows-books" class="view-all-link">Gérer</a>
+                </div>
+                <div class="card-content">
+                    <div class="books-list">
+                        <div class="book-item" th:each="book, iterStat : ${overdueBooks}" th:if="${iterStat.index < 5}">
+                            <img th:src="${book.imagePath != null ? book.imagePath : '/images/default-book.jpg'}"
+                                 th:alt="${book.title}"
+                                 class="book-cover"
+                                 onerror="this.src='/images/default-book.jpg'">
+                            <div class="book-info">
+                                <h4 th:text="${book.title}">Titre du livre</h4>
+                                <p th:text="${book.borrower != null ? book.borrower.name : 'Emprunteur inconnu'}">Nom de l'emprunteur</p>
+                                <div class="book-stats">
+                                    <span class="borrow-count" style="color: var(--danger-color);">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        <span th:text="'Retard: ' + ${book.daysOverdue ?: 0} + ' jour(s)'">Retard</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Dropdown -->
+    <div class="profile-dropdown" id="profileDropdown">
+        <div class="profile-header">
+            <img th:if="${user != null and user.profileImagePath != null}"
+                 th:src="${user.profileImagePath}"
+                 onerror="this.src='/images/default-librarian.png'"
+                 alt="Photo de profil"
+                 class="profile-avatar">
+            <img th:unless="${user != null and user.profileImagePath != null}"
+                 src="/images/default-librarian.png"
+                 alt="Photo de profil par défaut"
+                 class="profile-avatar">
+            <div class="profile-name" th:text="${user != null ? user.name : #authentication.name}">Nom utilisateur</div>
+            <div class="profile-role">Bibliothécaire</div>
+        </div>
+        
+        <div class="profile-info">
+            <div class="info-item">
+                <i class="fas fa-envelope"></i>
+                <span th:text="${user != null ? user.email : 'email@example.com'}">email@example.com</span>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-id-card"></i>
+                <span>ID: <span th:text="${user != null ? user.id : '12345'}">12345</span></span>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-user"></i>
+                <span th:text="${user != null ? user.username : #authentication.name}">username</span>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-user-tag"></i>
+                <span th:text="${user != null ? user.userType : 'LIBRARIAN'}">Type utilisateur</span>
+            </div>
+        </div>
+        
+        <div class="qr-section">
+            <div class="qr-title">
+                <i class="fas fa-qrcode"></i>
+                Mon QR Code
+            </div>
+            <div class="qr-code" id="qrcode"></div>
+        </div>
+        
+        <div class="profile-actions">
+            <a href="/librarian/settings" class="profile-action-btn">
+                <i class="fas fa-cog"></i>
+                Paramètres
+            </a>
+            <form th:action="@{/logout}" method="post" style="margin: 0;">
+                <button type="submit" class="profile-action-btn logout" style="width: 100%; text-align: left;">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Déconnexion
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Overlays -->
+    <div class="profile-overlay" id="profileOverlay"></div>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- JavaScript -->
+    <script th:inline="javascript">
+        // Variables globales
+        let qrGenerated = false;
+
+        // FONCTIONS DROPDOWN
+        function toggleProfileDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            const overlay = document.getElementById('profileOverlay');
+            
+            if (dropdown.classList.contains('show')) {
+                dropdown.classList.remove('show');
+                overlay.classList.remove('show');
+            } else {
+                dropdown.classList.add('show');
+                overlay.classList.add('show');
+                
+                if (!qrGenerated) {
+                    generateQR();
+                }
+            }
+        }
+
+        function closeProfileDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            const overlay = document.getElementById('profileOverlay');
+            dropdown.classList.remove('show');
+            overlay.classList.remove('show');
+        }
+
+        function generateQR() {
+            const qrDiv = document.getElementById('qrcode');
+            if (qrDiv && typeof QRCode !== 'undefined') {
+                const userData = {
+                    name: /*[[${user != null ? user.name : #authentication.name}]]*/ 'User',
+                    email: /*[[${user != null ? user.email : 'email@example.com'}]]*/ 'email@example.com',
+                    id: /*[[${user != null ? user.id : '12345'}]]*/ '12345'
+                };
+                
+                new QRCode(qrDiv, {
+                    text: JSON.stringify(userData),
+                    width: 120,
+                    height: 120
+                });
+                qrGenerated = true;
+            }
+        }
+
+        // SIDEBAR FUNCTIONS
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            if (sidebar && mainContent && overlay) {
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+                overlay.classList.toggle('active');
+            }
+        }
+
+        // DATE TIME FUNCTIONS
+        function updateDateTime() {
+            const now = new Date();
+            
+            const dateElement = document.getElementById('currentDate');
+            const timeElement = document.getElementById('currentTime');
+            
+            if (dateElement) {
+                dateElement.textContent = now.toLocaleDateString('fr-FR', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            }
+            
+            if (timeElement) {
+                timeElement.textContent = now.toLocaleTimeString('fr-FR', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+        }
+
+        // EVENT LISTENERS
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mettre à jour la date/heure
+            updateDateTime();
+            setInterval(updateDateTime, 60000);
+
+            // Gestion du dropdown
+            const userInfoBtn = document.getElementById('userInfoButton');
+            const overlay = document.getElementById('profileOverlay');
+            
+            if (userInfoBtn) {
+                userInfoBtn.addEventListener('click', toggleProfileDropdown);
+            }
+            
+            if (overlay) {
+                overlay.addEventListener('click', closeProfileDropdown);
+            }
+            
+            // Initialize notification panel ultra
+            if (typeof NotificationPanelUltra !== 'undefined') {
+                const notificationPanel = new NotificationPanelUltra('notificationButton');
+                console.log('NotificationPanelUltra initialized for reports page');
+            } else {
+                console.error('NotificationPanelUltra class not found');
+            }
+
+            // Fermer avec la touche Échap
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    closeProfileDropdown();
+                }
+            });
+        });
+
+        // Fermer sidebar en cliquant sur l'overlay
+        document.getElementById('sidebarOverlay').addEventListener('click', function() {
+            toggleSidebar();
+        });
+
+        // Export functions
+        function exportToPDF() {
+            showNotification('Export PDF en cours...', 'info');
+            
+            // Masquer temporairement les éléments non nécessaires
+            const sidebar = document.getElementById('sidebar');
+            const header = document.querySelector('.top-header');
+            const exportCard = document.querySelector('.dashboard-card:has(.quick-actions)');
+            
+            sidebar.style.display = 'none';
+            header.style.display = 'none';
+            exportCard.style.display = 'none';
+            
+            // Ajuster le main-content pour l'export
+            const mainContent = document.getElementById('mainContent');
+            mainContent.style.marginLeft = '0';
+            mainContent.style.padding = '20px';
+            
+            setTimeout(() => {
+                generatePDFReport().then(() => {
+                    // Restaurer l'affichage
+                    sidebar.style.display = '';
+                    header.style.display = '';
+                    exportCard.style.display = '';
+                    mainContent.style.marginLeft = '';
+                    mainContent.style.padding = '';
+                    
+                    showNotification('Export PDF terminé avec succès!', 'success');
+                });
+            }, 500);
+        }
+
+        function exportToExcel() {
+            showNotification('Export Excel en cours...', 'info');
+            
+            setTimeout(() => {
+                generateExcelReport();
+                showNotification('Export Excel terminé avec succès!', 'success');
+            }, 1000);
+        }
+
+        async function generatePDFReport() {
+            try {
+                const { jsPDF } = window.jspdf;
+                
+                // Capturer la page avec html2canvas
+                const canvas = await html2canvas(document.getElementById('mainContent'), {
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: '#f9fafb',
+                    width: 1200,
+                    height: window.innerHeight
+                });
+                
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                
+                const imgWidth = 210;
+                const pageHeight = 295;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                let heightLeft = imgHeight;
+                let position = 0;
+                
+                // Ajouter la première page
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+                
+                // Ajouter des pages supplémentaires si nécessaire
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+                
+                // Télécharger le PDF
+                const fileName = `rapport-bibliotheque-${new Date().toISOString().split('T')[0]}.pdf`;
+                pdf.save(fileName);
+                
+            } catch (error) {
+                console.error('Erreur lors de la génération du PDF:', error);
+                showNotification('Erreur lors de l\'export PDF', 'error');
+            }
+        }
+
+        function generateExcelReport() {
+            try {
+                // Créer un nouveau workbook
+                const wb = XLSX.utils.book_new();
+                
+                // Données pour la feuille de statistiques
+                const statsData = [
+                    ['RAPPORT DE BIBLIOTHÈQUE', ''],
+                    ['Date de génération', new Date().toLocaleDateString('fr-FR')],
+                    ['Heure de génération', new Date().toLocaleTimeString('fr-FR')],
+                    ['Généré par', document.querySelector('.user-name')?.textContent || 'Utilisateur'],
+                    ['', ''],
+                    ['STATISTIQUES GÉNÉRALES', ''],
+                    ['Total des livres', document.querySelector('.stat-card.primary .stat-number')?.textContent || '0'],
+                    ['Total des utilisateurs', document.querySelector('.stat-card.success .stat-number')?.textContent || '0'],
+                    ['Emprunts actifs', document.querySelector('.stat-card.info .stat-number')?.textContent || '0'],
+                    ['Emprunts en retard', document.querySelector('.stat-card.warning .stat-number')?.textContent || '0'],
+                    ['', ''],
+                    ['STATISTIQUES DES MEMBRES', ''],
+                    ['Membres actifs', document.querySelectorAll('.stat-value')[0]?.textContent || '0'],
+                    ['Membres inactifs', document.querySelectorAll('.stat-value')[1]?.textContent || '0'],
+                    ['Nouveaux membres (30j)', document.querySelectorAll('.stat-value')[2]?.textContent || '0'],
+                    ['', ''],
+                    ['INFORMATIONS SYSTÈME', ''],
+                    ['Version', 'Bibliothèque v2.0'],
+                    ['Type de rapport', 'Rapport automatique']
+                ];
+                
+                // Créer la feuille de calcul
+                const ws = XLSX.utils.aoa_to_sheet(statsData);
+                
+                // Styliser les en-têtes
+                const range = XLSX.utils.decode_range(ws['!ref']);
+                for (let R = range.s.r; R <= range.e.r; ++R) {
+                    for (let C = range.s.c; C <= range.e.c; ++C) {
+                        const cell_address = XLSX.utils.encode_cell({c: C, r: R});
+                        if (!ws[cell_address]) continue;
+                        
+                        // Styliser les titres de sections
+                        if (ws[cell_address].v && typeof ws[cell_address].v === 'string' &&
+                            (ws[cell_address].v.includes('RAPPORT') ||
+                             ws[cell_address].v.includes('STATISTIQUES') ||
+                             ws[cell_address].v.includes('INFORMATIONS'))) {
+                            ws[cell_address].s = {
+                                font: { bold: true, color: { rgb: "FFFFFF" } },
+                                fill: { fgColor: { rgb: "4F46E5" } }
+                            };
+                        }
+                    }
+                }
+                
+                // Définir la largeur des colonnes
+                ws['!cols'] = [
+                    { wch: 30 }, // Colonne A
+                    { wch: 20 }  // Colonne B
+                ];
+                
+                // Ajouter la feuille au workbook
+                XLSX.utils.book_append_sheet(wb, ws, "Rapport Bibliothèque");
+                
+                // Télécharger le fichier Excel
+                const fileName = `rapport-bibliotheque-${new Date().toISOString().split('T')[0]}.xlsx`;
+                XLSX.writeFile(wb, fileName);
+                
+            } catch (error) {
+                console.error('Erreur lors de la génération d\'Excel:', error);
+                showNotification('Erreur lors de l\'export Excel', 'error');
+            }
+        }
+
+        function showNotification(message, type) {
+            // Créer une notification temporaire
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type}`;
+            
+            let borderColor, textColor, iconClass;
+            switch(type) {
+                case 'success':
+                    borderColor = '#10b981';
+                    textColor = '#10b981';
+                    iconClass = 'fa-check-circle';
+                    break;
+                case 'error':
+                    borderColor = '#ef4444';
+                    textColor = '#ef4444';
+                    iconClass = 'fa-exclamation-triangle';
+                    break;
+                default:
+                    borderColor = '#3b82f6';
+                    textColor = '#3b82f6';
+                    iconClass = 'fa-info-circle';
+            }
+            
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                max-width: 350px;
+                padding: 1rem 1.5rem;
+                border-radius: 12px;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+                background: white;
+                border-left: 4px solid ${borderColor};
+                color: ${textColor};
+                font-weight: 500;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                animation: slideDown 0.3s ease-out;
+            `;
+            
+            notification.innerHTML = `
+                <i class="fas ${iconClass}"></i>
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Supprimer la notification après 3 secondes
+            setTimeout(() => {
+                notification.style.animation = 'slideUp 0.3s ease-out forwards';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        console.log('Reports page initialized');
+    </script>
+
+    <style>
+        /* Additional styles for reports page */
+        .no-data {
+            text-align: center;
+            padding: 2rem;
+            color: var(--gray-500);
+        }
+
+        .no-data i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .no-data p {
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .info-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            background: var(--gray-50);
+            border-radius: var(--border-radius);
+        }
+
+        .info-item i {
+            color: var(--primary-color);
+            width: 20px;
+            text-align: center;
+        }
+
+        .info-item div {
+            flex: 1;
+        }
+
+        .info-item strong {
+            color: var(--gray-700);
+            font-weight: 600;
+        }
+
+        .info-item span {
+            color: var(--gray-600);
+        }
+
+        .stat-item {
+            padding: 1rem;
+            background: var(--gray-50);
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+        
+        .stat-label {
+            display: block;
+            font-size: 0.875rem;
+            color: var(--gray-600);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .stat-value {
+            display: block;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+
+        .alert {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            border-radius: var(--border-radius-lg);
+            font-weight: 500;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+            border-left: 4px solid var(--danger-color);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1024px) {
+            .dashboard-card {
+                grid-column: span 12 !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+            border-left: 4px solid var(--success-color);
+        }
+
+        .alert-info {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--info-color);
+            border-left: 4px solid var(--info-color);
+        }
+
+        /* Animations for notifications */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+    </style>
+</body>
+</html>

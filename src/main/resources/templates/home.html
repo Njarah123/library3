@@ -1,222 +1,244 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bibliothèque - Accueil</title>
-    <link rel="stylesheet" th:href="@{/css/home.css}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Bibliothèque Joanjarah · Elargi votre connaissance</title>
+    <link rel="stylesheet" href="/css/samsung-biblio.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="app-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="logo">
-                <h2>THE BOOKS</h2>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="logo">
+                <img src="/images/Logobnk.png" alt="Logobnk" style="height: 95px; width: auto; max-width: 300px; object-fit: contain;" />
+            </a>
+            <div class="nav-menu">
+                <a href="#accueil">Accueil</a>
+                <a href="#services">Services</a>
+                <a href="#collections">Collections</a>
+                <a href="#contact">Contact</a>
+               <a th:href="@{/auth/login}">Se connecter</a>
+                <a th:href="@{/auth/register}">S'inscrire</a>
             </div>
+            <div class="nav-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section avec images carousel -->
+    <section class="hero" id="accueil">
+        <div class="hero-images">
+            <div class="hero-image active">
+                <img src="/images/face2.jpg" alt="Bibliothèque moderne">
+            </div>
+            <div class="hero-image">
+                <img src="/images/bib1.jpg" alt="Rayons de livres">
+            </div>
+            <div class="hero-image">
+                <img src="/images/bib2.jpg" alt="Espace de lecture">
+            </div>
+            <div class="hero-image">
+                <img src="/images/bib3.jpg" alt="Bibliothèque contemporaine">
+            </div>
+            <div class="hero-image">
+                <img src="/images/bib4.jpg" alt="Espace numérique">
+            </div>
+        </div>
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="hero-title-line">Elargi</span>
+                <span class="hero-title-line">votre connaissance</span>
+            </h1>
+            <div class="hero-description">
+                <p>Où regardons-nous quand nous naviguons vers des horizons inexplorés de la connaissance ? Nous nous tournons vers l'Étoile du Nord. Dans le cœur le plus inspirant et vibrant de notre communauté, cette étoile est Joanjarah. Bibliothèque d'avant-garde, référence en matière de durabilité, icône tournée vers l'avenir.</p>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <div class="scroll-dot"></div>
+        </div>
+    </section>
+
+    <!-- Description Section -->
+    <section class="description-section">
+        <div class="container">
+            <div class="description-content">
+                <p class="description-text">
+                    Depuis des décennies, les bibliothèques traditionnelles ont été un choix raisonnable pour de nombreuses communautés. Aujourd'hui, de plus en plus d'organisations voient que l'espace, les perspectives et l'atmosphère vivante de Joanjarah sont les éléments qui permettent aux véritables pionniers de la connaissance de s'épanouir.
+                </p>
+                <p class="description-text">
+                    Joanjarah est l'endroit vers lequel leur boussole les mène. Le bâtiment est une capsule captivante d'innovation, d'énergie et de symbiose avec son environnement. Avec le cœur historique de la ville en vue, nos visiteurs mettent les voiles vers l'avenir et découvrent de nouveaux mondes.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Large Image Section -->
+    <section class="large-image-section">
+        <div class="large-image-container">
+            <img src="https://images.unsplash.com/photo-1568667256549-094345857637?w=1920&h=1080&fit=crop" alt="Bibliothèque Joanjarah - Vue d'ensemble">
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services-section" id="services">
+        <div class="container">
+            <h2 class="section-title">
+                <span class="title-line">C'est pour les pionniers</span>
+                <span class="title-line">avec ambition</span>
+            </h2>
             
-            <nav class="nav-menu">
-                <a th:href="@{/home}" class="nav-item active">
-                    <i class="fas fa-compass"></i>
-                    <span>Découvrir</span>
-                </a>
-
-                <!-- Menu pour ADMIN -->
-                <div sec:authorize="hasRole('ADMIN')">
-                    <a th:href="@{/admin/books}" class="nav-item">
-                        <i class="fas fa-book"></i>
-                        <span>Catalogue</span>
-                    </a>
-                    <a th:href="@{/admin/users}" class="nav-item">
-                        <i class="fas fa-users"></i>
-                        <span>Utilisateurs</span>
-                    </a>
-                    <a th:href="@{/admin/borrows}" class="nav-item">
-                        <i class="fas fa-bookmark"></i>
-                        <span>Emprunts</span>
-                    </a>
-                    <a th:href="@{/admin/stats}" class="nav-item">
-                        <i class="fas fa-chart-bar"></i>
-                        <span>Statistiques</span>
-                    </a>
+            <div class="services-grid">
+                <div class="service-card">
+                    <h3>Emprunts des livres</h3>
+                    <p>Parfait pour étudiants et chercheurs qui sont prêts à collaborer et grandir.</p>
+                    <ul class="service-features">
+                         <li>✔️ Accès à un large catalogue de livres variés</li>
+    <li>✔️ Durée d'emprunt flexible selon le type d'usager</li>
+    <li>✔️ Possibilité de renouvellement en ligne</li>
+    <li>✔️ Notification avant la date de retour</li>
+    <li>✔️ Emprunts personnalisés selon le profil utilisateur</li>
+    <li>✔️ Réservation de livres à distance</li>
+    <li>✔️ Accès aux nouveautés et livres recommandés</li>
+    <li>✔️ Historique des emprunts consultable</li>
+    <li>✔️ Alerte en cas de retard ou livre indisponible</li>
+                    </ul>
                 </div>
 
-                <!-- Menu pour LIBRARIAN -->
-                <div sec:authorize="hasRole('LIBRARIAN')">
-                    <a th:href="@{/librarian/books}" class="nav-item">
-                        <i class="fas fa-book"></i>
-                        <span>Catalogue</span>
-                    </a>
-                    <a th:href="@{/librarian/borrows-books}" class="nav-item">
-                        <i class="fas fa-bookmark"></i>
-                        <span>Emprunts</span>
-                    </a>
-                    
+                <div class="service-card">
+                    <h3>Dashboard personnel</h3>
+                    <p>Idéal pour voirs vos historiques.</p>
+                    <ul class="service-features">
+                        <li>✔️ Suivi des emprunts en temps réel</li>
+    <li>✔️ Gestion de réservations et renouvellements</li>
+    <li>✔️ Accès à des recommandations personnalisées</li>
+    <li>✔️ Historique de lecture consultable</li>
+    <li>✔️ Notifications et rappels automatiques</li>
+    <li>✔️ Profil utilisateur modifiable à tout moment</li>
+    <li>✔️ Interface claire avec filtres dynamiques</li>
+    <li>✔️ Statistiques de lecture et préférences</li>
+    <li>✔️ Support et assistance intégrés</li>
+                    </ul>
                 </div>
 
-                <!-- Menu pour STAFF -->
-                <div sec:authorize="hasRole('STAFF')">
-                    <a th:href="@{/staff/books}" class="nav-item">
-                        <i class="fas fa-book"></i>
-                        <span>Catalogue</span>
-                    </a>
-                    <a th:href="@{/staff/borrows}" class="nav-item">
-                        <i class="fas fa-bookmark"></i>
-                        <span>Mes Emprunts</span>
-                    </a>
-                    <a th:href="@{/staff/history}" class="nav-item">
-                        <i class="fas fa-history"></i>
-                        <span>Historique</span>
-                    </a>
+                <div class="service-card">
+                    <h3>Centres de Recherche</h3>
+                    <p>Parfait pour les grands projets de recherche collaborative.</p>
+                    <ul class="service-features">
+                        <li>✔️ Accès aux archives numériques</li>
+                        <li>✔️ Laboratoires multimédias</li>
+                        <li>✔️ Espaces de stockage sécurisés</li>
+                        <li>✔️ Salles de réunion privées</li>
+                        <li>✔️ Assistance documentaire</li>
+                        <li>✔️ Outils de recherche avancés</li>
+                        <li>✔️ Espaces de présentation</li>
+                        <li>✔️ Connexions internationales</li>
+                        <li>✔️ Services de traduction</li>
+                    </ul>
                 </div>
-
-                <!-- Menu pour STUDENT -->
-                <div sec:authorize="hasRole('STUDENT')">
-                    <a th:href="@{/student/books}" class="nav-item">
-                        <i class="fas fa-book"></i>
-                        <span>Catalogue</span>
-                    </a>
-                    <a th:href="@{/student/borrows}" class="nav-item">
-                        <i class="fas fa-bookmark"></i>
-                        <span>Mes Emprunts</span>
-                    </a>
-                    <a th:href="@{/student/history}" class="nav-item">
-                        <i class="fas fa-history"></i>
-                        <span>Historique</span>
-                    </a>
-                </div>
-            </nav>
-
-            <div class="nav-bottom">
-               
-                <form th:action="@{/logout}" method="post">
-                    <button type="submit" class="nav-item logout-btn">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span>Déconnexion</span>
-                    </button>
-                </form>
             </div>
-        </aside>
+        </div>
+    </section>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <header class="main-header">
-                <div class="header-info">
-                    <div class="datetime-info">
-                        <i class="fas fa-clock"></i>
-                        <span th:text="${currentDateTime}">2025-06-10 07:12:49</span>
+    <!-- Architecture Section -->
+    <section class="architecture-section">
+        <div class="architecture-image">
+            <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&h=1080&fit=crop" alt="Architecture moderne de Joanjarah">
+        </div>
+    </section>
+
+    <!-- Collections Section -->
+    <section class="collections-section" id="collections">
+        <div class="container">
+            <h2 class="section-title">
+                <span class="title-line">Collections</span>
+                <span class="title-line">Exceptionnelles</span>
+            </h2>
+            
+            <div class="collections-grid">
+                <div class="collection-card">
+                    <div class="collection-image">
+                        <img src="https://images.unsplash.com/photo-1495446815901-a7297e633e8d?w=600&h=400&fit=crop" alt="Livres anciens">
                     </div>
-                    <div class="user-info">
-                        <i class="fas fa-user"></i>
-                        <span th:text="${username}"></span>
-                        <span class="user-role" 
-                              sec:authorize="hasRole('ADMIN')">[Admin]</span>
-                        <span class="user-role" 
-                              sec:authorize="hasRole('LIBRARIAN')">[Librarian]</span>
-                        <span class="user-role" 
-                              sec:authorize="hasRole('STAFF')">[Staff]</span>
-                        <span class="user-role" 
-                              sec:authorize="hasRole('STUDENT')">[Student]</span>
-                    </div>
-                </div>
-
-                <div class="search-section">
-                    <form th:action="@{${
-                        #authorization.expression('hasRole(''ADMIN'')') ? '/admin/books' :
-                        #authorization.expression('hasRole(''LIBRARIAN'')') ? '/librarian/books' :
-                        #authorization.expression('hasRole(''STAFF'')') ? '/staff/books' :
-                        '/student/books'
-                    }}" method="get" class="search-form">
-                        <div class="search-input-wrapper">
-                            <input type="text" 
-                                   name="search" 
-                                   placeholder="Rechercher un livre..."
-                                   class="search-input">
-                            <button type="submit" class="search-button">
-                                <i class="fas fa-search"></i>
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </header>
-
-            <!-- Recommended Books Section -->
-            <section class="recommendations">
-                <div class="section-header">
-                    <h2>Livres Recommandés</h2>
-                    <a th:href="@{${
-                        #authorization.expression('hasRole(''ADMIN'')') ? '/admin/books' :
-                        #authorization.expression('hasRole(''LIBRARIAN'')') ? '/librarian/books' :
-                        #authorization.expression('hasRole(''STAFF'')') ? '/staff/books' :
-                        '/student/books'
-                    }}" class="view-all">Voir tout</a>
-                </div>
-                <div class="books-grid">
-                    <div th:each="book : ${recommendedBooks}" class="book-card">
-                        <div class="book-image">
-                            <img th:if="${book.imagePath != null and !book.imagePath.isEmpty()}" 
-                                 th:src="${book.imagePath.startsWith('/') ? book.imagePath : '/uploads/' + book.imagePath}"
-                                 onerror="this.src='/images/default-book.png'"
-                                 class="book-cover"
-                                 th:alt="${book.title}">
-                            <img th:unless="${book.imagePath != null and !book.imagePath.isEmpty()}" 
-                                 src="/images/default-book.png"
-                                 class="book-cover"
-                                 alt="Image par défaut">
-                        </div>
-                        <div class="book-info">
-                            <h3 th:text="${book.title}">Titre du livre</h3>
-                            <p class="author">
-                                <i class="fas fa-user-edit"></i>
-                                <span th:text="${book.author}">Auteur</span>
-                            </p>
-                            <p class="category">
-                                <i class="fas fa-bookmark"></i>
-                                <span th:text="${book.category}">Catégorie</span>
-                            </p>
-                            
-                        </div>
+                    <div class="collection-content">
+                        <h3>Manuscrits Anciens</h3>
+                        <p>Une collection rare de manuscrits historiques et de documents précieux.</p>
                     </div>
                 </div>
-            </section>
+                
+                <div class="collection-card">
+                    <div class="collection-image">
+                        <img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=600&h=400&fit=crop" alt="Littérature contemporaine">
+                    </div>
+                    <div class="collection-content">
+                        <h3>Littérature Contemporaine</h3>
+                        <p>Les dernières publications et œuvres d'auteurs contemporains du monde entier.</p>
+                    </div>
+                </div>
+                
+                <div class="collection-card">
+                    <div class="collection-image">
+                        <img src="https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=600&h=400&fit=crop" alt="Archives numériques">
+                    </div>
+                    <div class="collection-content">
+                        <h3>Archives Numériques</h3>
+                        <p>Accès à des millions de documents numérisés et ressources en ligne.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-            <!-- Categories Section -->
-            <section class="categories-section">
-    <div class="section-header">
-        <h2>Catégories</h2>
-    </div>
-    <div class="categories-grid">
-        <a th:each="category : ${categories}" 
-           th:href="@{${
-               #authorization.expression('hasRole(''ADMIN'')') ? '/admin/books' :
-               #authorization.expression('hasRole(''LIBRARIAN'')') ? '/librarian/books' :
-               #authorization.expression('hasRole(''STAFF'')') ? '/staff/books' :
-               '/student/books'
-           }(category=${category})}" 
-           class="category-card">
-            <i class="fas fa-book-open"></i>
-            <h3 th:text="${category}">Nom de la catégorie</h3>
-            <span class="book-count" 
-                  th:text="${#numbers.formatDecimal(categoryCount.get(category), 0, 0)} + ' livres'">
-                0 livres
-            </span>
-        </a>
-    </div>
-</section>
-        </main>
-    </div>
+    <!-- Contact Section -->
+    <section class="contact-section" id="contact">
+        <div class="container">
+            <div class="contact-content">
+                <h2>Visitez Joanjarah</h2>
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <h3>Adresse</h3>
+                        <p>Andraharo<br>Cap 3000</p>
+                    </div>
+                    <div class="contact-item">
+                        <h3>Horaires</h3>
+                        <p>Lundi - Vendredi: 8h - 22h<br>Samedi - Dimanche: 10h - 20h</p>
+                    </div>
+                    <div class="contact-item">
+                        <h3>Contact</h3>
+                        <p>Téléphone: +261 33 33 717 31<br>Email: hasinjara15@gmail.com</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Gestion des erreurs d'images
-            const bookCovers = document.querySelectorAll('.book-cover');
-            bookCovers.forEach(img => {
-                img.onerror = function() {
-                    this.src = '/images/default-book.png';
-                }
-            });
-        });
-    </script>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <h3>Joanjarah</h3>
+                    <p>Elargi votre connaissance</p>
+                </div>
+                <div class="footer-links">
+                    <a href="#accueil">Accueil</a>
+                    <a href="#services">Services</a>
+                    <a href="#collections">Collections</a>
+                    <a href="#contact">Contact</a>
+                    <a href="#Se connecter">Contact</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Bibliothèque Joanjarah. Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/samsung-biblio.js"></script>
 </body>
 </html>

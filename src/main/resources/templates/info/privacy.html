@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Politique de confidentialité - Bibliothèque numérique</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Background avec image floutée */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.5)), 
+                        url('/images/sabi.avif') center/cover;
+            filter: blur(2px);
+            z-index: -2;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: -1;
+        }
+
+        /* Header avec logo et navigation */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: white;
+        }
+
+        /* Container principal */
+        .content-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 120px 20px 40px;
+        }
+
+        /* Contenu principal */
+        .content-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 50px 40px;
+            width: 100%;
+            max-width: 900px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.3);
+            color: white;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .content-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .content-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #ff6b6b, #ff5722);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .content-header p {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+        }
+
+        .content-section {
+            margin-bottom: 35px;
+        }
+
+        .content-section h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #ff6b6b;
+            border-bottom: 2px solid rgba(255, 107, 107, 0.3);
+            padding-bottom: 8px;
+        }
+
+        .content-section h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            margin-top: 20px;
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        .content-section p {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 15px;
+        }
+
+        .content-section ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .content-section li {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .highlight-box p {
+            margin-bottom: 0;
+            font-weight: 500;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #ff6b6b, #ff5722);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            margin-top: 30px;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+        }
+
+        .back-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(255, 107, 107, 0.4);
+        }
+
+        /* Scrollbar personnalisée */
+        .content-card::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .content-card::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .content-card::-webkit-scrollbar-thumb {
+            background: rgba(255, 107, 107, 0.5);
+            border-radius: 4px;
+        }
+
+        .content-card::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 107, 107, 0.7);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px 20px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .content-card {
+                padding: 40px 30px;
+                margin: 20px;
+                max-height: 85vh;
+            }
+
+            .content-header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .content-card {
+                padding: 30px 25px;
+            }
+
+            .content-header h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background"></div>
+    <div class="overlay"></div>
+
+    <div class="header">
+        <a href="/" class="logo">
+            <img src="/images/Logobnk.png" alt="Bibliothèque numérique" style="height: 95px; width: auto; max-width: 300px; object-fit: contain;" />
+        </a>
+        <div class="nav-links">
+            <a th:href="@{/}">Accueil</a>
+            <a th:href="@{/auth/login}">Connexion</a>
+            <a th:href="@{/info/about}">À propos</a>
+            <a th:href="@{/auth/register}">S'inscrire</a>
+            <a th:href="@{/info/contact}">Contact</a>
+        </div>
+    </div>
+
+    <div class="content-container">
+        <div class="content-card">
+            <div class="content-header">
+                <h1>Politique de confidentialité</h1>
+                <p>Dernière mise à jour : 22 juillet 2025</p>
+            </div>
+
+            <div class="content-section">
+                <h2>1. Introduction</h2>
+                <p>Chez Bibliothèque numérique, nous nous engageons à protéger votre vie privée et vos données personnelles. Cette politique de confidentialité explique comment nous collectons, utilisons, stockons et protégeons vos informations lorsque vous utilisez notre plateforme de gestion de bibliothèque.</p>
+                
+                <div class="highlight-box">
+                    <p>Votre confiance est essentielle pour nous. Nous ne vendons jamais vos données personnelles à des tiers.</p>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <h2>2. Informations que nous collectons</h2>
+                
+                <h3>2.1 Informations personnelles</h3>
+                <ul>
+                    <li>Nom complet et informations de contact</li>
+                    <li>Adresse email et numéro de téléphone</li>
+                    <li>Informations d'identification (numéro étudiant, employé)</li>
+                    <li>Photo de profil (optionnelle)</li>
+                </ul>
+
+                <h3>2.2 Données d'utilisation</h3>
+                <ul>
+                    <li>Historique des emprunts et retours de livres</li>
+                    <li>Préférences de lecture et recherches</li>
+                    <li>Données de navigation sur la plateforme</li>
+                    <li>Informations techniques (adresse IP, navigateur)</li>
+                </ul>
+            </div>
+
+            <div class="content-section">
+                <h2>3. Comment nous utilisons vos informations</h2>
+                <p>Nous utilisons vos données personnelles pour :</p>
+                <ul>
+                    <li>Gérer votre compte et vos emprunts de livres</li>
+                    <li>Personnaliser votre expérience sur la plateforme</li>
+                    <li>Vous envoyer des notifications importantes</li>
+                    <li>Améliorer nos services et fonctionnalités</li>
+                    <li>Assurer la sécurité de la plateforme</li>
+                    <li>Respecter nos obligations légales</li>
+                </ul>
+            </div>
+
+            <div class="content-section">
+                <h2>4. Partage des informations</h2>
+                <p>Nous ne partageons vos informations personnelles qu'avec :</p>
+                <ul>
+                    <li><strong>Personnel autorisé :</strong> Bibliothécaires et administrateurs pour la gestion des emprunts</li>
+                    <li><strong>Prestataires de services :</strong> Partenaires techniques sous contrat de confidentialité</li>
+                    <li><strong>Autorités légales :</strong> Si requis par la loi ou pour protéger nos droits</li>
+                </ul>
+            </div>
+
+            <div class="content-section">
+                <h2>5. Sécurité des données</h2>
+                <p>Nous mettons en place des mesures de sécurité robustes :</p>
+                <ul>
+                    <li>Chiffrement des données sensibles</li>
+                    <li>Accès restreint aux informations personnelles</li>
+                    <li>Surveillance continue des systèmes</li>
+                    <li>Sauvegardes régulières et sécurisées</li>
+                    <li>Formation du personnel sur la protection des données</li>
+                </ul>
+            </div>
+
+            <div class="content-section">
+                <h2>6. Vos droits</h2>
+                <p>Vous avez le droit de :</p>
+                <ul>
+                    <li><strong>Accès :</strong> Consulter vos données personnelles</li>
+                    <li><strong>Rectification :</strong> Corriger des informations inexactes</li>
+                    <li><strong>Suppression :</strong> Demander l'effacement de vos données</li>
+                    <li><strong>Portabilité :</strong> Récupérer vos données dans un format lisible</li>
+                    <li><strong>Opposition :</strong> Vous opposer au traitement de vos données</li>
+                </ul>
+            </div>
+
+            <div class="content-section">
+                <h2>7. Cookies et technologies similaires</h2>
+                <p>Nous utilisons des cookies pour :</p>
+                <ul>
+                    <li>Maintenir votre session de connexion</li>
+                    <li>Mémoriser vos préférences</li>
+                    <li>Analyser l'utilisation de la plateforme</li>
+                    <li>Améliorer les performances du site</li>
+                </ul>
+                <p>Vous pouvez gérer vos préférences de cookies dans les paramètres de votre navigateur.</p>
+            </div>
+
+            <div class="content-section">
+                <h2>8. Conservation des données</h2>
+                <p>Nous conservons vos données personnelles :</p>
+                <ul>
+                    <li>Pendant la durée de votre utilisation active de la plateforme</li>
+                    <li>Pour une période de 3 ans après la fermeture de votre compte</li>
+                    <li>Plus longtemps si requis par la loi ou pour des raisons légitimes</li>
+                </ul>
+            </div>
+
+            <div class="content-section">
+                <h2>9. Modifications de cette politique</h2>
+                <p>Nous pouvons mettre à jour cette politique de confidentialité. Les modifications importantes vous seront notifiées par email ou via la plateforme. Nous vous encourageons à consulter régulièrement cette page.</p>
+            </div>
+
+            <div class="content-section">
+                <h2>10. Contact</h2>
+                <p>Pour toute question concernant cette politique de confidentialité ou vos données personnelles, contactez-nous :</p>
+                <ul>
+                    <li>Email : privacy@logobnk.com</li>
+                    <li>Téléphone : +261 34 12 345 67</li>
+                    <li>Adresse : 123 Avenue de la Bibliothèque, Antananarivo, Madagascar</li>
+                </ul>
+            </div>
+
+            <a th:href="@{/auth/login}" class="back-btn">
+                ← Retour à la connexion
+            </a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const card = document.querySelector('.content-card');
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            
+            setTimeout(() => {
+                card.style.transition = 'all 0.8s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 200);
+        });
+
+        // Effet de parallaxe léger sur le background
+        document.addEventListener('mousemove', function(e) {
+            const background = document.querySelector('.background');
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+            
+            background.style.transform = `translate(${x * 20}px, ${y * 20}px) scale(1.1)`;
+        });
+    </script>
+</body>
+</html>

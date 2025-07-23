@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Footer</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/fontawesome/all.min.css">
+</head>
+<body>
+
+<!-- Fragment de pied de page principal -->
+<footer th:fragment="footer" class="main-footer py-4 mt-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <!-- Logo et description -->
+            <div class="col-lg-4 mb-4 mb-lg-0">
+                <h5 class="mb-3">Bibliothèque Universitaire</h5>
+                <p class="text-muted">
+                    Votre source de connaissances et de ressources académiques. Nous offrons une vaste collection de livres, de revues et de ressources numériques pour soutenir vos études et recherches.
+                </p>
+                <div class="social-links">
+                    <a href="#" class="me-2 text-primary"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="me-2 text-info"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="me-2 text-danger"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="me-2 text-dark"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+            
+            <!-- Liens rapides -->
+            <div class="col-lg-2 col-md-4 mb-4 mb-md-0">
+                <h6 class="mb-3">Liens rapides</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a href="/" class="text-decoration-none text-muted">Accueil</a></li>
+                    <li class="mb-2"><a href="/books" class="text-decoration-none text-muted">Livres</a></li>
+                    <li class="mb-2"><a href="/subscriptions/plans" class="text-decoration-none text-muted">Abonnements</a></li>
+                    <li class="mb-2"><a href="/about" class="text-decoration-none text-muted">À propos</a></li>
+                    <li class="mb-2"><a href="/contact" class="text-decoration-none text-muted">Contact</a></li>
+                </ul>
+            </div>
+            
+            <!-- Ressources -->
+            <div class="col-lg-2 col-md-4 mb-4 mb-md-0">
+                <h6 class="mb-3">Ressources</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a href="/faq" class="text-decoration-none text-muted">FAQ</a></li>
+                    <li class="mb-2"><a href="/help" class="text-decoration-none text-muted">Aide</a></li>
+                    <li class="mb-2"><a href="/terms" class="text-decoration-none text-muted">Conditions d'utilisation</a></li>
+                    <li class="mb-2"><a href="/privacy" class="text-decoration-none text-muted">Politique de confidentialité</a></li>
+                </ul>
+            </div>
+            
+            <!-- Contact -->
+            <div class="col-lg-4 col-md-4">
+                <h6 class="mb-3">Contact</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><i class="fas fa-map-marker-alt me-2 text-primary"></i> 123 Rue de l'Université, 75000 Paris</li>
+                    <li class="mb-2"><i class="fas fa-phone me-2 text-primary"></i> +33 1 23 45 67 89</li>
+                    <li class="mb-2"><i class="fas fa-envelope me-2 text-primary"></i> contact@bibliotheque-universitaire.fr</li>
+                    <li class="mb-2"><i class="fas fa-clock me-2 text-primary"></i> Lun-Ven: 8h-20h, Sam: 9h-18h</li>
+                </ul>
+            </div>
+        </div>
+        
+        <hr class="my-4">
+        
+        <!-- Copyright -->
+        <div class="row align-items-center">
+            <div class="col-md-6 text-center text-md-start">
+                <p class="mb-0 text-muted">
+                    &copy; <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}">2023</span> Bibliothèque Universitaire. Tous droits réservés.
+                </p>
+            </div>
+            <div class="col-md-6 text-center text-md-end mt-3 mt-md-0">
+                <p class="mb-0 text-muted">
+                    Conçu avec <i class="fas fa-heart text-danger"></i> pour les étudiants et chercheurs
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

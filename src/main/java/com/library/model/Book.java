@@ -22,8 +22,12 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Data
+@EqualsAndHashCode(exclude = {"borrowings", "reservations", "librarian"})
+@ToString(exclude = {"borrowings", "reservations", "librarian"})
 @Entity
 @Table(name = "books")
 public class Book {
@@ -84,8 +88,11 @@ public class Book {
     public Long getBorrowCount() {
         return borrowings != null ? (long) borrowings.size() : 0L;
     }
-
-    @OneToMany(mappedBy = "book")
+@Transient
+public void setBorrowCount(Long borrowCount) {
+    // This method should not be implemented since borrowCount is calculated dynamically
+    // and is not stored as a field
+}    @OneToMany(mappedBy = "book")
     private List<Borrowing> borrowings;
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
     private List<Reservation> reservations = new ArrayList<>();

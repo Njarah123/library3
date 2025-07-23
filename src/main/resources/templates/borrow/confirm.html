@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm Borrowing - Library Management System</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/fontawesome/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .book-info {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+        }
+        
+        .book-cover {
+            width: 100px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-right: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .book-details h4 {
+            margin-bottom: 10px;
+            color: #343a40;
+        }
+        
+        .book-details p {
+            margin-bottom: 5px;
+            color: #6c757d;
+        }
+        
+        .confirm-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .confirm-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5 confirm-container">
+        <h1 class="text-center mb-4">Confirm Borrowing</h1>
+        
+        <!-- Book Information -->
+        <div class="book-info">
+            <img th:if="${book.imagePath}" th:src="@{${book.imagePath}}" alt="Book Cover" class="book-cover">
+            <img th:unless="${book.imagePath}" th:src="@{/images/default-book.png}" alt="Book Cover" class="book-cover">
+            <div class="book-details">
+                <h4 th:text="${book.title}">Book Title</h4>
+                <p><strong>Author:</strong> <span th:text="${book.author}">Author Name</span></p>
+                <p><strong>Category:</strong> <span th:text="${book.category}">Category</span></p>
+                <p><strong>Available:</strong> <span th:text="${book.availableQuantity} + '/' + ${book.quantity}">5/10</span></p>
+            </div>
+        </div>
+        
+        <!-- Borrowing Information -->
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> 
+            <span>You are about to borrow this book. It will be due for return in 14 days.</span>
+        </div>
+        
+        <!-- Subscription Information (for students) -->
+        <div class="alert alert-success" th:if="${user.userType.name() == 'STUDENT' && subscription != null}">
+            <i class="fas fa-check-circle"></i>
+            <span>You have an active <strong th:text="${subscription.subscriptionType.displayName}">Standard</strong> subscription.</span>
+            <p class="mt-2 mb-0">Books remaining: <strong th:text="${subscription.subscriptionType.name() == 'PREMIUM' ? 'Unlimited' : subscription.booksRemaining}">5</strong></p>
+        </div>
+        
+        <!-- Confirmation Form -->
+        <form th:action="@{/borrow/{id}(id=${book.id})}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            
+            <div class="confirm-actions">
+                <a th:href="@{/student/books}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Cancel
+                </a>
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-check"></i> Confirm Borrowing
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,339 @@
+/* Styles globaux */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+/* Styles d'en-tête */
+.main-header {
+    margin-bottom: 30px;
+}
+
+/* Styles de pied de page */
+.main-footer {
+    margin-top: 50px;
+}
+
+/* Styles de carte */
+.card {
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #eee;
+    padding: 15px 20px;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+/* Styles de bouton */
+.btn-primary {
+    background-color: #3498db;
+    border-color: #3498db;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+    border-color: #2980b9;
+}
+
+.btn-success {
+    background-color: #27ae60;
+    border-color: #27ae60;
+}
+
+.btn-success:hover {
+    background-color: #219955;
+    border-color: #219955;
+}
+
+.btn-danger {
+    background-color: #e74c3c;
+    border-color: #e74c3c;
+}
+
+.btn-danger:hover {
+    background-color: #c0392b;
+    border-color: #c0392b;
+}
+
+/* Styles de badge */
+.badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+.badge-success {
+    background-color: #e9f7ef;
+    color: #27ae60;
+}
+
+.badge-warning {
+    background-color: #fef5e7;
+    color: #f39c12;
+}
+
+.badge-danger {
+    background-color: #fdedeb;
+    color: #e74c3c;
+}
+
+/* Styles de formulaire */
+.form-control {
+    border-radius: 8px;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+}
+
+.form-control:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+/* Styles de tableau */
+.table {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.table th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #eee;
+}
+
+/* Styles spécifiques à la page d'emprunt */
+.borrow-header {
+    background-color: #3498db;
+    color: white;
+    padding: 40px 0;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.borrow-header h1 {
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.borrow-header p {
+    font-weight: 300;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.book-card {
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin-bottom: 30px;
+    transition: transform 0.3s ease;
+}
+
+.book-card:hover {
+    transform: translateY(-5px);
+}
+
+.book-details {
+    display: flex;
+    padding: 30px;
+}
+
+.book-cover {
+    width: 180px;
+    height: 250px;
+    margin-right: 30px;
+    position: relative;
+}
+
+.book-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.book-info {
+    flex: 1;
+}
+
+.book-info h3 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+
+.book-info p {
+    margin-bottom: 8px;
+    color: #7f8c8d;
+}
+
+.info-section {
+    padding: 30px;
+    border-top: 1px solid #eee;
+}
+
+.info-section h4 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+}
+
+.info-section h4 i {
+    margin-right: 10px;
+    color: #3498db;
+}
+
+.info-card {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-left: 4px solid #3498db;
+}
+
+.info-card.subscription {
+    border-left-color: #27ae60;
+}
+
+.info-card.wallet {
+    border-left-color: #f39c12;
+}
+
+.info-card.terms {
+    border-left-color: #e74c3c;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.info-item i {
+    width: 30px;
+    color: #3498db;
+    font-size: 18px;
+}
+
+.info-item .label {
+    width: 150px;
+    color: #7f8c8d;
+}
+
+.info-item .value {
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.info-item .value.highlight {
+    color: #e74c3c;
+    font-weight: 600;
+}
+
+.action-section {
+    padding: 30px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-cancel {
+    background-color: #ecf0f1;
+    color: #7f8c8d;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-cancel:hover {
+    background-color: #dfe6e9;
+    color: #2c3e50;
+}
+
+.btn-confirm {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-confirm:hover {
+    background-color: #2980b9;
+}
+
+/* Styles pour les messages d'erreur */
+.error-container {
+    text-align: center;
+    padding: 50px 0;
+}
+
+.error-container h2 {
+    font-size: 36px;
+    color: #e74c3c;
+    margin-bottom: 20px;
+}
+
+.error-container p {
+    font-size: 18px;
+    color: #7f8c8d;
+    max-width: 600px;
+    margin: 0 auto 30px;
+}
+
+.error-container .btn {
+    padding: 12px 30px;
+    font-size: 16px;
+}
+
+/* Styles responsifs */
+@media (max-width: 768px) {
+    .book-details {
+        flex-direction: column;
+    }
+    
+    .book-cover {
+        width: 100%;
+        height: auto;
+        margin-right: 0;
+        margin-bottom: 20px;
+    }
+    
+    .info-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .info-item .label {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+    
+    .action-section {
+        flex-direction: column;
+    }
+    
+    .btn-cancel {
+        margin-bottom: 15px;
+    }
+}

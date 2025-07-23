@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Erreur serveur - Bibliothèque Universitaire</title>
+    
+    <!-- CSS Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="/fontawesome/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles CSS personnalisés -->
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    
+    <style>
+        .error-code {
+            font-size: 8rem;
+            font-weight: 700;
+            color: #dc3545;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .server-icon {
+            font-size: 5rem;
+            color: #dc3545;
+            margin-bottom: 1rem;
+        }
+        
+        .error-details {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 5px solid #dc3545;
+        }
+        
+        .error-id {
+            font-family: monospace;
+            background-color: #e9ecef;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+    
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-lg">
+                    <div class="card-body text-center p-5">
+                        <div class="server-icon">
+                            <i class="fas fa-server"></i>
+                        </div>
+                        <div class="error-code">500</div>
+                        <h2 class="card-title mb-4">Erreur interne du serveur</h2>
+                        <p class="card-text mb-4">
+                            Nous sommes désolés, mais une erreur s'est produite sur notre serveur lors du traitement de votre demande.
+                        </p>
+                        
+                        <div class="error-details">
+                            <h5>Informations techniques</h5>
+                            <p>Une erreur inattendue s'est produite sur notre serveur. Notre équipe technique a été informée et travaille à résoudre le problème.</p>
+                            <p>ID d'erreur : <span class="error-id" th:text="${#dates.format(#dates.createNow(), 'yyyyMMddHHmmss') + '-' + #strings.substring(#strings.randomAlphanumeric(8), 0, 8)}">20230101120000-ABCD1234</span></p>
+                            <p>Date et heure : <span th:text="${#dates.format(#dates.createNow(), 'dd/MM/yyyy HH:mm:ss')}">01/01/2023 12:00:00</span></p>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <p>Que pouvez-vous faire ?</p>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-redo me-2"></i> Rafraîchir la page</li>
+                                <li><i class="fas fa-clock me-2"></i> Réessayer plus tard</li>
+                                <li><i class="fas fa-envelope me-2"></i> Contacter notre support technique</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
+                            <a href="javascript:location.reload();" class="btn btn-primary me-md-2">
+                                <i class="fas fa-redo me-2"></i> Rafraîchir la page
+                            </a>
+                            <a th:href="@{/}" class="btn btn-outline-secondary">
+                                <i class="fas fa-home me-2"></i> Retour à l'accueil
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

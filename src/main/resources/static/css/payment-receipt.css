@@ -1,0 +1,388 @@
+/* Payment Receipt Styles */
+body {
+    font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+.receipt-container {
+    max-width: 800px;
+    margin: 30px auto;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Watermark */
+.receipt-watermark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-45deg);
+    font-size: 100px;
+    opacity: 0.03;
+    color: #000;
+    font-weight: bold;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.receipt-header {
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.receipt-header-left {
+    display: flex;
+    flex-direction: column;
+}
+
+.receipt-logo {
+    max-height: 60px;
+    margin-bottom: 15px;
+}
+
+.receipt-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.receipt-subtitle {
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.receipt-qr-code {
+    width: 100px;
+    height: 100px;
+    background-color: #f8f9fa;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.receipt-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    position: relative;
+    z-index: 1;
+}
+
+.receipt-info-section {
+    flex: 1;
+    padding: 0 15px;
+}
+
+.receipt-info-section:first-child {
+    padding-left: 0;
+}
+
+.receipt-info-section:last-child {
+    padding-right: 0;
+}
+
+.receipt-info-title {
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #495057;
+    font-size: 16px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.receipt-info-item {
+    margin-bottom: 8px;
+    font-size: 14px;
+    display: flex;
+}
+
+.receipt-info-label {
+    font-weight: 500;
+    width: 140px;
+    color: #6c757d;
+}
+
+.receipt-info-value {
+    flex: 1;
+}
+
+.receipt-details {
+    margin-bottom: 30px;
+    position: relative;
+    z-index: 1;
+}
+
+.receipt-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.receipt-table th {
+    background-color: #f8f9fa;
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.receipt-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.receipt-total {
+    text-align: right;
+    font-size: 18px;
+    font-weight: 600;
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+}
+
+.receipt-subscription-details {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    border-left: 4px solid #4f46e5;
+}
+
+.receipt-subscription-title {
+    color: #4f46e5;
+    margin-bottom: 10px;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.receipt-footer {
+    margin-top: 40px;
+    text-align: center;
+    color: #6c757d;
+    font-size: 14px;
+    border-top: 1px solid #f0f0f0;
+    padding-top: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.receipt-signature {
+    margin-top: 30px;
+    text-align: right;
+}
+
+.signature-image {
+    max-height: 60px;
+    margin-bottom: 10px;
+}
+
+.signature-name {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.signature-title {
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.receipt-actions {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    position: relative;
+    z-index: 1;
+}
+
+.btn-receipt {
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-print {
+    background-color: #4f46e5;
+    color: white;
+}
+
+.btn-print:hover {
+    background-color: #4338ca;
+    color: white;
+}
+
+.btn-download {
+    background-color: #10b981;
+    color: white;
+}
+
+.btn-download:hover {
+    background-color: #059669;
+    color: white;
+}
+
+.btn-back {
+    background-color: #6b7280;
+    color: white;
+}
+
+.btn-back:hover {
+    background-color: #4b5563;
+    color: white;
+}
+
+.btn-email {
+    background-color: #0ea5e9;
+    color: white;
+}
+
+.btn-email:hover {
+    background-color: #0284c7;
+    color: white;
+}
+
+.payment-method {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.payment-method img {
+    height: 20px;
+    width: auto;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-completed {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.status-pending {
+    background-color: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
+
+.status-failed {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.payment-type {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 500;
+}
+
+.payment-type-subscription {
+    color: #4f46e5;
+}
+
+.payment-type-change {
+    color: #8b5cf6;
+}
+
+.payment-type-refund {
+    color: #10b981;
+}
+
+.payment-type-fine {
+    color: #ef4444;
+}
+
+.payment-type-deposit {
+    color: #0ea5e9;
+}
+
+.amount-positive {
+    color: #10b981;
+    font-weight: 600;
+}
+
+.amount-negative {
+    color: #ef4444;
+    font-weight: 600;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .receipt-container {
+        padding: 20px;
+        margin: 15px;
+    }
+    
+    .receipt-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .receipt-qr-code {
+        margin-top: 15px;
+        align-self: center;
+    }
+    
+    .receipt-info {
+        flex-direction: column;
+    }
+    
+    .receipt-info-section {
+        padding: 0;
+        margin-bottom: 20px;
+    }
+    
+    .receipt-actions {
+        flex-wrap: wrap;
+    }
+}
+
+@media print {
+    .receipt-actions {
+        display: none;
+    }
+    
+    body {
+        background-color: #fff;
+    }
+    
+    .receipt-container {
+        box-shadow: none;
+        margin: 0;
+        padding: 20px;
+        max-width: 100%;
+    }
+    
+    .receipt-watermark {
+        opacity: 0.05;
+    }
+}

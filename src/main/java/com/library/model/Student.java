@@ -27,8 +27,6 @@ public class Student extends User {
         return this.getStudentId() != null && !this.getStudentId().isEmpty();
     }
     public Student() {
-        this.setUserType(UserType.STUDENT);
-        this.setCreatedAt(LocalDateTime.now());
-        this.setActive(true);
+        super();
     }
 }

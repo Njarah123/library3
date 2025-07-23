@@ -3,12 +3,14 @@ package com.library.model;
 import com.library.enums.UserType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, exclude = {"managedBooks"})
+@ToString(exclude = {"managedBooks"})
 @Entity
 @Table(name = "librarians")
 @PrimaryKeyJoinColumn(name = "user_id")
@@ -22,6 +24,11 @@ public class Librarian extends User {
     
     @OneToMany(mappedBy = "librarian", cascade = CascadeType.ALL)
     private List<Book> managedBooks = new ArrayList<>();
+
+    // Constructeur par défaut
+    public Librarian() {
+        super();
+    }
 
     @Override
     public boolean verify() {

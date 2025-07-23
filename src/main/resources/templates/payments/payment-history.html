@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layouts/main}">
+
+<head>
+    <title>Historique des paiements</title>
+    <style>
+        .payment-history-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn {
+            display: inline-block;
+            font-weight: 400;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: middle;
+            user-select: none;
+            border: 1px solid transparent;
+            padding: .375rem .75rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            border-radius: .25rem;
+            transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+        }
+        
+        .btn-sm {
+            padding: .25rem .5rem;
+            font-size: .875rem;
+            line-height: 1.5;
+            border-radius: .2rem;
+        }
+        
+        .btn-primary {
+            color: #fff;
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        
+        .btn-primary:hover {
+            color: #fff;
+            background-color: #0069d9;
+            border-color: #0062cc;
+        }
+
+        .payment-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .payment-summary {
+            background-color: #e2f3f5;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .summary-item {
+            text-align: center;
+        }
+
+        .summary-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .summary-value {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .fine-amount {
+            color: #dc3545;
+        }
+
+        .paid-amount {
+            color: #28a745;
+        }
+
+        .payment-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .payment-table th,
+        .payment-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .payment-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        .payment-table tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .status-completed {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            color: #ffc107;
+            font-weight: bold;
+        }
+
+        .status-failed {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .payment-method {
+            display: flex;
+            align-items: center;
+        }
+
+        .payment-method img {
+            height: 20px;
+            margin-right: 8px;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .btn-new-payment {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-new-payment:hover {
+            background-color: #0069d9;
+        }
+
+        .no-payments {
+            text-align: center;
+            padding: 30px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container mt-4">
+            <div class="payment-history-container">
+                <div class="payment-header">
+                    <h2>Historique des paiements</h2>
+                </div>
+
+                <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+                <div class="payment-summary">
+                    <div class="summary-item">
+                        <div class="summary-label">Amende totale</div>
+                        <div class="summary-value fine-amount" th:text="${fineAmount} + ' €'"></div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Total payé</div>
+                        <div class="summary-value paid-amount" th:text="${totalPaid} + ' €'"></div>
+                    </div>
+                    <div class="summary-item">
+                        <a th:href="@{/payments}" class="btn-new-payment">Effectuer un nouveau paiement</a>
+                    </div>
+                </div>
+                
+                <!-- Filter options -->
+                <div class="filter-section" style="margin-bottom: 20px; padding: 15px; background-color: #f8f9fa; border-radius: 5px;">
+                    <h4 style="margin-bottom: 15px;">Filtrer les paiements</h4>
+                    <form th:action="@{/payments/history}" method="get" class="filter-form" style="display: flex; flex-wrap: wrap; gap: 15px;">
+                        <div class="filter-group" style="flex: 1; min-width: 200px;">
+                            <label for="type">Type de paiement:</label>
+                            <select name="type" id="type" class="form-control" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ced4da;">
+                                <option value="">Tous les types</option>
+                                <option th:each="type : ${paymentTypes.entrySet()}"
+                                        th:value="${type.key}"
+                                        th:text="${type.value}"
+                                        th:selected="${type.key == selectedType}"></option>
+                            </select>
+                        </div>
+                        <div class="filter-group" style="flex: 1; min-width: 200px;">
+                            <label for="method">Méthode de paiement:</label>
+                            <select name="method" id="method" class="form-control" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ced4da;">
+                                <option value="">Toutes les méthodes</option>
+                                <option th:each="method : ${paymentMethods.entrySet()}"
+                                        th:value="${method.key}"
+                                        th:text="${method.value}"
+                                        th:selected="${method.key == selectedMethod}"></option>
+                            </select>
+                        </div>
+                        <div class="filter-group" style="flex: 1; min-width: 200px;">
+                            <label for="status">Statut:</label>
+                            <select name="status" id="status" class="form-control" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ced4da;">
+                                <option value="">Tous les statuts</option>
+                                <option value="COMPLETED" th:selected="${'COMPLETED' == selectedStatus}">Complété</option>
+                                <option value="PENDING" th:selected="${'PENDING' == selectedStatus}">En attente</option>
+                                <option value="FAILED" th:selected="${'FAILED' == selectedStatus}">Échoué</option>
+                            </select>
+                        </div>
+                        <div class="filter-actions" style="display: flex; align-items: flex-end; gap: 10px;">
+                            <button type="submit" class="btn btn-primary" style="padding: 8px 15px;">Filtrer</button>
+                            <a th:href="@{/payments/history}" class="btn btn-secondary" style="padding: 8px 15px;">Réinitialiser</a>
+                        </div>
+                    </form>
+                </div>
+
+                <div th:if="${#lists.isEmpty(payments)}" class="no-payments">
+                    <p>Aucun paiement ne correspond à vos critères de recherche.</p>
+                </div>
+
+                <table th:if="${not #lists.isEmpty(payments)}" class="payment-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Type</th>
+                            <th>Montant</th>
+                            <th>Méthode</th>
+                            <th>Transaction ID</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="payment : ${payments}">
+                            <td th:text="${#temporals.format(payment.paymentDate, 'dd/MM/yyyy HH:mm')}"></td>
+                            <td th:text="${payment.description}"></td>
+                            <td>
+                                <span th:if="${payment.paymentType == 'SUBSCRIPTION'}" style="color: #007bff; font-weight: 500;">Abonnement</span>
+                                <span th:if="${payment.paymentType == 'SUBSCRIPTION_CHANGE'}" style="color: #6f42c1; font-weight: 500;">Changement d'abonnement</span>
+                                <span th:if="${payment.paymentType == 'REFUND'}" style="color: #28a745; font-weight: 500;">Remboursement</span>
+                                <span th:if="${payment.paymentType == 'FINE' || payment.paymentType == null}" style="color: #dc3545; font-weight: 500;">Amende</span>
+                            </td>
+                            <td>
+                                <span th:if="${payment.isRefund}" style="color: #28a745; font-weight: bold;">+</span>
+                                <span th:unless="${payment.isRefund}">-</span>
+                                <span th:text="${payment.amount} + ' €'"></span>
+                            </td>
+                            <td>
+                                <div class="payment-method">
+                                    <img th:if="${payment.paymentMethod == 'credit_card'}" src="/images/credit-card.png" alt="Credit Card" onerror="this.src='/images/placeholder.png'">
+                                    <img th:if="${payment.paymentMethod == 'paypal'}" src="/images/paypal.png" alt="PayPal" onerror="this.src='/images/placeholder.png'">
+                                    <img th:if="${payment.paymentMethod == 'bank_transfer'}" src="/images/bank-transfer.png" alt="Bank Transfer" onerror="this.src='/images/placeholder.png'">
+                                    <img th:if="${payment.paymentMethod == 'mobile_money'}" src="/images/mobile-money.png" alt="Mobile Money" onerror="this.src='/images/placeholder.png'">
+                                    <img th:if="${payment.paymentMethod == 'balance'}" src="/images/wallet.png" alt="Account Balance" onerror="this.src='/images/placeholder.png'">
+                                    <span th:text="${payment.paymentMethod == 'credit_card' ? 'Carte de crédit' :
+                                                    (payment.paymentMethod == 'paypal' ? 'PayPal' :
+                                                    (payment.paymentMethod == 'bank_transfer' ? 'Virement bancaire' :
+                                                    (payment.paymentMethod == 'mobile_money' ? 'Mobile Money' :
+                                                    (payment.paymentMethod == 'balance' ? 'Solde du compte' : payment.paymentMethod))))}"></span>
+                                </div>
+                            </td>
+                            <td th:text="${payment.transactionId}"></td>
+                            <td>
+                                <span th:class="${'status-' + #strings.toLowerCase(payment.status)}" th:text="${payment.status}"></span>
+                            </td>
+                            <td>
+                                <a th:href="@{/payments/receipt/{id}(id=${payment.id})}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-receipt"></i> Reçu
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

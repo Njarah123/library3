@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Erreur d'image - Bibliothèque Universitaire</title>
+    
+    <!-- CSS Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="/fontawesome/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles CSS personnalisés -->
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    
+    <style>
+        .image-error-container {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 5px solid #dc3545;
+        }
+        
+        .image-placeholder {
+            width: 200px;
+            height: 300px;
+            background-color: #e9ecef;
+            border: 1px dashed #adb5bd;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+        
+        .image-placeholder i {
+            font-size: 3rem;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+    
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-lg">
+                    <div class="card-body text-center p-5">
+                        <div class="mb-4">
+                            <i class="fas fa-image text-warning" style="font-size: 5rem;"></i>
+                        </div>
+                        <h2 class="card-title mb-4">Problème de chargement d'image</h2>
+                        <p class="card-text mb-4" th:text="${errorMessage ?: 'Nous sommes désolés, mais l\'image demandée n\'a pas pu être chargée.'}">
+                            Nous sommes désolés, mais l'image demandée n'a pas pu être chargée.
+                        </p>
+                        
+                        <div class="image-error-container">
+                            <div class="image-placeholder">
+                                <i class="fas fa-image"></i>
+                            </div>
+                            <p><strong>Chemin de l'image :</strong> <span th:text="${imagePath ?: 'Non spécifié'}">Non spécifié</span></p>
+                            <p><strong>Suggestion :</strong> <span th:text="${suggestion ?: 'Veuillez réessayer ultérieurement ou contacter le service d\'assistance si le problème persiste.'}">Veuillez réessayer ultérieurement ou contacter le service d'assistance si le problème persiste.</span></p>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
+                            <a href="javascript:history.back()" class="btn btn-primary me-md-2">
+                                <i class="fas fa-arrow-left me-2"></i> Retour à la page précédente
+                            </a>
+                            <a th:href="@{/}" class="btn btn-outline-secondary">
+                                <i class="fas fa-home me-2"></i> Retour à l'accueil
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

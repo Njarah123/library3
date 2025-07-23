@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fix Total Borrows Instructions (Updated)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            max-width: 800px;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .note {
+            background-color: #fffde7;
+            border-left: 4px solid #ffeb3b;
+            padding: 10px 15px;
+            margin: 20px 0;
+        }
+        .steps {
+            margin-left: 20px;
+        }
+        .step {
+            margin-bottom: 15px;
+        }
+        .highlight {
+            background-color: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 10px 15px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Instructions pour corriger le problème d'étoiles dans l'affichage des livres (Mise à jour)</h1>
+    
+    <p>Nous avons identifié un problème avec l'affichage des étoiles pour les livres. Tous les livres affichent une seule étoile, même s'ils ont été empruntés plusieurs fois.</p>
+    
+    <p>Le problème est que le champ <code>total_borrows</code> dans la table <code>books</code> n'est pas correctement mis à jour lorsque les livres sont empruntés. Bien que le code pour incrémenter ce champ soit en place dans les méthodes <code>createBorrowing</code> et <code>approveBorrowing</code>, les livres existants n'ont pas ce champ correctement initialisé.</p>
+    
+    <div class="note">
+        <strong>Note:</strong> Cette correction est une opération ponctuelle qui mettra à jour tous les livres existants dans la base de données. Une fois cette correction appliquée, le système continuera à incrémenter correctement le champ <code>total_borrows</code> pour les futurs emprunts.
+    </div>
+    
+    <h2>Étapes pour corriger le problème</h2>
+    
+    <div class="highlight">
+        <h3>Méthode recommandée : Utiliser l'endpoint intégré</h3>
+        <p>Nous avons découvert qu'il existe déjà un endpoint dans l'application qui peut mettre à jour automatiquement le champ <code>total_borrows</code> pour tous les livres. C'est la méthode la plus simple et la plus sûre.</p>
+        
+        <ol>
+            <li>Connectez-vous à l'application en tant que bibliothécaire</li>
+            <li>Accédez à l'URL suivante dans votre navigateur : <code>http://localhost:8080/admin/books/update-total-borrows</code></li>
+            <li>L'application mettra à jour automatiquement tous les livres et vous redirigera vers la page des livres avec un message de confirmation</li>
+            <li>Vérifiez que les étoiles s'affichent maintenant correctement pour les livres qui ont été empruntés plusieurs fois</li>
+        </ol>
+    </div>
+    
+    <h3>Méthode alternative : Exécuter le script SQL</h3>
+    <p>Si pour une raison quelconque vous préférez utiliser SQL directement, vous pouvez toujours utiliser le script SQL que nous avons fourni précédemment :</p>
+    
+    <pre>
+-- SQL script to update the totalBorrows field for all books based on their borrowing history
+
+-- First, make sure all books have a non-null totalBorrows field
+UPDATE books
+SET total_borrows = 0
+WHERE total_borrows IS NULL;
+
+-- Then, update the totalBorrows field for each book based on the count of borrowings
+UPDATE books b
+SET total_borrows = (
+    SELECT COUNT(*)
+    FROM borrowings br
+    WHERE br.book_id = b.id
+);
+
+-- Verify the update
+SELECT id, title, total_borrows
+FROM books
+ORDER BY total_borrows DESC;
+    </pre>
+    
+    <p>Vous pouvez exécuter ce script de plusieurs façons :</p>
+    
+    <h4>Option 1: Utiliser l'interface de gestion de base de données</h4>
+    <ol>
+        <li>Connectez-vous à votre interface de gestion de base de données (phpMyAdmin, MySQL Workbench, etc.)</li>
+        <li>Sélectionnez la base de données de la bibliothèque</li>
+        <li>Ouvrez un nouvel onglet SQL ou une nouvelle requête</li>
+        <li>Copiez-collez le script ci-dessus</li>
+        <li>Exécutez le script</li>
+    </ol>
+    
+    <h4>Option 2: Utiliser la ligne de commande</h4>
+    <ol>
+        <li>Enregistrez le script dans un fichier nommé <code>update_total_borrows.sql</code></li>
+        <li>Ouvrez un terminal ou une invite de commande</li>
+        <li>Exécutez la commande suivante (en remplaçant les informations de connexion par les vôtres) :</li>
+        <pre>mysql -u username -p database_name < update_total_borrows.sql</pre>
+        <li>Entrez votre mot de passe lorsqu'il vous est demandé</li>
+    </ol>
+    
+    <div class="note">
+        <strong>Important:</strong> Assurez-vous de faire une sauvegarde de votre base de données avant d'exécuter ce script, au cas où quelque chose ne se passerait pas comme prévu.
+    </div>
+    
+    <h2>Vérifier que la correction a fonctionné</h2>
+    <p>Après avoir appliqué l'une des méthodes ci-dessus, accédez à la page des livres dans l'application pour vérifier que les étoiles s'affichent correctement. Les livres qui ont été empruntés plusieurs fois devraient maintenant afficher plus d'une étoile.</p>
+    
+    <p>Le nombre d'étoiles est déterminé selon la règle suivante :</p>
+    <ul>
+        <li>0-1 emprunts = 1 étoile</li>
+        <li>2-3 emprunts = 2 étoiles</li>
+        <li>4-6 emprunts = 3 étoiles</li>
+        <li>7-10 emprunts = 4 étoiles</li>
+        <li>11+ emprunts = 5 étoiles</li>
+    </ul>
+</body>
+</html>

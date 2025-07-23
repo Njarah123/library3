@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Mes Objectifs de Lecture - Étudiant</title>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <link rel="stylesheet" th:href="@{/css/dashboards.css}" />
+    <link rel="stylesheet" href="/fontawesome/all.min.css">
+    <link rel="stylesheet" href="/fonts/poppins.css">
+    
+    <style>
+        /* Styles spécifiques pour le dashboard étudiant */
+        .student-theme {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #3b82f6;
+        }
+
+        /* Goals page specific styles */
+        .goals-container {
+            padding: 2rem;
+        }
+
+        .goals-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .goals-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .goals-subtitle {
+            font-size: 1.125rem;
+            color: #6b7280;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Goal cards grid */
+        .goals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .goal-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-top: 5px solid var(--primary-color);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .goal-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .goal-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            opacity: 0.1;
+            border-radius: 50%;
+            transform: translate(30px, -30px);
+        }
+
+        .goal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .goal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .goal-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.125rem;
+            color: white;
+        }
+
+        .monthly-goal .goal-icon {
+            background: linear-gradient(135deg, var(--success-color), #0da271);
+        }
+
+        .yearly-goal .goal-icon {
+            background: linear-gradient(135deg, var(--info-color), #2c71e0);
+        }
+
+        .goal-status {
+            font-size: 0.875rem;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+        }
+
+        .status-on-track {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-behind {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-ahead {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .goal-progress {
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .progress-text {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .progress-percentage {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #e5e7eb;
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 6px;
+            transition: width 0.8s ease;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .goal-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: #f9fafb;
+            border-radius: 12px;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #6b7280;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        /* Charts section */
+        .charts-section {
+            margin-bottom: 3rem;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .chart-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .chart-subtitle {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .chart-container {
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f9fafb;
+            border-radius: 10px;
+            color: #6b7280;
+        }
+
+        /* Categories section */
+        .categories-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .categories-header {
+            margin-bottom: 2rem;
+        }
+
+        .categories-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .categories-subtitle {
+            color: #6b7280;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .category-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: #f9fafb;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .category-name {
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .category-count {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        /* Motivational section */
+        .motivation-section {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .motivation-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 200px;
+            height: 200px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+
+        .motivation-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .motivation-text {
+            font-size: 1.125rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .goals-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .categories-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .goal-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .goals-container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body class="student-theme">
+    <!-- Sidebar Navigation -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="/student/dashboard" class="logo">
+                <img src="/images/Logobnk.png" alt="Logobnk" />
+            </a>
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        
+        <div class="sidebar-menu">
+            <div class="menu-section">
+                <h3>Mon Espace</h3>
+                <a href="/student/dashboard" class="menu-item">
+                    <i class="fas fa-home"></i>
+                    <span>Tableau de bord</span>
+                </a>
+                <a href="/student/books" class="menu-item">
+                    <i class="fas fa-book"></i>
+                    <span>Catalogue</span>
+                    <span class="notification-badge" th:if="${newBooksCount != null && newBooksCount > 0}" th:text="${newBooksCount}"></span>
+                </a>
+                <a href="/student/borrows" class="menu-item">
+                    <i class="fas fa-book-reader"></i>
+                    <span>Mes emprunts</span>
+                    <span class="notification-badge" th:if="${pendingBorrowsCount != null && pendingBorrowsCount > 0}" th:text="${pendingBorrowsCount}"></span>
+                </a>
+                <a href="/student/my-books" class="menu-item">
+                    <i class="fas fa-bookmark"></i>
+                    <span>Ma Bibliothèque</span>
+                </a>
+            </div>
+            
+            <div class="menu-section">
+                <h3>Services</h3>
+                <a href="/student/goals" class="menu-item active">
+                    <i class="fas fa-bullseye"></i>
+                    <span>Mes Objectifs</span>
+                </a>
+                <a href="/student/books" class="menu-item">
+                    <i class="fas fa-star"></i>
+                    <span>Recommandations</span>
+                </a>
+                <a href="/student/subscription/dashboard" class="menu-item">
+                    <i class="fas fa-id-card"></i>
+                    <span>Mon abonnement</span>
+                </a>
+            </div>
+            
+            <div class="menu-section">
+                <h3>Compte</h3>
+                <a href="/student/settings" class="menu-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Paramètres</span>
+                </a>
+            </div>
+        </div>
+        
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <img th:src="${user != null && user.profileImagePath != null && !user.profileImagePath.isEmpty()} ? ${user.profileImagePath} : '/images/default-student.png'"
+                     class="profile-avatar"
+                     alt="Photo de profil">
+                <div class="user-info">
+                    <div class="user-name" th:text="${user != null ? user.name : 'Nom étudiant'}">Nom étudiant</div>
+                    <div class="user-role">Étudiant</div>
+                </div>
+            </div>
+            <form th:action="@{/logout}" method="post" class="logout-form">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Top Header -->
+        <div class="top-header">
+            <div class="header-left">
+                <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Mes Objectifs de Lecture</h1>
+            </div>
+            
+            <div class="header-right">
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Rechercher un livre...">
+                </div>
+                
+                <div class="header-actions">
+                    <!-- User Info Button -->
+                    <div class="user-info" id="userInfoButton">
+                        <img th:src="${user != null && user.profileImagePath != null && !user.profileImagePath.isEmpty()} ? ${user.profileImagePath} : '/images/default-student.png'"
+                             alt="Photo de profil"
+                             class="user-avatar">
+                        <span th:text="${user != null ? user.name : 'Nom étudiant'}">Nom étudiant</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="goals-container">
+            <!-- Goals Header -->
+            <div class="goals-header">
+                <div class="goals-title">
+                    <i class="fas fa-bullseye"></i>
+                    Mes Objectifs de Lecture
+                </div>
+                <div class="goals-subtitle">
+                    Suivez vos progrès et atteignez vos objectifs de lecture personnels
+                </div>
+            </div>
+
+            <!-- Goals Grid -->
+            <div class="goals-grid">
+                <!-- Monthly Goal -->
+                <div class="goal-card monthly-goal">
+                    <div class="goal-header">
+                        <div class="goal-title">
+                            <div class="goal-icon">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            Objectif Mensuel
+                        </div>
+                        <div class="goal-status" 
+                             th:class="${monthlyProgress >= 100} ? 'goal-status status-ahead' : (${monthlyProgress >= 80} ? 'goal-status status-on-track' : 'goal-status status-behind')">
+                            <span th:if="${monthlyProgress >= 100}">Dépassé !</span>
+                            <span th:if="${monthlyProgress >= 80 && monthlyProgress < 100}">En bonne voie</span>
+                            <span th:if="${monthlyProgress < 80}">En retard</span>
+                        </div>
+                    </div>
+                    
+                    <div class="goal-progress">
+                        <div class="progress-info">
+                            <span class="progress-text" th:text="${booksReadThisMonth} + ' / ' + ${monthlyGoal} + ' livres'">3 / 5 livres</span>
+                            <span class="progress-percentage" th:text="${monthlyProgress} + '%'">60%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" th:style="'width: ' + ${T(java.lang.Math).min(monthlyProgress, 100)} + '%'"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="goal-stats">
+                        <div class="stat-item">
+                            <div class="stat-number" th:text="${booksReadThisMonth}">3</div>
+                            <div class="stat-label">Lus ce mois</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" th:text="${monthlyGoal - booksReadThisMonth > 0 ? monthlyGoal - booksReadThisMonth : 0}">2</div>
+                            <div class="stat-label">Restants</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Yearly Goal -->
+                <div class="goal-card yearly-goal">
+                    <div class="goal-header">
+                        <div class="goal-title">
+                            <div class="goal-icon">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            Objectif Annuel
+                        </div>
+                        <div class="goal-status" 
+                             th:class="${yearlyProgress >= 100} ? 'goal-status status-ahead' : (${yearlyProgress >= 50} ? 'goal-status status-on-track' : 'goal-status status-behind')">
+                            <span th:if="${yearlyProgress >= 100}">Dépassé !</span>
+                            <span th:if="${yearlyProgress >= 50 && yearlyProgress < 100}">En bonne voie</span>
+                            <span th:if="${yearlyProgress < 50}">En retard</span>
+                        </div>
+                    </div>
+                    
+                    <div class="goal-progress">
+                        <div class="progress-info">
+                            <span class="progress-text" th:text="${booksReadThisYear} + ' / ' + ${yearlyGoal} + ' livres'">15 / 50 livres</span>
+                            <span class="progress-percentage" th:text="${yearlyProgress} + '%'">30%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" th:style="'width: ' + ${T(java.lang.Math).min(yearlyProgress, 100)} + '%'"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="goal-stats">
+                        <div class="stat-item">
+                            <div class="stat-number" th:text="${booksReadThisYear}">15</div>
+                            <div class="stat-label">Lus cette année</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" th:text="${yearlyGoal - booksReadThisYear > 0 ? yearlyGoal - booksReadThisYear : 0}">35</div>
+                            <div class="stat-label">Restants</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-section">
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <div class="chart-title">Progression Hebdomadaire</div>
+                            <div class="chart-subtitle">Livres lus par semaine</div>
+                        </div>
+                        <div class="chart-container">
+                            <i class="fas fa-chart-line" style="font-size: 3rem; margin-right: 1rem;"></i>
+                            <div>
+                                <p>Graphique de progression</p>
+                                <small>Données : <span th:text="${weeklyReadingData}">[]</span></small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <div class="chart-title">Progression Mensuelle</div>
+                            <div class="chart-subtitle">Évolution sur les derniers mois</div>
+                        </div>
+                        <div class="chart-container">
+                            <i class="fas fa-chart-bar" style="font-size: 3rem; margin-right: 1rem;"></i>
+                            <div>
+                                <p>Graphique mensuel</p>
+                                <small>Données : <span th:text="${monthlyReadingData}">[]</span></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categories Section -->
+            <div class="categories-section">
+                <div class="categories-header">
+                    <div class="categories-title">Mes Catégories Préférées</div>
+                    <div class="categories-subtitle">Répartition de vos lectures par catégorie</div>
+                </div>
+                
+                <div class="categories-grid">
+                    <div class="category-item" th:each="category : ${categoryStats}">
+                        <span class="category-name" th:text="${category.key}">Fiction</span>
+                        <span class="category-count" th:text="${category.value}">5</span>
+                    </div>
+                    
+                    <div th:if="${categoryStats.empty}" class="category-item">
+                        <span class="category-name">Aucune lecture enregistrée</span>
+                        <span class="category-count">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Motivational Section -->
+            <div class="motivation-section">
+                <div class="motivation-title">
+                    <i class="fas fa-star"></i>
+                    Continue comme ça !
+                </div>
+                <div class="motivation-text">
+                    Chaque livre lu vous rapproche de vos objectifs. 
+                    La lecture est un voyage qui enrichit l'esprit et ouvre de nouveaux horizons.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script th:inline="javascript">
+        // SIDEBAR FUNCTIONS
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+        }
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Goals page loaded');
+            
+            // Animate progress bars
+            const progressBars = document.querySelectorAll('.progress-fill');
+            progressBars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 500);
+            });
+        });
+    </script>
+</body>
+</html>

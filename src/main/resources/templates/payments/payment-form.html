@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layouts/main}">
+
+<head>
+    <title>Paiement d'amende</title>
+    <link rel="stylesheet" href="/fontawesome/all.min.css">
+    <style>
+        .checkout-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .checkout-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .checkout-header h2 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .checkout-header p {
+            color: #6c757d;
+            font-size: 16px;
+        }
+
+        .checkout-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .checkout-steps::before {
+            content: '';
+            position: absolute;
+            top: 24px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: #e9ecef;
+            z-index: 1;
+        }
+
+        .step {
+            position: relative;
+            z-index: 2;
+            background-color: #fff;
+            text-align: center;
+            flex: 1;
+        }
+
+        .step-number {
+            width: 50px;
+            height: 50px;
+            line-height: 50px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            color: #6c757d;
+            font-weight: bold;
+            margin: 0 auto 10px;
+            position: relative;
+            z-index: 2;
+            transition: all 0.3s ease;
+        }
+
+        .step.active .step-number {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .step.completed .step-number {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .step.completed .step-number::after {
+            content: '✓';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        .step-label {
+            font-size: 14px;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .step.active .step-label {
+            color: #007bff;
+            font-weight: 600;
+        }
+
+        .step.completed .step-label {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        .checkout-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .checkout-form {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .order-summary {
+            width: 300px;
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            position: sticky;
+            top: 20px;
+        }
+
+        .form-section {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.15s ease-in-out;
+        }
+
+        .form-control:focus {
+            border-color: #80bdff;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .payment-method {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .payment-method:hover {
+            border-color: #007bff;
+            background-color: #f0f7ff;
+        }
+
+        .payment-method.selected {
+            border-color: #007bff;
+            background-color: #e6f2ff;
+        }
+
+        .payment-method img {
+            height: 40px;
+            margin-bottom: 10px;
+            object-fit: contain;
+        }
+        
+        .payment-method p {
+            margin: 5px 0;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .payment-method small {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .btn {
+            display: inline-block;
+            font-weight: 500;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: middle;
+            user-select: none;
+            border: 1px solid transparent;
+            padding: 12px 20px;
+            font-size: 16px;
+            line-height: 1.5;
+            border-radius: 4px;
+            transition: all 0.15s ease-in-out;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            color: #fff;
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0069d9;
+            border-color: #0062cc;
+        }
+
+        .btn-secondary {
+            color: #fff;
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
+
+        .btn-success {
+            color: #fff;
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .summary-total {
+            font-weight: bold;
+            font-size: 18px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #dee2e6;
+        }
+
+        .summary-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #343a40;
+        }
+
+        .credit-card-form {
+            margin-top: 20px;
+        }
+
+        .card-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .card-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+
+        .form-group-icon {
+            position: relative;
+        }
+
+        .secure-badge {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #495057;
+        }
+
+        .secure-badge i {
+            color: #28a745;
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        .confirmation-message {
+            text-align: center;
+            padding: 30px 0;
+        }
+
+        .confirmation-message i {
+            font-size: 60px;
+            color: #28a745;
+            margin-bottom: 20px;
+        }
+
+        .confirmation-message h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #343a40;
+        }
+
+        .confirmation-message p {
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+
+        .invalid-feedback {
+            display: none;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 80%;
+            color: #dc3545;
+        }
+
+        .is-invalid {
+            border-color: #dc3545;
+        }
+
+        .is-invalid ~ .invalid-feedback {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="container mt-5 mb-5">
+            <div class="checkout-container">
+                <div class="checkout-header">
+                    <h2>Paiement</h2>
+                    <p>Veuillez compléter les étapes ci-dessous pour finaliser votre paiement</p>
+                </div>
+
+                <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
+                <div th:if="${success}" class="alert alert-success" role="alert" th:text="${success}"></div>
+
+                <!-- Checkout Steps -->
+                <div class="checkout-steps">
+                    <div class="step active" id="step1">
+                        <div class="step-number">1</div>
+                        <div class="step-label">Détails</div>
+                    </div>
+                    <div class="step" id="step2">
+                        <div class="step-number">2</div>
+                        <div class="step-label">Méthode de paiement</div>
+                    </div>
+                    <div class="step" id="step3">
+                        <div class="step-number">3</div>
+                        <div class="step-label">Paiement</div>
+                    </div>
+                    <div class="step" id="step4">
+                        <div class="step-number">4</div>
+                        <div class="step-label">Confirmation</div>
+                    </div>
+                </div>
+
+                <div class="checkout-content">
+                    <div class="checkout-form">
+                        <form id="paymentForm" th:action="@{/payments/process}" method="post">
+                            <input type="hidden" name="fineId" th:if="${fine != null}" th:value="${fine.id}" />
+                            <input type="hidden" name="subscriptionId" th:if="${subscription != null}" th:value="${subscription.id}" />
+                            <input type="hidden" name="amount" th:value="${fineAmount}" />
+                            <input type="hidden" name="paymentMethod" id="paymentMethodInput" value="credit_card" />
+
+                            <!-- Step 1: Details -->
+                            <div class="form-section active" id="section1">
+                                <h3>Détails du paiement</h3>
+                                
+                                <div class="form-group">
+                                    <label>Type de paiement</label>
+                                    <input type="text" class="form-control" value="Paiement d'amende" readonly />
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Montant à payer</label>
+                                    <input type="text" class="form-control" th:value="${fineAmount} + ' €'" readonly />
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="billingAddress">Adresse de facturation</label>
+                                    <textarea id="billingAddress" name="billingAddress" class="form-control" rows="3"
+                                          placeholder="Entrez votre adresse de facturation (optionnel)"></textarea>
+                                </div>
+                                
+                                <div class="navigation-buttons">
+                                    <button type="button" class="btn btn-primary" id="toStep2">Continuer</button>
+                                </div>
+                            </div>
+
+                            <!-- Step 2: Payment Method -->
+                            <div class="form-section" id="section2">
+                                <h3>Choisissez votre méthode de paiement</h3>
+                                
+                                <div class="payment-methods">
+                                    <div class="payment-method" data-method="credit_card">
+                                        <img src="/images/credit-card.png" alt="Credit Card" onerror="this.src='https://cdn-icons-png.flaticon.com/512/179/179457.png'">
+                                        <p>Carte de crédit</p>
+                                        <small>Visa, Mastercard, American Express</small>
+                                    </div>
+                                    <div class="payment-method" data-method="paypal">
+                                        <img src="/images/paypal.png" alt="PayPal" onerror="this.src='https://cdn-icons-png.flaticon.com/512/174/174861.png'">
+                                        <p>PayPal</p>
+                                        <small>Paiement sécurisé via PayPal</small>
+                                    </div>
+                                    <div class="payment-method" data-method="mobile_money">
+                                        <img src="/images/mobile-money.png" alt="Mobile Money" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2489/2489756.png'">
+                                        <p>Mobile Money</p>
+                                        <small>Orange Money, MTN Mobile Money</small>
+                                    </div>
+                                    <div class="payment-method" data-method="bank_transfer">
+                                        <img src="/images/bank-transfer.png" alt="Bank Transfer" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2830/2830284.png'">
+                                        <p>Virement bancaire</p>
+                                        <small>Transfert direct depuis votre banque</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="navigation-buttons">
+                                    <button type="button" class="btn btn-secondary" id="backToStep1">Retour</button>
+                                    <button type="button" class="btn btn-primary" id="toStep3">Continuer</button>
+                                </div>
+                            </div>
+
+                            <!-- Step 3: Payment Details -->
+                            <div class="form-section" id="section3">
+                                <h3>Détails du paiement</h3>
+                                
+                                <!-- Credit Card Form -->
+                                <div id="creditCardForm" style="display: none;">
+                                    <div class="credit-card-form">
+                                        <div class="form-group form-group-icon">
+                                            <label for="cardholderName">Nom du titulaire</label>
+                                            <input type="text" class="form-control" id="cardholderName" placeholder="Nom complet" />
+                                            <div class="invalid-feedback">Veuillez entrer le nom du titulaire</div>
+                                        </div>
+                                        
+                                        <div class="form-group form-group-icon">
+                                            <label for="cardNumber">Numéro de carte</label>
+                                            <input type="text" class="form-control" id="cardNumber" placeholder="1234 5678 9012 3456" />
+                                            <i class="fas fa-credit-card card-icon"></i>
+                                            <div class="invalid-feedback">Veuillez entrer un numéro de carte valide</div>
+                                        </div>
+                                        
+                                        <div class="card-row">
+                                            <div class="form-group">
+                                                <label for="expiryDate">Date d'expiration</label>
+                                                <input type="text" class="form-control" id="expiryDate" placeholder="MM/AA" />
+                                                <div class="invalid-feedback">Veuillez entrer une date d'expiration valide</div>
+                                            </div>
+                                            
+                                            <div class="form-group">
+                                                <label for="cvv">CVV</label>
+                                                <input type="text" class="form-control" id="cvv" placeholder="123" />
+                                                <div class="invalid-feedback">Veuillez entrer un code CVV valide</div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="secure-badge">
+                                            <i class="fas fa-lock"></i>
+                                            <span>Vos informations de paiement sont sécurisées et cryptées</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- PayPal Form -->
+                                <div id="paypalForm" style="display: none;">
+                                    <div class="form-group">
+                                        <label for="paypalEmail">Email PayPal</label>
+                                        <input type="email" class="form-control" id="paypalEmail" placeholder="email@example.com" />
+                                        <div class="invalid-feedback">Veuillez entrer une adresse email valide</div>
+                                    </div>
+                                    
+                                    <div class="secure-badge">
+                                        <i class="fas fa-lock"></i>
+                                        <span>Vous serez redirigé vers PayPal pour finaliser votre paiement</span>
+                                    </div>
+                                </div>
+
+                                <!-- Mobile Money Form -->
+                                <div id="mobileMoneyForm" style="display: none;">
+                                    <div class="form-group">
+                                        <label for="phoneNumber">Numéro de téléphone</label>
+                                        <input type="text" class="form-control" id="phoneNumber" placeholder="+123 456 789" />
+                                        <div class="invalid-feedback">Veuillez entrer un numéro de téléphone valide</div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="provider">Fournisseur</label>
+                                        <select class="form-control" id="provider">
+                                            <option value="">Sélectionnez un fournisseur</option>
+                                            <option value="ORANGE">Orange Money</option>
+                                            <option value="MTN">MTN Mobile Money</option>
+                                            <option value="MOOV">Moov Money</option>
+                                        </select>
+                                        <div class="invalid-feedback">Veuillez sélectionner un fournisseur</div>
+                                    </div>
+                                    
+                                    <div class="secure-badge">
+                                        <i class="fas fa-lock"></i>
+                                        <span>Un code de confirmation sera envoyé à votre téléphone</span>
+                                    </div>
+                                </div>
+
+                                <!-- Bank Transfer Form -->
+                                <div id="bankTransferForm" style="display: none;">
+                                    <div class="form-group">
+                                        <label for="accountName">Nom du compte</label>
+                                        <input type="text" class="form-control" id="accountName" />
+                                        <div class="invalid-feedback">Veuillez entrer le nom du compte</div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="accountNumber">Numéro de compte</label>
+                                        <input type="text" class="form-control" id="accountNumber" />
+                                        <div class="invalid-feedback">Veuillez entrer un numéro de compte valide</div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="bankName">Nom de la banque</label>
+                                        <input type="text" class="form-control" id="bankName" />
+                                        <div class="invalid-feedback">Veuillez entrer le nom de la banque</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="navigation-buttons">
+                                    <button type="button" class="btn btn-secondary" id="backToStep2">Retour</button>
+                                    <button type="button" class="btn btn-primary" id="toStep4">Vérifier et payer</button>
+                                </div>
+                            </div>
+
+                            <!-- Step 4: Confirmation -->
+                            <div class="form-section" id="section4">
+                                <h3>Vérifiez et confirmez</h3>
+                                
+                                <div class="form-group">
+                                    <label>Récapitulatif</label>
+                                    <div id="paymentSummary" class="p-3 bg-light rounded">
+                                        <!-- Will be filled by JavaScript -->
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="termsCheck" required />
+                                        <label class="form-check-label" for="termsCheck">
+                                            J'accepte les conditions générales et la politique de confidentialité
+                                        </label>
+                                        <div class="invalid-feedback">Vous devez accepter les conditions pour continuer</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="navigation-buttons">
+                                    <button type="button" class="btn btn-secondary" id="backToStep3">Retour</button>
+                                    <button type="submit" class="btn btn-success">Confirmer et payer</button>
+                                </div>
+                            </div>
+                        </form>
+                        
+                        <!-- Confirmation Success (shown after form submission) -->
+                        <div class="form-section" id="section5" style="display: none;">
+                            <div class="confirmation-message">
+                                <i class="fas fa-check-circle"></i>
+                                <h3>Paiement réussi!</h3>
+                                <p>Votre paiement a été traité avec succès. Un reçu a été envoyé à votre adresse e-mail.</p>
+                                <a th:href="@{/payments/receipt}" class="btn btn-primary">Voir le reçu</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Order Summary Sidebar -->
+                    <div class="order-summary">
+                        <h4 class="summary-title">Récapitulatif</h4>
+                        
+                        <div class="summary-item">
+                            <span>Amende pour retard</span>
+                            <span th:text="${fineAmount} + ' €'"></span>
+                        </div>
+                        
+                        <div class="summary-total">
+                            <span>Total</span>
+                            <span th:text="${fineAmount} + ' €'"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Step navigation
+                document.getElementById('toStep2').addEventListener('click', function() {
+                    goToStep(2);
+                });
+                
+                document.getElementById('backToStep1').addEventListener('click', function() {
+                    goToStep(1);
+                });
+                
+                document.getElementById('toStep3').addEventListener('click', function() {
+                    if (validateStep2()) {
+                        goToStep(3);
+                        showPaymentForm();
+                    }
+                });
+                
+                document.getElementById('backToStep2').addEventListener('click', function() {
+                    goToStep(2);
+                });
+                
+                document.getElementById('toStep4').addEventListener('click', function() {
+                    if (validateStep3()) {
+                        goToStep(4);
+                        updatePaymentSummary();
+                    }
+                });
+                
+                document.getElementById('backToStep3').addEventListener('click', function() {
+                    goToStep(3);
+                });
+                
+                // Payment method selection
+                const paymentMethods = document.querySelectorAll('.payment-method');
+                paymentMethods.forEach(method => {
+                    method.addEventListener('click', function() {
+                        selectPaymentMethod(this.getAttribute('data-method'));
+                    });
+                });
+                
+                // Initialize with credit_card selected
+                selectPaymentMethod('credit_card');
+            });
+            
+            function goToStep(stepNumber) {
+                // Update step indicators
+                document.querySelectorAll('.step').forEach((step, index) => {
+                    if (index + 1 < stepNumber) {
+                        step.classList.remove('active');
+                        step.classList.add('completed');
+                    } else if (index + 1 === stepNumber) {
+                        step.classList.add('active');
+                        step.classList.remove('completed');
+                    } else {
+                        step.classList.remove('active', 'completed');
+                    }
+                });
+                
+                // Show the correct form section
+                document.querySelectorAll('.form-section').forEach((section, index) => {
+                    if (index + 1 === stepNumber) {
+                        section.classList.add('active');
+                    } else {
+                        section.classList.remove('active');
+                    }
+                });
+            }
+            
+            function selectPaymentMethod(method) {
+                // Remove selected class from all payment methods
+                document.querySelectorAll('.payment-method').forEach(el => {
+                    el.classList.remove('selected');
+                });
+                
+                // Add selected class to the clicked payment method
+                const selectedMethod = document.querySelector(`.payment-method[data-method="${method}"]`);
+                if (selectedMethod) {
+                    selectedMethod.classList.add('selected');
+                }
+                
+                // Update hidden input
+                document.getElementById('paymentMethodInput').value = method;
+            }
+            
+            function showPaymentForm() {
+                const method = document.getElementById('paymentMethodInput').value;
+                
+                // Hide all payment forms
+                document.getElementById('creditCardForm').style.display = 'none';
+                document.getElementById('paypalForm').style.display = 'none';
+                document.getElementById('mobileMoneyForm').style.display = 'none';
+                document.getElementById('bankTransferForm').style.display = 'none';
+                
+                // Show the selected payment form
+                if (method === 'credit_card') {
+                    document.getElementById('creditCardForm').style.display = 'block';
+                } else if (method === 'paypal') {
+                    document.getElementById('paypalForm').style.display = 'block';
+                } else if (method === 'mobile_money') {
+                    document.getElementById('mobileMoneyForm').style.display = 'block';
+                } else if (method === 'bank_transfer') {
+                    document.getElementById('bankTransferForm').style.display = 'block';
+                }
+            }
+            
+            function validateStep2() {
+                // Check if a payment method is selected
+                return document.getElementById('paymentMethodInput').value !== '';
+            }
+            
+            function validateStep3() {
+                const method = document.getElementById('paymentMethodInput').value;
+                let isValid = true;
+                
+                // Reset validation
+                document.querySelectorAll('.is-invalid').forEach(el => {
+                    el.classList.remove('is-invalid');
+                });
+                
+                if (method === 'credit_card') {
+                    const cardholderName = document.getElementById('cardholderName');
+                    const cardNumber = document.getElementById('cardNumber');
+                    const expiryDate = document.getElementById('expiryDate');
+                    const cvv = document.getElementById('cvv');
+                    
+                    if (!cardholderName.value.trim()) {
+                        cardholderName.classList.add('is-invalid');
+                        isValid = false;
+                    }
+                    
+                    if (!cardNumber.value.trim() || !/^\d{13,19}$/.test(cardNumber.value.replace(/\s/g, ''))) {
+                        cardNumber.classList.add('is-invalid');
+                        isValid = false;
+                    }
+                    
+                    if (!expiryDate.value.trim() || !/^(0[1-9]|1[0-2])\/\d{2}$/.test(expiryDate.value)) {
+                        expiryDate.classList.add('is-invalid');
+                        isValid = false;
+                    }
+                    
+                    if (!cvv.value.trim() || !/^\d{3,4}$/.test(cvv.value)) {
+                        cvv.classList.add('is-invalid');
+                        isValid = false;
+                    }
+                } else if (method === 'paypal') {
+                    const paypalEmail = document.getElementById('paypalEmail');
+                    
+                    if (!paypalEmail.value.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(paypalEmail.value)) {
+                        paypalEmail.classList.add('is-invalid');
+                        isValid = false;
+                    }
+                } else if (method === 'mobile_money') {
+                    const phoneNumber = document.getElementById('phoneNumber');
+                    const provider = document.getElementById('provider');
+                    
+                    if (!phoneNumber.value.trim()) {
+                        phoneNumber.classList.add('is-invalid');
+                        isValid = false;
+                    }
+                    
+                    if (!provider.value) {
+                        provider.classList.add('is-invalid');
+                        isValid = false;
+                    }
+                } else if (method === 'bank_transfer') {
+                    const accountName = document.getElementById('accountName');
+                    const accountNumber = document.getElementById('accountNumber');
+                    const bankName = document.getElementById('bankName');
+                    
+                    if (!accountName.value.trim()) {
+                        accountName.classList.add('is-invalid');
+                        isValid = false;
+                    }
+                    
+                    if (!accountNumber.value.trim()) {
+                        accountNumber.classList.add('is-invalid');
+                        isValid = false;
+                    }
+                    
+                    if (!bankName.value.trim()) {
+                        bankName.classList.add('is-invalid');
+                        isValid = false;
+                    }
+                }
+                
+                return isValid;
+            }
+            
+            function updatePaymentSummary() {
+                const method = document.getElementById('paymentMethodInput').value;
+                const amount = document.querySelector('.summary-total span:last-child').textContent;
+                const billingAddress = document.getElementById('billingAddress').value || 'Non spécifiée';
+                
+                let methodText = '';
+                if (method === 'credit_card') {
+                    const cardNumber = document.getElementById('cardNumber').value;
+                    const lastFour = cardNumber.replace(/\s/g, '').slice(-4);
+                    methodText = `Carte de crédit (se terminant par ${lastFour})`;
+                } else if (method === 'paypal') {
+                    const email = document.getElementById('paypalEmail').value;
+                    methodText = `PayPal (${email})`;
+                } else if (method === 'mobile_money') {
+                    const phone = document.getElementById('phoneNumber').value;
+                    const provider = document.getElementById('provider').options[document.getElementById('provider').selectedIndex].text;
+                    methodText = `${provider} (${phone})`;
+                } else if (method === 'bank_transfer') {
+                    const bank = document.getElementById('bankName').value;
+                    methodText = `Virement bancaire (${bank})`;
+                }
+                
+                const summaryHTML = `
+                    <div class="mb-3">
+                        <strong>Montant:</strong> ${amount}
+                    </div>
+                    <div class="mb-3">
+                        <strong>Méthode de paiement:</strong> ${methodText}
+                    </div>
+                    <div class="mb-3">
+                        <strong>Adresse de facturation:</strong><br>
+                        ${billingAddress.replace(/\n/g, '<br>')}
+                    </div>
+                `;
+                
+                document.getElementById('paymentSummary').innerHTML = summaryHTML;
+            }
+        </script>
+    </div>
+</body>
+
+</html>

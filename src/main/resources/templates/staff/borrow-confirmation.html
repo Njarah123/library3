@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layouts/main}">
+
+<head>
+    <title>Confirmation d'emprunt - Personnel</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/borrow-confirmation.css}">
+    <link rel="stylesheet" href="/fontawesome/all.min.css">
+</head>
+<body>
+    <div layout:fragment="content">
+        <!-- Borrow Header -->
+        <section class="borrow-header">
+            <div class="container">
+                <h1>Confirmation d'emprunt - Personnel</h1>
+                <p>Vérifiez les détails de votre emprunt avant de confirmer</p>
+            </div>
+        </section>
+        
+        <div class="container">
+            <div class="borrow-confirmation-container">
+                <!-- Nouvelle mise en page moderne -->
+                <div class="modern-layout">
+                    <!-- Colonne gauche: Image du livre -->
+                    <div class="book-image-column">
+                        <!-- Logique simplifiée basée sur staff/books.html -->
+                        <img th:src="${book.imagePath != null && !book.imagePath.isEmpty() ?
+                                     (book.imagePath.startsWith('/') ? book.imagePath : '/uploads/' + book.imagePath) :
+                                     '/images/default-book-cover.jpg'}"
+                             th:alt="${book.title}"
+                             class="book-image-large"
+                             onerror="this.src='/images/default-book-cover.jpg'">
+                        
+                        <div class="book-status">
+                            <span class="status-badge staff-badge">Personnel</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Colonne droite: Informations du livre et détails d'emprunt -->
+                    <div class="book-details-column">
+                        <!-- En-tête du livre -->
+                        <div class="book-header">
+                            <h2 class="book-title" th:text="${book.title}">Titre du livre</h2>
+                            <div class="book-meta">
+                                <p class="book-author"><i class="fas fa-user-edit"></i> <span th:text="${book.author}">Auteur</span></p>
+                                <p class="book-isbn" th:if="${book.isbn != null}"><i class="fas fa-barcode"></i> <span th:text="${book.isbn}">ISBN</span></p>
+                                <p class="book-category"><i class="fas fa-bookmark"></i> <span th:text="${book.category != null ? book.category : 'Non catégorisé'}">Catégorie</span></p>
+                            </div>
+                        </div>
+                        
+                        <!-- Informations d'emprunt pour le personnel -->
+                        <div class="borrow-info-card">
+                            <h3><i class="fas fa-info-circle"></i> Informations d'emprunt - Personnel</h3>
+                            
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <i class="fas fa-calendar-check"></i>
+                                    <div class="info-content">
+                                        <span class="label">Date d'emprunt</span>
+                                        <span class="value" th:text="${#temporals.format(#temporals.createNow(), 'dd MMMM yyyy')}">01 Janvier 2023</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="info-item">
+                                    <i class="fas fa-calendar-times"></i>
+                                    <div class="info-content">
+                                        <span class="label">Date de retour</span>
+                                        <span class="value highlight" th:text="${#temporals.format(expectedReturnDate, 'dd MMMM yyyy')}">15 Janvier 2023</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Informations spécifiques au personnel -->
+                                <div class="info-item">
+                                    <i class="fas fa-id-badge"></i>
+                                    <div class="info-content">
+                                        <span class="label">Statut</span>
+                                        <span class="value staff-status">Personnel de la bibliothèque</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="info-item">
+                                    <i class="fas fa-book"></i>
+                                    <div class="info-content">
+                                        <span class="label">Emprunts actuels</span>
+                                        <span class="value" th:text="${currentBorrowings + ' / ' + maxBorrowings + ' livres'}">0 / 10 livres</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="info-item">
+                                    <i class="fas fa-clock"></i>
+                                    <div class="info-content">
+                                        <span class="label">Durée d'emprunt</span>
+                                        <span class="value">30 jours (personnel)</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Pas de frais pour le personnel -->
+                                <div class="info-item staff-benefit">
+                                    <i class="fas fa-gift"></i>
+                                    <div class="info-content">
+                                        <span class="label">Frais d'emprunt</span>
+                                        <span class="value free">Gratuit (Personnel)</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="important-notice staff-notice">
+                                <i class="fas fa-info-circle"></i>
+                                <p>En tant que membre du personnel, vous bénéficiez d'emprunts gratuits avec une durée prolongée de 30 jours.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Terms Information pour le personnel -->
+                        <div class="terms-section">
+                            <h3><i class="fas fa-file-contract"></i> Conditions d'emprunt - Personnel</h3>
+                            <p>En confirmant cet emprunt, vous vous engagez en tant que membre du personnel à:</p>
+                            <ul>
+                                <li><i class="fas fa-check"></i> Retourner le livre dans l'état dans lequel vous l'avez reçu</li>
+                                <li><i class="fas fa-check"></i> Respecter la date de retour prévue (30 jours)</li>
+                                <li><i class="fas fa-check"></i> Donner l'exemple aux étudiants en matière de respect du matériel</li>
+                                <li><i class="fas fa-check"></i> Signaler tout problème ou dégradation immédiatement</li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="action-buttons">
+                            <a th:href="@{/staff/books}" class="btn btn-cancel">
+                                <i class="fas fa-times"></i> Annuler
+                            </a>
+                            
+                            <form th:action="@{/staff/books/borrow}" method="post">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <input type="hidden" name="bookId" th:value="${book.id}" />
+                                <button type="submit" class="btn btn-confirm staff-confirm">
+                                    <i class="fas fa-check"></i> Confirmer l'emprunt
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Script amélioré pour gérer les erreurs d'image -->
+                <script th:inline="javascript">
+                    function handleImageError(img) {
+                        console.log('Erreur de chargement de l\'image:', img.getAttribute('data-original-path'));
+                        
+                        // Utiliser directement l'image par défaut depuis /images/
+                        console.log('Utilisation de l\'image par défaut');
+                        img.src = '/images/default-book-cover.jpg';
+                        img.onerror = function() {
+                            // Si même l'image par défaut échoue, afficher un message
+                            console.log('Impossible de charger l\'image par défaut');
+                            img.style.display = 'none';
+                            img.insertAdjacentHTML('afterend', '<div class="no-image">Pas d\'image disponible</div>');
+                        };
+                    }
+                </script>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Styles spécifiques au personnel -->
+    <style>
+        .staff-badge {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            font-weight: bold;
+        }
+        
+        .staff-status {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .staff-benefit {
+            background: linear-gradient(135deg, #e8f5e8, #f0f9f0);
+            border-left: 4px solid #28a745;
+        }
+        
+        .free {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .staff-notice {
+            background: linear-gradient(135deg, #e8f5e8, #f0f9f0);
+            border-left: 4px solid #28a745;
+        }
+        
+        .staff-notice i {
+            color: #28a745;
+        }
+        
+        .btn-confirm.staff-confirm {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            border: none;
+        }
+        
+        .btn-confirm.staff-confirm:hover {
+            background: linear-gradient(135deg, #218838, #1ea085);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+    </style>
+</body>
+</html>

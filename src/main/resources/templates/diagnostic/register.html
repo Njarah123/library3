@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Diagnostic - Test d'inscription</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/fontawesome/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .diagnostic-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .diagnostic-header {
+            background: linear-gradient(135deg, #ff6b6b, #ff5722);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .diagnostic-header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .diagnostic-header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .diagnostic-content {
+            padding: 40px;
+        }
+
+        .test-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-left: 5px solid #007bff;
+        }
+
+        .test-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .test-section p {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin-right: 15px;
+            margin-bottom: 15px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #1e7e34);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #17a2b8, #117a8b);
+            color: white;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(23, 162, 184, 0.3);
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .error-field {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .diagnostic-info {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .diagnostic-info h4 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+
+        .diagnostic-info ul {
+            color: #424242;
+            padding-left: 20px;
+        }
+
+        .diagnostic-info li {
+            margin-bottom: 5px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .file-upload {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            background: #fafafa;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload:hover {
+            border-color: #007bff;
+            background: #f0f8ff;
+        }
+
+        .file-upload input[type="file"] {
+            display: none;
+        }
+
+        .file-upload label {
+            cursor: pointer;
+            color: #007bff;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .diagnostic-content {
+                padding: 20px;
+            }
+            
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                margin-right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="diagnostic-container">
+        <div class="diagnostic-header">
+            <h1><i class="fas fa-tools"></i> Mode Diagnostic - Test d'inscription</h1>
+            <p>Outils de diagnostic pour résoudre les problèmes d'inscription avec upload d'images</p>
+        </div>
+
+        <div class="diagnostic-content">
+            <!-- Informations de diagnostic -->
+            <div class="diagnostic-info">
+                <h4><i class="fas fa-info-circle"></i> Informations de diagnostic</h4>
+                <ul>
+                    <li>Ce mode permet de tester l'inscription avec différentes configurations</li>
+                    <li>Test sans multipart pour éviter FileCountLimitExceededException</li>
+                    <li>Test avec multipart mais gestion d'erreur robuste</li>
+                    <li>Logs détaillés pour identifier les problèmes</li>
+                    <li>Configuration Spring Security permissive pour les endpoints de test</li>
+                </ul>
+            </div>
+
+            <!-- Messages -->
+            <div th:if="${successMessage}" class="alert alert-success">
+                <i class="fas fa-check-circle"></i> <span th:text="${successMessage}"></span>
+            </div>
+            
+            <div th:if="${errorMessage}" class="alert alert-error">
+                <i class="fas fa-exclamation-triangle"></i> <span th:text="${errorMessage}"></span>
+            </div>
+
+            <!-- Test 1: Inscription sans multipart -->
+            <div class="test-section">
+                <h3><i class="fas fa-user-plus"></i> Test 1: Inscription sans upload d'image</h3>
+                <p>Ce test évite complètement les problèmes multipart en utilisant uniquement les images par défaut.</p>
+                
+                <form th:action="@{/diagnostic/register-no-multipart}" method="post" th:object="${user}">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="username1">Nom d'utilisateur*</label>
+                            <input type="text" id="username1" th:field="*{username}" class="form-input" required>
+                            <span th:if="${#fields.hasErrors('username')}" class="error-field" th:errors="*{username}"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="name1">Nom complet*</label>
+                            <input type="text" id="name1" th:field="*{name}" class="form-input" required>
+                            <span th:if="${#fields.hasErrors('name')}" class="error-field" th:errors="*{name}"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="email1">Email*</label>
+                            <input type="email" id="email1" th:field="*{email}" class="form-input" required>
+                            <span th:if="${#fields.hasErrors('email')}" class="error-field" th:errors="*{email}"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="userType1">Type d'utilisateur*</label>
+                            <select id="userType1" th:field="*{userType}" class="form-input" required>
+                                <option value="">Sélectionner un type</option>
+                                <option value="STUDENT">Étudiant</option>
+                                <option value="STAFF">Personnel</option>
+                                <option value="LIBRARIAN">Bibliothécaire</option>
+                            </select>
+                            <span th:if="${#fields.hasErrors('userType')}" class="error-field" th:errors="*{userType}"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="password1">Mot de passe*</label>
+                            <input type="password" id="password1" th:field="*{password}" class="form-input" required>
+                            <span th:if="${#fields.hasErrors('password')}" class="error-field" th:errors="*{password}"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword1">Confirmer le mot de passe*</label>
+                            <input type="password" id="confirmPassword1" th:field="*{confirmPassword}" class="form-input" required>
+                            <span th:if="${#fields.hasErrors('confirmPassword')}" class="error-field" th:errors="*{confirmPassword}"></span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-user-check"></i> Test inscription sans image
+                    </button>
+                </form>
+            </div>
+
+            <!-- Test 2: Inscription avec multipart -->
+            <div class="test-section">
+                <h3><i class="fas fa-camera"></i> Test 2: Inscription avec upload d'image</h3>
+                <p>Ce test utilise multipart mais avec une gestion d'erreur très robuste pour éviter les crashes.</p>
+                
+                <form th:action="@{/diagnostic/register-with-multipart}" method="post" th:object="${user}" enctype="multipart/form-data">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="username2">Nom d'utilisateur*</label>
+                            <input type="text" id="username2" th:field="*{username}" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="name2">Nom complet*</label>
+                            <input type="text" id="name2" th:field="*{name}" class="form-input" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="email2">Email*</label>
+                            <input type="email" id="email2" th:field="*{email}" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="userType2">Type d'utilisateur*</label>
+                            <select id="userType2" th:field="*{userType}" class="form-input" required>
+                                <option value="">Sélectionner un type</option>
+                                <option value="STUDENT">Étudiant</option>
+                                <option value="STAFF">Personnel</option>
+                                <option value="LIBRARIAN">Bibliothécaire</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="password2">Mot de passe*</label>
+                            <input type="password" id="password2" th:field="*{password}" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword2">Confirmer le mot de passe*</label>
+                            <input type="password" id="confirmPassword2" th:field="*{confirmPassword}" class="form-input" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Photo de profil (optionnel)</label>
+                        <div class="file-upload">
+                            <input type="file" id="profileImage2" name="profileImage" accept="image/*">
+                            <label for="profileImage2">
+                                <i class="fas fa-cloud-upload-alt"></i> Choisir une image (max 50MB)
+                            </label>
+                            <p style="margin-top: 10px; color: #666; font-size: 14px;">
+                                Si l'upload échoue, une image par défaut sera utilisée automatiquement
+                            </p>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-camera"></i> Test inscription avec image
+                    </button>
+                </form>
+            </div>
+
+            <!-- Actions supplémentaires -->
+            <div class="test-section">
+                <h3><i class="fas fa-cogs"></i> Actions de diagnostic</h3>
+                <p>Outils supplémentaires pour diagnostiquer les problèmes de configuration.</p>
+                
+                <a href="/diagnostic/multipart-test" class="btn btn-info" target="_blank">
+                    <i class="fas fa-info"></i> Vérifier config multipart
+                </a>
+                
+                <a href="/auth/register" class="btn btn-primary">
+                    <i class="fas fa-arrow-left"></i> Retour inscription normale
+                </a>
+                
+                <a href="/auth/login" class="btn btn-success">
+                    <i class="fas fa-sign-in-alt"></i> Page de connexion
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Validation des formulaires
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const password = form.querySelector('input[type="password"]');
+                const confirmPassword = form.querySelector('input[type="password"]:last-of-type');
+                
+                if (password && confirmPassword && password.value !== confirmPassword.value) {
+                    e.preventDefault();
+                    alert('Les mots de passe ne correspondent pas.');
+                    return false;
+                }
+            });
+        });
+
+        // Prévisualisation des fichiers
+        document.getElementById('profileImage2').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const label = document.querySelector('label[for="profileImage2"]');
+                label.innerHTML = `<i class="fas fa-check"></i> ${file.name} sélectionné`;
+            }
+        });
+    </script>
+</body>
+</html>

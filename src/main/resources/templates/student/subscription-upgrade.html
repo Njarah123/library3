@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Améliorer mon abonnement - Bibliothèque</title>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <link rel="stylesheet" th:href="@{/css/dashboards.css}" />
+    <link rel="stylesheet" href="/fontawesome/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Product+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Styles spécifiques pour la page d'amélioration */
+        .student-theme {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #3b82f6;
+        }
+
+        /* Styles pour les plans d'abonnement */
+        .subscription-plans {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .plan-card {
+            background: var(--white);
+            border-radius: var(--border-radius-xl);
+            box-shadow: var(--shadow-lg);
+            border: 2px solid transparent;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .plan-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .plan-card.selected {
+            border-color: var(--primary-color);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.2);
+        }
+
+        .plan-card.current {
+            border-color: var(--success-color);
+        }
+
+        .plan-card.current::before {
+            content: 'Actuel';
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--success-color);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            z-index: 2;
+        }
+
+        .plan-card.recommended::after {
+            content: 'Recommandé';
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: linear-gradient(135deg, var(--warning-color), #e68a00);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            z-index: 2;
+        }
+
+        .plan-header {
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .plan-header.discovery {
+            background: linear-gradient(135deg, var(--success-color), #0da271);
+            color: white;
+        }
+
+        .plan-header.standard {
+            background: linear-gradient(135deg, var(--info-color), #2c71e0);
+            color: white;
+        }
+
+        .plan-header.premium {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+        }
+
+        .plan-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.9;
+        }
+
+        .plan-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .plan-price {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .plan-price .currency {
+            font-size: 1.5rem;
+            vertical-align: top;
+        }
+
+        .plan-duration {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .plan-features {
+            padding: 2rem;
+        }
+
+        .plan-feature {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+            color: var(--gray-700);
+        }
+
+        .plan-feature i {
+            color: var(--success-color);
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+            width: 20px;
+        }
+
+        .plan-footer {
+            padding: 0 2rem 2rem;
+        }
+
+        .plan-btn {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .plan-btn.discovery {
+            background: linear-gradient(135deg, var(--success-color), #0da271);
+            color: white;
+        }
+
+        .plan-btn.standard {
+            background: linear-gradient(135deg, var(--info-color), #2c71e0);
+            color: white;
+        }
+
+        .plan-btn.premium {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+        }
+
+        .plan-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .plan-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Section de comparaison */
+        .comparison-section {
+            background: var(--white);
+            border-radius: var(--border-radius-xl);
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 1rem;
+            text-align: center;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .comparison-table th {
+            background: var(--gray-50);
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+
+        .comparison-table .feature-name {
+            text-align: left;
+            font-weight: 500;
+        }
+
+        .comparison-table .check {
+            color: var(--success-color);
+            font-size: 1.2rem;
+        }
+
+        .comparison-table .cross {
+            color: var(--gray-400);
+            font-size: 1.2rem;
+        }
+
+        /* Section de récapitulatif */
+        .summary-section {
+            background: var(--white);
+            border-radius: var(--border-radius-xl);
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            display: none;
+        }
+
+        .summary-section.show {
+            display: block;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            padding-top: 1rem;
+        }
+
+        .summary-label {
+            color: var(--gray-600);
+        }
+
+        .summary-value {
+            font-weight: 500;
+            color: var(--gray-900);
+        }
+
+        /* Boutons d'action */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--gray-200);
+            color: var(--gray-700);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Messages d'alerte */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            position: relative !important;
+            width: 100% !important;
+            left: auto !important;
+            right: auto !important;
+            top: auto !important;
+            transform: none !important;
+            z-index: 1 !important;
+        }
+
+        .alert-info {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--info-color);
+            border-left: 4px solid var(--info-color);
+        }
+
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+            border-left: 4px solid var(--success-color);
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+            border-left: 4px solid var(--danger-color);
+        }
+
+        /* Messages dynamiques spécifiques */
+        .dynamic-alert {
+            position: relative !important;
+            margin: 1rem 0 !important;
+            width: 100% !important;
+            max-width: none !important;
+            left: auto !important;
+            right: auto !important;
+            top: auto !important;
+            bottom: auto !important;
+            transform: none !important;
+            z-index: 1 !important;
+            float: none !important;
+            clear: both !important;
+            box-sizing: border-box !important;
+        }
+
+        /* Styles pour les méthodes de paiement */
+        .payment-option {
+            transition: all 0.3s ease !important;
+        }
+
+        .payment-option:hover {
+            border-color: var(--primary-color) !important;
+            background-color: rgba(102, 126, 234, 0.05) !important;
+        }
+
+        .payment-option input[type="radio"]:checked + .payment-info {
+            color: var(--primary-color);
+        }
+
+        .payment-option:has(input[type="radio"]:checked) {
+            border-color: var(--primary-color) !important;
+            background-color: rgba(102, 126, 234, 0.1) !important;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .payment-methods {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .balance-amount {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .subscription-plans {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .comparison-table {
+                font-size: 0.875rem;
+            }
+
+            .comparison-table th,
+            .comparison-table td {
+                padding: 0.75rem 0.5rem;
+            }
+
+            .payment-option {
+                flex-direction: column;
+                align-items: flex-start !important;
+            }
+
+            .payment-option input[type="radio"] {
+                margin-bottom: 0.5rem !important;
+                margin-right: 0 !important;
+            }
+
+            .balance-amount {
+                margin-top: 0.5rem;
+                align-self: flex-end;
+            }
+
+            /* Correction pour le message d'avertissement sur petits écrans */
+            .alert {
+                padding: 0.75rem 1rem !important;
+                margin-bottom: 1rem !important;
+                font-size: 0.875rem !important;
+                line-height: 1.4 !important;
+            }
+
+            .alert i {
+                font-size: 1rem !important;
+                margin-right: 0.5rem !important;
+            }
+
+            .alert span {
+                display: block !important;
+                word-wrap: break-word !important;
+            }
+        }
+
+        /* Règles spécifiques pour très petits écrans */
+        @media (max-width: 480px) {
+            .dashboard-card {
+                margin: 0.5rem !important;
+                padding: 1rem !important;
+            }
+
+            .card-content {
+                padding: 1rem !important;
+            }
+
+            .alert {
+                padding: 0.5rem 0.75rem !important;
+                margin-bottom: 0.75rem !important;
+                font-size: 0.8rem !important;
+                border-radius: 6px !important;
+            }
+
+            .alert i {
+                font-size: 0.9rem !important;
+                margin-right: 0.4rem !important;
+                flex-shrink: 0 !important;
+            }
+
+            .alert span {
+                flex: 1 !important;
+                line-height: 1.3 !important;
+            }
+
+            /* Assurer que le message reste visible et stable */
+            .alert-info {
+                position: relative !important;
+                display: flex !important;
+                align-items: flex-start !important;
+                background: rgba(59, 130, 246, 0.08) !important;
+                border: 1px solid rgba(59, 130, 246, 0.2) !important;
+                border-left: 3px solid var(--info-color) !important;
+            }
+        }
+
+        /* Correction pour écrans moyens */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .alert {
+                padding: 1rem 1.25rem !important;
+                margin-bottom: 1.5rem !important;
+            }
+        }
+    </style>
+</head>
+<body class="student-theme">
+    <!-- Sidebar Navigation -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="/student/dashboard" class="logo">
+                <img src="/images/Logobnk.png" alt="Logobnk" />
+            </a>
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        
+        <div class="sidebar-menu">
+            <div class="menu-section">
+                <h3>Mon Espace</h3>
+                <a href="/student/dashboard" class="menu-item">
+                    <i class="fas fa-home"></i>
+                    <span>Tableau de bord</span>
+                </a>
+                <a href="/student/books" class="menu-item">
+                    <i class="fas fa-book"></i>
+                    <span>Catalogue</span>
+                </a>
+                <a href="/student/borrows" class="menu-item">
+                    <i class="fas fa-book-reader"></i>
+                    <span>Mes emprunts</span>
+                </a>
+               
+            </div>
+            
+            <div class="menu-section">
+                <h3>Services</h3>
+                <a href="/student/subscription/dashboard" class="menu-item active">
+                    <i class="fas fa-credit-card"></i>
+                    <span>Mon abonnement</span>
+                </a>
+            </div>
+        </div>
+        
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <img th:if="${user != null and user.profileImagePath != null}"
+                     th:src="${user.profileImagePath}"
+                     class="profile-avatar"
+                     onerror="this.src='/images/default-student.png'"
+                     alt="Photo de profil">
+                <img th:unless="${user != null and user.profileImagePath != null}"
+                     src="/images/default-student.png"
+                     class="profile-avatar"
+                     alt="Photo de profil par défaut">
+                <div class="user-info">
+                    <div class="user-name" th:text="${user.name}">Nom étudiant</div>
+                    <div class="user-role">Étudiant</div>
+                </div>
+            </div>
+            <form th:action="@{/logout}" method="post" class="logout-form">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Top Header -->
+        <div class="top-header">
+            <div class="header-left">
+                <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Améliorer mon abonnement</h1>
+            </div>
+            
+            <div class="header-right">
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Rechercher un livre...">
+                </div>
+                
+                <div class="header-actions">
+                    <!-- User Info Button -->
+                    <div class="user-info" id="userInfoButton">
+                        <img th:if="${user != null and user.profileImagePath != null}"
+                             th:src="${user.profileImagePath}"
+                             onerror="this.src='/images/default-student.png'"
+                             alt="Photo de profil"
+                             class="user-avatar">
+                        <img th:unless="${user != null and user.profileImagePath != null}"
+                             src="/images/default-student.png"
+                             alt="Photo de profil par défaut"
+                             class="user-avatar">
+                        <span th:text="${user.name}">Nom étudiant</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <div class="welcome-content">
+                <h2><i class="fas fa-arrow-up"></i> Améliorer mon abonnement</h2>
+                <p>Découvrez nos plans d'abonnement et choisissez celui qui correspond le mieux à vos besoins de lecture.</p>
+            </div>
+            <div class="date-display">
+                <div class="current-date" id="currentDate"></div>
+                <div class="current-time" id="currentTime"></div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Abonnement actuel -->
+            <div class="dashboard-card" th:if="${currentSubscription != null}" style="grid-column: span 12;">
+                <div class="card-header">
+                    <h3>Votre abonnement actuel</h3>
+                    <div class="subscription-badge"
+                         th:class="'subscription-badge ' + ${currentSubscription.subscriptionType.name().toLowerCase()}">
+                        <i class="fas fa-crown" th:if="${currentSubscription.subscriptionType.name() == 'PREMIUM'}"></i>
+                        <i class="fas fa-certificate" th:if="${currentSubscription.subscriptionType.name() == 'STANDARD'}"></i>
+                        <i class="fas fa-tag" th:if="${currentSubscription.subscriptionType.name() == 'DISCOVERY'}"></i>
+                        <span th:text="${currentSubscription.subscriptionType.displayName}">Type</span>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="subscription-info" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                        <div class="info-item">
+                            <span class="info-label">Jours restants</span>
+                            <span class="info-value" th:text="${currentSubscription.daysRemaining} + ' jours'">30 jours</span>
+                        </div>
+                        <div class="info-item" th:if="${currentSubscription.subscriptionType.name() != 'PREMIUM'}">
+                            <span class="info-label">Livres restants</span>
+                            <span class="info-value" th:text="${currentSubscription.booksRemaining} + '/' + ${currentSubscription.subscriptionType.bookQuota}">3/10</span>
+                        </div>
+                        <div class="info-item" th:if="${currentSubscription.subscriptionType.name() == 'PREMIUM'}">
+                            <span class="info-label">Livres</span>
+                            <span class="info-value">Illimités</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Expire le</span>
+                            <span class="info-value" th:text="${#temporals.format(currentSubscription.endDate, 'dd/MM/yyyy')}">01/01/2024</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Plans d'abonnement -->
+            <div class="dashboard-card" style="grid-column: span 12;">
+                <div class="card-header">
+                    <h3>Choisissez votre nouveau plan</h3>
+                </div>
+                <div class="card-content">
+                    <!-- Message d'avertissement toujours visible -->
+                    <div class="alert alert-info" style="margin-bottom: 2rem;">
+                        <i class="fas fa-info-circle"></i>
+                        <span>En changeant d'abonnement, votre abonnement actuel sera remplacé. Les jours restants seront pris en compte dans le calcul du prix.</span>
+                    </div>
+                    <form id="upgradeForm" th:action="@{/student/subscription/upgrade}" method="post">
+                        <input type="hidden" name="subscriptionType" id="selectedPlan">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        
+                        <div class="subscription-plans">
+                            <!-- Plan Découverte -->
+                            <div class="plan-card discovery" 
+                                 th:classappend="${currentSubscription != null && currentSubscription.subscriptionType.name() == 'DISCOVERY'} ? 'current' : ''"
+                                 data-plan="DISCOVERY" data-price="1.99" onclick="selectPlan(this)">
+                                <div class="plan-header discovery">
+                                    <div class="plan-icon">
+                                        <i class="fas fa-seedling"></i>
+                                    </div>
+                                    <div class="plan-name">Découverte</div>
+                                    <div class="plan-price">
+                                        <span class="currency"></span>1000 Ar
+                                    </div>
+                                    <div class="plan-duration">pour 7 jours</div>
+                                </div>
+                                <div class="plan-features">
+                                    <div class="plan-feature">
+                                        <i class="fas fa-check"></i>
+                                        <span>3 livres maximum</span>
+                                    </div>
+                                    <div class="plan-feature">
+                                        <i class="fas fa-check"></i>
+                                        <span>Validité de 7 jours</span>
+                                    </div>
+                                    <div class="plan-feature">
+                                        <i class="fas fa-check"></i>
+                                        <span>Accès aux livres populaires</span>
+                                    </div>
+                                    <div class="plan-feature">
+                                        <i class="fas fa-check"></i>
+                                        <span>Support par email</span>
+                                    </div>
+                                </div>
+                                <div class="plan-footer">
+                                    <button type="button" class="plan-btn discovery" 
+                                            th:disabled="${currentSubscription != null && currentSubscription.subscriptionType.name() == 'DISCOVERY'}">
+                                        <span th:if="${currentSubscription != null && currentSubscription.subscriptionType.name() == 'DISCOVERY'}">Plan actuel</span>
+                                        <span th:unless="${currentSubscription != null && currentSubscription.subscriptionType.name() == 'DISCOVERY'}">Choisir ce plan</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Plan Standard -->
+                            <div class="plan-card standard recommended" 
+                                 th:classappend="${currentSubscription != null && currentSubscription.subscriptionType.name() == 'STANDARD'} ? 'current' : ''"
+                                 data-plan="STANDARD" data-price="9.99" onclick="selectPlan(this)">
+                                <div class="plan-header standard">
+                                    <div class="plan-icon">
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                    <div class="plan-name">Standard</div>
+                                    <div class="plan-price">
+                                        <span class="currency"></span>3000 Ar
+                                    </div>
+                                    <div class="plan-duration">pour 30 jours</div>
+                                </div>
+                                <div class="plan-features">
+                                    <div class="plan-feature">
+                                        <i class="fas fa-check"></i>
+                                        <span>10 livres maximum</span>
+                                    </div>
+                                    <div class="plan-feature">
+                                        <i class="fas fa-check"></i>
+                                        <span>Validité de 30 jours</span>
+                                    </div>
+                                    <div class="plan-feature">
+                                        <i class="fas fa-check"></i>
+                                        <span>Accès à tous les livres</span>
+                                    </div>
+                                    <div class="plan-feature">
+                                        <i class="fas fa-check"></i>
+                                        <span>Priorité de réservation</span>
+                                    </div>
+                                </div>
+                                <div class="plan-footer">
+                                    <button type="button" class="plan-btn standard" 
+                                            th:disabled="${currentSubscription != null && currentSubscription.subscriptionType.name() == 'STANDARD'}">
+                                        <span th:if="${currentSubscription != null && currentSubscription.subscriptionType.name() == 'STANDARD'}">Plan actuel</span>
+                                        <span th:unless="${currentSubscription != null && currentSubscription.subscriptionType.name() == 'STANDARD'}">Choisir ce plan</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Plan Premium -->
+                            <div class="plan-card premium" 
+                                 th:classappend="${currentSubscription != null && currentSubscription.subscriptionType.name() == 'PREMIUM'} ? 'current' : ''"
+                                 data-plan="PREMIUM" data-price="14.99" onclick="selectPlan(this)">
+                                <div class="plan-header premium">
+                                    <div class="plan-icon">
+                                        <i class="fas fa-crown"></i>
+                                    </div>
+                                    <div class="plan-name">Premium</div>
+                                    <div class="plan-price">
+                                        <span class="currency"></span>5000 Ar
+                                    </div>
+                                    <div class="plan-duration">pour 30 jours</div>
+                                </div>
+                                <div class="plan-features">
+                                    <div class="plan-feature">
+                                        <i class="fas fa-check"></i>
+                                        <span>Livres illimités</span>
+                                    </div>
+                                    <div class="plan-feature">
+                                        <i class="fas fa-check"></i>
+                                        <span>Validité de 30 jours</span>
+                                    </div>
+                                    <div class="plan-feature">
+                                        <i class="fas fa-check"></i>
+                                        <span>Accès prioritaire aux nouveautés</span>
+                                    </div>
+                                    <div class="plan-feature">
+                                        <i class="fas fa-check"></i>
+                                        <span>Réservations prioritaires</span>
+                                    </div>
+                                    <div class="plan-feature">
+                                        <i class="fas fa-check"></i>
+                                        <span>Accès aux livres rares</span>
+                                    </div>
+                                    <div class="plan-feature">
+                                        <i class="fas fa-check"></i>
+                                        <span>Support prioritaire 24/7</span>
+                                    </div>
+                                </div>
+                                <div class="plan-footer">
+                                    <button type="button" class="plan-btn premium" 
+                                            th:disabled="${currentSubscription != null && currentSubscription.subscriptionType.name() == 'PREMIUM'}">
+                                        <span th:if="${currentSubscription != null && currentSubscription.subscriptionType.name() == 'PREMIUM'}">Plan actuel</span>
+                                        <span th:unless="${currentSubscription != null && currentSubscription.subscriptionType.name() == 'PREMIUM'}">Choisir ce plan</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section de récapitulatif -->
+                        <div class="summary-section" id="summarySection">
+                            <h3>Récapitulatif de votre commande</h3>
+                            <div class="summary-item">
+                                <span class="summary-label">Plan sélectionné</span>
+                                <span class="summary-value" id="selectedPlanName">-</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label">Prix</span>
+                                <span class="summary-value" id="selectedPlanPrice">-</span>
+                            </div>
+                            <div class="summary-item" th:if="${currentSubscription != null}">
+                                <span class="summary-label">Crédit jours restants</span>
+                                <span class="summary-value" id="creditAmount">Calculé automatiquement</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label">Total à payer</span>
+                                <span class="summary-value" id="totalAmount">-</span>
+                            </div>
+                            
+                            <!-- Section de méthode de paiement -->
+                            <div class="payment-method-section" style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--gray-200);">
+                                <h4 style="margin-bottom: 1rem; color: var(--gray-700);">Méthode de paiement</h4>
+                                <div class="payment-methods" style="display: grid; gap: 1rem;">
+                                    <label class="payment-option" style="display: flex; align-items: center; padding: 1rem; border: 2px solid var(--gray-200); border-radius: var(--border-radius); cursor: pointer; transition: all 0.3s ease;">
+                                        <input type="radio" name="paymentMethod" value="BALANCE" checked style="margin-right: 0.75rem;">
+                                        <div class="payment-info" style="flex: 1;">
+                                            <div class="payment-name" style="font-weight: 600; color: var(--gray-900);">
+                                                <i class="fas fa-wallet" style="margin-right: 0.5rem; color: var(--primary-color);"></i>
+                                                Solde du compte
+                                            </div>
+                                            <div class="payment-description" style="font-size: 0.875rem; color: var(--gray-600);">
+                                                Utiliser le solde disponible sur votre compte
+                                            </div>
+                                        </div>
+                                        <div class="balance-amount" style="font-weight: 600; color: var(--success-color);">
+                                            <span th:text="${user.balance != null ? #numbers.formatDecimal(user.balance, 1, 0) : '0'}">0</span> Ar
+                                        </div>
+                                    </label>
+                                    
+                                    <label class="payment-option" style="display: flex; align-items: center; padding: 1rem; border: 2px solid var(--gray-200); border-radius: var(--border-radius); cursor: pointer; transition: all 0.3s ease;">
+                                        <input type="radio" name="paymentMethod" value="CARD" style="margin-right: 0.75rem;">
+                                        <div class="payment-info" style="flex: 1;">
+                                            <div class="payment-name" style="font-weight: 600; color: var(--gray-900);">
+                                                <i class="fas fa-credit-card" style="margin-right: 0.5rem; color: var(--info-color);"></i>
+                                                Carte bancaire
+                                            </div>
+                                            <div class="payment-description" style="font-size: 0.875rem; color: var(--gray-600);">
+                                                Paiement sécurisé par carte de crédit/débit
+                                            </div>
+                                        </div>
+                                    </label>
+                                    
+                                    <label class="payment-option" style="display: flex; align-items: center; padding: 1rem; border: 2px solid var(--gray-200); border-radius: var(--border-radius); cursor: pointer; transition: all 0.3s ease;">
+                                        <input type="radio" name="paymentMethod" value="PAYPAL" style="margin-right: 0.75rem;">
+                                        <div class="payment-info" style="flex: 1;">
+                                            <div class="payment-name" style="font-weight: 600; color: var(--gray-900);">
+                                                <i class="fab fa-paypal" style="margin-right: 0.5rem; color: #0070ba;"></i>
+                                                PayPal
+                                            </div>
+                                            <div class="payment-description" style="font-size: 0.875rem; color: var(--gray-600);">
+                                                Paiement via votre compte PayPal
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Boutons d'action -->
+                        <div class="action-buttons" id="actionButtons" style="display: none;">
+                            <a href="/student/subscription/dashboard" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Retour
+                            </a>
+                            <button type="submit" class="btn btn-primary" id="confirmButton">
+                                <i class="fas fa-check"></i> Confirmer l'amélioration
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tableau de comparaison -->
+            <div class="dashboard-card" style="grid-column: span 12;">
+                <div class="card-header">
+                    <h3>Comparaison des plans</h3>
+                </div>
+                <div class="card-content">
+                    <div class="table-responsive">
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th class="feature-name">Fonctionnalités</th>
+                                    <th>Découverte</th>
+                                    <th>Standard</th>
+                                    <th>Premium</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="feature-name">Nombre de livres</td>
+                                    <td>3 livres</td>
+                                    <td>10 livres</td>
+                                    <td>Illimité</td>
+                                </tr>
+                                <tr>
+                                    <td class="feature-name">Durée de validité</td>
+                                    <td>7 jours</td>
+                                    <td>30 jours</td>
+                                    <td>30 jours</td>
+                                </tr>
+                                <tr>
+                                    <td class="feature-name">Accès aux livres populaires</td>
+                                    <td><i class="fas fa-check check"></i></td>
+                                    <td><i class="fas fa-check check"></i></td>
+                                    <td><i class="fas fa-check check"></i></td>
+                                </tr>
+                                <tr>
+                                    <td class="feature-name">Priorité de réservation</td>
+                                    <td><i class="fas fa-times cross"></i></td>
+<td><i class="fas fa-check check"></i></td>
+                                    <td><i class="fas fa-check check"></i></td>
+                                </tr>
+                                <tr>
+                                    <td class="feature-name">Accès aux livres rares</td>
+                                    <td><i class="fas fa-times cross"></i></td>
+                                    <td><i class="fas fa-times cross"></i></td>
+                                    <td><i class="fas fa-check check"></i></td>
+                                </tr>
+                                <tr>
+                                    <td class="feature-name">Support prioritaire</td>
+                                    <td>Email</td>
+                                    <td>Email</td>
+                                    <td>24/7</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Variables globales
+        let selectedPlan = null;
+        let currentSubscription = null;
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+            
+            // Récupérer les informations de l'abonnement actuel depuis Thymeleaf
+            const currentSubElement = document.querySelector('[data-current-subscription]');
+            if (currentSubElement) {
+                currentSubscription = {
+                    type: currentSubElement.dataset.currentSubscription,
+                    daysRemaining: parseInt(currentSubElement.dataset.daysRemaining) || 0
+                };
+            }
+        });
+
+        // Mise à jour de la date et heure
+        function updateDateTime() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            };
+            
+            document.getElementById('currentDate').textContent = 
+                now.toLocaleDateString('fr-FR', options);
+            document.getElementById('currentTime').textContent = 
+                now.toLocaleTimeString('fr-FR');
+        }
+
+        // Sélection d'un plan
+        function selectPlan(planElement) {
+            // Vérifier si le plan est déjà actuel
+            if (planElement.classList.contains('current')) {
+                return;
+            }
+
+            // Retirer la sélection précédente
+            document.querySelectorAll('.plan-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+
+            // Sélectionner le nouveau plan
+            planElement.classList.add('selected');
+            
+            const planType = planElement.dataset.plan;
+            const planPrice = parseFloat(planElement.dataset.price);
+            
+            selectedPlan = {
+                type: planType,
+                price: planPrice,
+                name: getPlanDisplayName(planType)
+            };
+
+            // Mettre à jour le formulaire
+            document.getElementById('selectedPlan').value = planType;
+            
+            // Afficher le récapitulatif
+            updateSummary();
+            
+            // Vérifier la méthode de paiement sélectionnée
+            updatePaymentMethodSelection();
+            
+            // Afficher les boutons d'action
+            document.getElementById('actionButtons').style.display = 'flex';
+        }
+
+        // Obtenir le nom d'affichage du plan
+        function getPlanDisplayName(planType) {
+            const names = {
+                'DISCOVERY': 'Découverte',
+                'STANDARD': 'Standard',
+                'PREMIUM': 'Premium'
+            };
+            return names[planType] || planType;
+        }
+
+        // Mettre à jour le récapitulatif
+        function updateSummary() {
+            if (!selectedPlan) return;
+
+            const summarySection = document.getElementById('summarySection');
+            const selectedPlanName = document.getElementById('selectedPlanName');
+            const selectedPlanPrice = document.getElementById('selectedPlanPrice');
+            const totalAmount = document.getElementById('totalAmount');
+
+            selectedPlanName.textContent = selectedPlan.name;
+            selectedPlanPrice.textContent = selectedPlan.price.toFixed(0) + ' Ar';
+
+            // Calculer le total (pour l'instant, prix simple)
+            let total = selectedPlan.price;
+            
+            // Si il y a un abonnement actuel, on pourrait calculer un crédit
+            // (cette logique sera gérée côté serveur)
+            
+            totalAmount.textContent = '€' + total.toFixed(2);
+            
+            // Afficher la section
+            summarySection.classList.add('show');
+        }
+
+        // Gestion du formulaire
+        document.getElementById('upgradeForm').addEventListener('submit', function(e) {
+            if (!selectedPlan) {
+                e.preventDefault();
+                showMessage('Veuillez sélectionner un plan d\'abonnement.', 'error');
+                return;
+            }
+
+            // Vérifier qu'une méthode de paiement est sélectionnée
+            const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+            if (!selectedPaymentMethod) {
+                e.preventDefault();
+                showMessage('Veuillez sélectionner une méthode de paiement.', 'error');
+                return;
+            }
+
+            // Vérifier le solde si la méthode de paiement est BALANCE
+            if (selectedPaymentMethod.value === 'BALANCE') {
+                const userBalance = parseFloat(document.querySelector('.balance-amount span').textContent);
+                if (userBalance < selectedPlan.price) {
+                    e.preventDefault();
+                    showMessage(`Solde insuffisant. Votre solde actuel est de ${userBalance.toFixed(0)} Ar, mais le plan coûte ${selectedPlan.price.toFixed(0)} Ar.`, 'error');
+                    return;
+                }
+            }
+
+            // Confirmation
+            const paymentMethodText = getPaymentMethodDisplayName(selectedPaymentMethod.value);
+            const confirmMessage = `Êtes-vous sûr de vouloir passer au plan ${selectedPlan.name} pour ${selectedPlan.price.toFixed(0)} Ar ?\n\nMéthode de paiement : ${paymentMethodText}`;
+            if (!confirm(confirmMessage)) {
+                e.preventDefault();
+                return;
+            }
+
+            // Afficher un indicateur de chargement
+            const submitButton = document.getElementById('confirmButton');
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traitement en cours...';
+            submitButton.disabled = true;
+        });
+
+        // Obtenir le nom d'affichage de la méthode de paiement
+        function getPaymentMethodDisplayName(paymentMethod) {
+            const names = {
+                'BALANCE': 'Solde du compte',
+                'CARD': 'Carte bancaire',
+                'PAYPAL': 'PayPal'
+            };
+            return names[paymentMethod] || paymentMethod;
+        }
+
+        // Gestion du changement de méthode de paiement
+        document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                updatePaymentMethodSelection();
+            });
+        });
+
+        // Mettre à jour la sélection de méthode de paiement
+        function updatePaymentMethodSelection() {
+            const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+            if (selectedPaymentMethod && selectedPlan) {
+                // Vérifier le solde si BALANCE est sélectionné
+                if (selectedPaymentMethod.value === 'BALANCE') {
+                    const userBalance = parseFloat(document.querySelector('.balance-amount span').textContent);
+                    const balanceOption = document.querySelector('input[value="BALANCE"]').closest('.payment-option');
+                    
+                    if (userBalance < selectedPlan.price) {
+                        balanceOption.style.opacity = '0.6';
+                        balanceOption.style.pointerEvents = 'none';
+                        // Sélectionner automatiquement une autre méthode
+                        const cardOption = document.querySelector('input[value="CARD"]');
+                        if (cardOption) {
+                            cardOption.checked = true;
+                        }
+                        showMessage(`Solde insuffisant pour ce plan. Veuillez choisir une autre méthode de paiement.`, 'warning');
+                    } else {
+                        balanceOption.style.opacity = '1';
+                        balanceOption.style.pointerEvents = 'auto';
+                    }
+                }
+            }
+        }
+
+        // Gestion de la sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+        }
+
+        // Responsive
+        function handleResize() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            
+            if (window.innerWidth <= 768) {
+                sidebar.classList.add('mobile');
+                mainContent.classList.add('mobile');
+            } else {
+                sidebar.classList.remove('mobile');
+                mainContent.classList.remove('mobile');
+            }
+        }
+
+        window.addEventListener('resize', handleResize);
+        handleResize(); // Appel initial
+
+        // Animation des cartes au scroll
+        function animateOnScroll() {
+            const cards = document.querySelectorAll('.plan-card');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+
+            cards.forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(card);
+            });
+        }
+
+        // Initialiser les animations
+        document.addEventListener('DOMContentLoaded', animateOnScroll);
+
+        // Gestion des messages d'erreur/succès
+        function showMessage(message, type = 'info') {
+            // Supprimer les anciens messages
+            const existingAlerts = document.querySelectorAll('.dynamic-alert');
+            existingAlerts.forEach(alert => alert.remove());
+            
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} dynamic-alert`;
+            alertDiv.style.cssText = `
+                position: relative !important;
+                margin: 1rem 0 !important;
+                width: 100% !important;
+                max-width: none !important;
+                left: auto !important;
+                right: auto !important;
+                top: auto !important;
+                transform: none !important;
+                z-index: 1 !important;
+            `;
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+            
+            // Insérer le message dans la section des plans d'abonnement, pas en haut de page
+            const plansSection = document.querySelector('.dashboard-card .card-content');
+            if (plansSection) {
+                plansSection.insertBefore(alertDiv, plansSection.firstChild);
+            } else {
+                const welcomeSection = document.querySelector('.welcome-section');
+                welcomeSection.insertAdjacentElement('afterend', alertDiv);
+            }
+            
+            // Supprimer le message après 5 secondes
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        // Vérifier les messages de session (succès/erreur)
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const success = urlParams.get('success');
+            const error = urlParams.get('error');
+            
+            if (success) {
+                showMessage('Votre abonnement a été mis à jour avec succès !', 'success');
+            }
+            
+            if (error) {
+                showMessage('Une erreur est survenue lors de la mise à jour de votre abonnement.', 'error');
+            }
+        });
+    </script>
+</body>
+</html>

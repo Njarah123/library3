@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>Paiement d'abonnement - Bibliothèque Universitaire</title>
+    
+    <!-- CSS Bootstrap -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="/fontawesome/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="/fonts/poppins.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link th:href="@{/css/subscription-checkout.css}" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header th:replace="~{fragments/header :: header}"></header>
+    
+    <!-- Main Content -->
+    <main class="checkout-container">
+        <div class="checkout-header">
+            <h1>Finaliser votre abonnement</h1>
+            <p>Vous êtes à un pas de profiter de notre vaste collection de livres.</p>
+        </div>
+        
+        <div class="alert alert-danger" th:if="${error != null}">
+            <i class="fas fa-exclamation-circle"></i> <span th:text="${error}"></span>
+        </div>
+        
+        <div class="checkout-grid">
+            <!-- Checkout Summary -->
+            <div class="checkout-summary">
+                <div class="checkout-summary-header">
+                    <h2>Récapitulatif de la commande</h2>
+                </div>
+                <div class="checkout-summary-body">
+                    <div class="subscription-details">
+                        <div class="subscription-name" 
+                             th:class="${subscriptionType.name() == 'DISCOVERY' ? 'subscription-name discovery-color' : 
+                                        subscriptionType.name() == 'STANDARD' ? 'subscription-name standard-color' : 
+                                        'subscription-name premium-color'}">
+                            <i class="fas" 
+                               th:class="${subscriptionType.name() == 'DISCOVERY' ? 'fas fa-book-reader' : 
+                                          subscriptionType.name() == 'STANDARD' ? 'fas fa-book' : 
+                                          'fas fa-crown'}"></i>
+                            <span th:text="${subscriptionType.displayName}"></span>
+                        </div>
+                        <div class="subscription-price">
+                            <span th:text="${#numbers.formatDecimal(subscriptionType.price, 1, 0)}"></span> Ar
+                        </div>
+                        <div class="subscription-features">
+                            <ul class="feature-list">
+                                <li class="feature-item" th:if="${subscriptionType.name() == 'PREMIUM'}">
+                                    <span class="feature-icon"><i class="fas fa-infinity"></i></span>
+                                    <span class="feature-text">Livres illimités</span>
+                                </li>
+                                <li class="feature-item" th:unless="${subscriptionType.name() == 'PREMIUM'}">
+                                    <span class="feature-icon"><i class="fas fa-book"></i></span>
+                                    <span class="feature-text">Jusqu'à <span th:text="${subscriptionType.bookQuota}"></span> livres</span>
+                                </li>
+                                <li class="feature-item">
+                                    <span class="feature-icon"><i class="fas fa-calendar-alt"></i></span>
+                                    <span class="feature-text">Validité de <span th:text="${subscriptionType.validityDays}"></span> jours</span>
+                                </li>
+                                <li class="feature-item" th:if="${subscriptionType.name() == 'DISCOVERY'}">
+                                    <span class="feature-icon"><i class="fas fa-clock"></i></span>
+                                    <span class="feature-text">Accès rapide aux nouveautés</span>
+                                </li>
+                                <li class="feature-item" th:if="${subscriptionType.name() == 'STANDARD'}">
+                                    <span class="feature-icon"><i class="fas fa-bookmark"></i></span>
+                                    <span class="feature-text">Priorité de réservation</span>
+                                </li>
+                                <li class="feature-item" th:if="${subscriptionType.name() == 'PREMIUM'}">
+                                    <span class="feature-icon"><i class="fas fa-star"></i></span>
+                                    <span class="feature-text">Accès exclusif aux livres rares</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="payment-summary">
+                        <h3>Récapitulatif du paiement</h3>
+                        <div class="payment-row">
+                            <span>Prix de l'abonnement:</span>
+                            <span><span th:text="${#numbers.formatDecimal(subscriptionType.price, 1, 0)}"></span> Ar</span>
+                        </div>
+                        <div class="payment-row">
+                            <span>Taxes:</span>
+                            <span>0 Ar</span>
+                        </div>
+                        <div class="payment-row payment-total">
+                            <span>Total:</span>
+                            <span><span th:text="${#numbers.formatDecimal(subscriptionType.price, 1, 0)}"></span> Ar</span>
+                        </div>
+                    </div>
+                    
+                    <div class="balance-info">
+                        <h3>Votre solde</h3>
+                        <div class="balance-amount">
+                            <span th:text="${#numbers.formatDecimal(user.balance, 1, 0)}"></span> Ar
+                        </div>
+                        
+                        <div class="alert alert-warning" th:if="${user.balance < subscriptionType.price}">
+                            <i class="fas fa-exclamation-triangle"></i> 
+                            <span>Solde insuffisant. Veuillez ajouter des fonds à votre compte.</span>
+                        </div>
+                        
+                        <div class="alert alert-success" th:if="${user.balance >= subscriptionType.price}">
+                            <i class="fas fa-check-circle"></i> 
+                            <span>Vous avez un solde suffisant pour acheter cet abonnement.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Checkout Payment -->
+            <div class="checkout-payment">
+                <div class="checkout-payment-header">
+                    <h2>Méthode de paiement</h2>
+                </div>
+                <div class="checkout-payment-body">
+                    <div th:if="${user.balance < subscriptionType.price}">
+                        <div class="payment-methods">
+                            <h3>Choisissez une méthode de paiement</h3>
+                            <div class="payment-method-options">
+                                <div class="payment-method selected" data-method="credit-card">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/196/196578.png" alt="Credit Card">
+                                    <span>Carte de crédit</span>
+                                </div>
+                                <div class="payment-method" data-method="paypal">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/174/174861.png" alt="PayPal">
+                                    <span>PayPal</span>
+                                </div>
+                                <div class="payment-method" data-method="bank-transfer">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/2830/2830284.png" alt="Bank Transfer">
+                                    <span>Virement bancaire</span>
+                                </div>
+                                <div class="payment-method" data-method="mobile-money">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/1019/1019607.png" alt="Mobile Money">
+                                    <span>Mobile Money</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-details" id="credit-card-details">
+                            <h3>Détails de la carte</h3>
+                            <form id="payment-form">
+                                <div class="form-group">
+                                    <label for="cardNumber" class="form-label">Numéro de carte</label>
+                                    <input type="text" class="form-control" id="cardNumber" placeholder="1234 5678 9012 3456" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="cardName" class="form-label">Nom sur la carte</label>
+                                    <input type="text" class="form-control" id="cardName" placeholder="John Doe" required>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="expiryDate" class="form-label">Date d'expiration</label>
+                                        <input type="text" class="form-control" id="expiryDate" placeholder="MM/AA" required>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="cvv" class="form-label">CVV</label>
+                                        <input type="text" class="form-control" id="cvv" placeholder="123" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group mt-4">
+                                    <button type="button" class="btn btn-primary w-100" id="confirmCardButton">
+                                        <i class="fas fa-check-circle"></i> Confirmer les informations de carte
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <div class="payment-details" id="paypal-details" style="display: none;">
+                            <h3>PayPal</h3>
+                            <p>Vous serez redirigé vers PayPal pour compléter votre paiement.</p>
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> Ceci est une simulation. Aucun paiement réel ne sera traité.
+                            </div>
+                        </div>
+                        
+                        <div class="payment-details" id="bank-transfer-details" style="display: none;">
+                            <h3>Virement bancaire</h3>
+                            <p>Veuillez effectuer un virement vers le compte suivant:</p>
+                            <div class="alert alert-info">
+                                <strong>Banque:</strong> Banque Universitaire<br>
+                                <strong>IBAN:</strong> FR76 1234 5678 9012 3456 7890 123<br>
+                                <strong>BIC:</strong> ABCDEFGH<br>
+                                <strong>Référence:</strong> SUB-<span th:text="${user.id}"></span>
+                            </div>
+                            <p>Votre abonnement sera activé dès réception du paiement.</p>
+                        </div>
+                        
+                        <div class="payment-details" id="mobile-money-details" style="display: none;">
+                            <h3>Mobile Money</h3>
+                            <p>Veuillez effectuer un paiement vers le numéro suivant:</p>
+                            <div class="alert alert-info">
+                                <strong>Numéro:</strong> +123 456 789 012<br>
+                                <strong>Nom:</strong> Bibliothèque Universitaire<br>
+                                <strong>Référence:</strong> SUB-<span th:text="${user.id}"></span>
+                            </div>
+                            <p>Votre abonnement sera activé dès réception du paiement.</p>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="amount" class="form-label">Montant à ajouter</label>
+                            <input type="number" class="form-control" id="amount" name="amount" 
+                                   th:value="${subscriptionType.price - user.balance}" 
+                                   min="0" max="200000" step="1" required>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> Ceci est une simulation. Aucun paiement réel ne sera traité.
+                        </div>
+                    </div>
+                    
+                    <div th:if="${user.balance >= subscriptionType.price}" class="text-center py-4">
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle fa-2x mb-3"></i>
+                            <h3>Prêt à finaliser</h3>
+                            <p>Votre solde est suffisant pour acheter cet abonnement. Cliquez sur "Confirmer l'achat" pour finaliser votre abonnement.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="checkout-actions">
+                        <a th:href="@{/subscriptions/plans}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Retour aux plans
+                        </a>
+                        
+                        <form th:action="@{/subscriptions/purchase}" method="post" th:if="${user.balance >= subscriptionType.price}">
+                            <input type="hidden" name="type" th:value="${subscriptionType.name()}">
+                            <input type="hidden" name="bookId" th:if="${bookId != null}" th:value="${bookId}">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-check"></i> Confirmer l'achat
+                            </button>
+                        </form>
+                        
+                        <button th:if="${user.balance < subscriptionType.price}" 
+                                class="btn btn-primary" 
+                                id="addFundsButton">
+                            <i class="fas fa-plus-circle"></i> Ajouter des fonds
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer th:replace="~{fragments/footer :: footer}"></footer>
+    
+    <!-- Bootstrap JS -->
+    <script src="/js/libs/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Payment method selection
+            const paymentMethods = document.querySelectorAll('.payment-method');
+            const paymentDetails = {
+                'credit-card': document.getElementById('credit-card-details'),
+                'paypal': document.getElementById('paypal-details'),
+                'bank-transfer': document.getElementById('bank-transfer-details'),
+                'mobile-money': document.getElementById('mobile-money-details')
+            };
+            
+            // Function to handle payment method selection
+            function selectPaymentMethod(methodElement) {
+                // Remove selected class from all methods
+                paymentMethods.forEach(m => m.classList.remove('selected'));
+                
+                // Add selected class to clicked method
+                methodElement.classList.add('selected');
+                
+                // Show corresponding payment details
+                const methodType = methodElement.getAttribute('data-method');
+                
+                // Hide all payment details
+                Object.values(paymentDetails).forEach(detail => {
+                    if (detail) detail.style.display = 'none';
+                });
+                
+                // Show selected payment details
+                if (paymentDetails[methodType]) {
+                    paymentDetails[methodType].style.display = 'block';
+                }
+            }
+            
+            // Add click event to payment methods
+            paymentMethods.forEach(method => {
+                method.addEventListener('click', function() {
+                    selectPaymentMethod(this);
+                });
+            });
+            
+            // Select the first payment method by default
+            if (paymentMethods.length > 0) {
+                selectPaymentMethod(paymentMethods[0]);
+            }
+            
+            // Add funds button
+            const addFundsButton = document.getElementById('addFundsButton');
+            if (addFundsButton) {
+                addFundsButton.addEventListener('click', function() {
+                    simulatePayment();
+                });
+            }
+            
+            // Confirm card button
+            const confirmCardButton = document.getElementById('confirmCardButton');
+            if (confirmCardButton) {
+                confirmCardButton.addEventListener('click', function() {
+                    const cardNumber = document.getElementById('cardNumber').value;
+                    const cardName = document.getElementById('cardName').value;
+                    const expiryDate = document.getElementById('expiryDate').value;
+                    const cvv = document.getElementById('cvv').value;
+                    
+                    if (!cardNumber || !cardName || !expiryDate || !cvv) {
+                        alert('Veuillez remplir tous les champs de la carte');
+                        return;
+                    }
+                    
+                    // Show success message
+                    const paymentForm = document.getElementById('payment-form');
+                    paymentForm.innerHTML = `
+                        <div class="alert alert-success mt-3">
+                            <i class="fas fa-check-circle"></i> Informations de carte validées avec succès.
+                        </div>
+                        <div class="card mt-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Carte enregistrée</h5>
+                                <p class="card-text">Numéro: **** **** **** ${cardNumber.slice(-4)}</p>
+                                <p class="card-text">Nom: ${cardName}</p>
+                                <p class="card-text">Expiration: ${expiryDate}</p>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <button type="button" class="btn btn-primary w-100" id="proceedToPaymentButton">
+                                <i class="fas fa-arrow-right"></i> Procéder au paiement
+                            </button>
+                        </div>
+                    `;
+                    
+                    // Add event listener to the new button
+                    document.getElementById('proceedToPaymentButton').addEventListener('click', function() {
+                        simulatePayment();
+                    });
+                });
+            }
+            
+            // Card number formatting
+            const cardNumberInput = document.getElementById('cardNumber');
+            if (cardNumberInput) {
+                cardNumberInput.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\D/g, '');
+                    if (value.length > 16) value = value.slice(0, 16);
+                    
+                    // Add spaces every 4 digits
+                    let formattedValue = '';
+                    for (let i = 0; i < value.length; i++) {
+                        if (i > 0 && i % 4 === 0) formattedValue += ' ';
+                        formattedValue += value[i];
+                    }
+                    
+                    e.target.value = formattedValue;
+                });
+            }
+            
+            // Expiry date formatting
+            const expiryDateInput = document.getElementById('expiryDate');
+            if (expiryDateInput) {
+                expiryDateInput.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\D/g, '');
+                    if (value.length > 4) value = value.slice(0, 4);
+                    
+                    // Format as MM/YY
+                    if (value.length > 2) {
+                        value = value.slice(0, 2) + '/' + value.slice(2);
+                    }
+                    
+                    e.target.value = value;
+                });
+            }
+            
+            // CVV formatting
+            const cvvInput = document.getElementById('cvv');
+            if (cvvInput) {
+                cvvInput.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\D/g, '');
+                    if (value.length > 3) value = value.slice(0, 3);
+                    e.target.value = value;
+                });
+            }
+        });
+        
+        function simulatePayment() {
+            const amount = document.getElementById('amount').value;
+            if (!amount || amount <= 0) {
+                alert('Veuillez entrer un montant valide');
+                return;
+            }
+            
+            // Get selected payment method
+            const selectedMethod = document.querySelector('.payment-method.selected');
+            if (!selectedMethod) {
+                alert('Veuillez sélectionner une méthode de paiement');
+                return;
+            }
+            
+            const methodType = selectedMethod.getAttribute('data-method');
+            
+            // Validate form if credit card is selected
+            if (methodType === 'credit-card') {
+                const cardNumber = document.getElementById('cardNumber').value;
+                const cardName = document.getElementById('cardName').value;
+                const expiryDate = document.getElementById('expiryDate').value;
+                const cvv = document.getElementById('cvv').value;
+                
+                if (!cardNumber || !cardName || !expiryDate || !cvv) {
+                    alert('Veuillez remplir tous les champs de la carte');
+                    return;
+                }
+            }
+            
+            // Show loading message
+            const paymentBody = document.querySelector('.checkout-payment-body');
+            const originalContent = paymentBody.innerHTML;
+            
+            paymentBody.innerHTML = `
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Chargement...</span>
+                    </div>
+                    <p class="mt-3">Traitement du paiement en cours...</p>
+                </div>
+            `;
+            
+            // Create a hidden form for submission
+            const formHtml = `
+                <form id="addFundsHiddenForm" method="post" action="/account/add-funds" style="display: none;">
+                    <input type="hidden" name="${document.querySelector('meta[name="_csrf"]').getAttribute('content') ? '_csrf' : document.querySelector('input[name$="csrf"]').name}" value="${document.querySelector('meta[name="_csrf"]').getAttribute('content')}">
+                    <input type="hidden" name="amount" value="${amount}">
+                    <input type="hidden" name="paymentMethod" value="${methodType}">
+                    <input type="hidden" name="redirectUrl" value="${window.location.href}">
+                </form>
+            `;
+            
+            // Add the form to the body
+            document.body.insertAdjacentHTML('beforeend', formHtml);
+            
+            // Submit the form after a delay
+            setTimeout(function() {
+                document.getElementById('addFundsHiddenForm').submit();
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

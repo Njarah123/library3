@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Plans d'abonnement - Bibliothèque</title>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <link rel="stylesheet" th:href="@{/css/dashboards.css}" />
+    <link rel="stylesheet" href="/fontawesome/all.min.css">
+    <link href="/fonts/poppins.css" rel="stylesheet">
+    
+    <style>
+        /* Styles spécifiques pour la page des plans */
+        .plans-theme {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #3b82f6;
+        }
+
+        /* Plans d'abonnement */
+        .subscription-plans {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .plan-card {
+            background: var(--white);
+            border-radius: var(--border-radius-xl);
+            box-shadow: var(--shadow-lg);
+            border: 2px solid transparent;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .plan-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .plan-card.active-plan {
+            border-color: var(--success-color);
+            box-shadow: 0 20px 40px rgba(16, 185, 129, 0.2);
+        }
+
+        .plan-card.popular {
+            border-color: var(--warning-color);
+        }
+
+        .plan-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            z-index: 2;
+            color: white;
+        }
+
+        .plan-badge.badge-current {
+            background: var(--success-color);
+        }
+
+        .plan-badge.badge-popular {
+            background: linear-gradient(135deg, var(--warning-color), #e68a00);
+        }
+
+        .plan-badge.badge-best-value {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        }
+
+        .plan-header {
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .plan-header.discovery {
+            background: linear-gradient(135deg, var(--success-color), #0da271);
+            color: white;
+        }
+
+        .plan-header.standard {
+            background: linear-gradient(135deg, var(--info-color), #2c71e0);
+            color: white;
+        }
+
+        .plan-header.premium {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+        }
+
+        .plan-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .plan-price {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .plan-price .currency {
+            font-size: 1.5rem;
+            vertical-align: top;
+        }
+
+        .plan-description {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        .plan-features {
+            padding: 2rem;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+            color: var(--gray-700);
+        }
+
+        .feature-icon {
+            color: var(--success-color);
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+            width: 20px;
+        }
+
+        .feature-icon .fa-times {
+            color: var(--gray-400);
+        }
+
+        .plan-footer {
+            padding: 0 2rem 2rem;
+        }
+
+        .plan-btn {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .plan-btn.btn-primary {
+            background: linear-gradient(135deg, var(--info-color), #2c71e0);
+            color: white;
+        }
+
+        .plan-btn.btn-accent {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+        }
+
+        .plan-btn.btn-outline {
+            background: transparent;
+            color: var(--success-color);
+            border: 2px solid var(--success-color);
+        }
+
+        .plan-btn.btn-outline-danger {
+            background: transparent;
+            color: var(--danger-color);
+            border: 2px solid var(--danger-color);
+        }
+
+        .plan-btn.btn-secondary {
+            background: var(--gray-200);
+            color: var(--gray-700);
+        }
+
+        .plan-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .plan-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Section de solde */
+        .balance-section {
+            background: var(--white);
+            border-radius: var(--border-radius-xl);
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .balance-amount {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--success-color);
+            margin: 0;
+        }
+
+        /* Section FAQ */
+        .faq-section {
+            background: var(--white);
+            border-radius: var(--border-radius-xl);
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .faq-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--gray-900);
+        }
+
+        .faq-item {
+            border-bottom: 1px solid var(--gray-200);
+            margin-bottom: 1rem;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .faq-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .faq-item.active .faq-icon {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 200px;
+        }
+
+        .faq-answer-content {
+            padding-bottom: 1rem;
+            color: var(--gray-600);
+            line-height: 1.6;
+        }
+
+        /* Modal styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: var(--border-radius-xl);
+            box-shadow: var(--shadow-xl);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray-500);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--gray-200);
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .payment-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+        }
+
+        .payment-method {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .payment-method:hover {
+            border-color: var(--primary-color);
+        }
+
+        .payment-method.selected {
+            border-color: var(--primary-color);
+            background-color: rgba(102, 126, 234, 0.1);
+        }
+
+        .payment-method img {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 0.5rem;
+        }
+
+        .payment-method span {
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        /* Button styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), #5a67d8);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: linear-gradient(135deg, #5a67d8, var(--primary-color));
+        }
+
+        .btn-secondary {
+            background: var(--gray-200);
+            color: var(--gray-700);
+            border: 2px solid var(--gray-300);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: var(--gray-300);
+            border-color: var(--gray-400);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #0da271);
+            color: white;
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: linear-gradient(135deg, #0da271, var(--success-color));
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger-color), #dc2626);
+            color: white;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background: linear-gradient(135deg, #dc2626, var(--danger-color));
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .card-header {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 1rem !important;
+            }
+            
+            .card-header h3 {
+                margin-bottom: 0 !important;
+            }
+            
+            .card-header .btn {
+                align-self: stretch !important;
+                width: 100% !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .subscription-plans {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .balance-section {
+                text-align: center;
+            }
+
+            .payment-methods {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .card-header {
+                padding: 1rem !important;
+            }
+            
+            .card-content {
+                padding: 1rem !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .card-header h3 {
+                font-size: 1.1rem !important;
+            }
+            
+            .btn {
+                padding: 0.6rem 1rem !important;
+                font-size: 0.85rem !important;
+            }
+        }
+    </style>
+</head>
+<body class="plans-theme">
+    <!-- Sidebar Navigation -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="/" class="logo">
+                <img src="/images/Logobnk.png" alt="Logobnk" />
+            </a>
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        
+        <div class="sidebar-menu">
+            <div class="menu-section">
+                <h3>Mon Espace</h3>
+                <a th:href="@{/student/dashboard}" th:if="${user.userType.name() == 'STUDENT'}" class="menu-item">
+                    <i class="fas fa-home"></i>
+                    <span>Tableau de bord</span>
+                </a>
+                <a th:href="@{/staff/dashboard}" th:if="${user.userType.name() == 'STAFF'}" class="menu-item">
+                    <i class="fas fa-home"></i>
+                    <span>Tableau de bord</span>
+                </a>
+                <a th:href="@{/librarian/dashboard}" th:if="${user.userType.name() == 'LIBRARIAN'}" class="menu-item">
+                    <i class="fas fa-home"></i>
+                    <span>Tableau de bord</span>
+                </a>
+                <a th:href="@{/student/books}" th:if="${user.userType.name() == 'STUDENT'}" class="menu-item">
+                    <i class="fas fa-book"></i>
+                    <span>Catalogue</span>
+                </a>
+                <a th:href="@{/staff/books}" th:if="${user.userType.name() == 'STAFF'}" class="menu-item">
+                    <i class="fas fa-book"></i>
+                    <span>Catalogue</span>
+                </a>
+                <a th:href="@{/librarian/books}" th:if="${user.userType.name() == 'LIBRARIAN'}" class="menu-item">
+                    <i class="fas fa-book"></i>
+                    <span>Catalogue</span>
+                </a>
+            </div>
+            
+            <div class="menu-section">
+                <h3>Services</h3>
+                <a href="/subscriptions/plans" class="menu-item active">
+                    <i class="fas fa-credit-card"></i>
+                    <span>Plans d'abonnement</span>
+                </a>
+                <a th:href="@{/student/subscription/dashboard}" th:if="${user.userType.name() == 'STUDENT'}" class="menu-item">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Mon abonnement</span>
+                </a>
+            </div>
+        </div>
+        
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <img th:if="${user != null and user.profileImagePath != null}"
+                     th:src="${user.profileImagePath}"
+                     class="profile-avatar"
+                     onerror="this.src='/images/default-student.png'"
+                     alt="Photo de profil">
+                <img th:unless="${user != null and user.profileImagePath != null}"
+                     th:src="@{${user.userType.name() == 'STUDENT' ? '/images/default-student.png' : user.userType.name() == 'STAFF' ? '/images/default-staff.png' : '/images/default-librarian.png'}}"
+                     class="profile-avatar"
+                     alt="Photo de profil par défaut">
+                <div class="user-info">
+                    <div class="user-name" th:text="${user.name}">Nom utilisateur</div>
+                    <div class="user-role" th:text="${user.userType.name() == 'STUDENT' ? 'Étudiant' : user.userType.name() == 'STAFF' ? 'Personnel' : 'Bibliothécaire'}">Rôle</div>
+                </div>
+            </div>
+            <form th:action="@{/logout}" method="post" class="logout-form">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Top Header -->
+        <div class="top-header">
+            <div class="header-left">
+                <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Plans d'abonnement</h1>
+            </div>
+            
+            <div class="header-right">
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Rechercher un livre...">
+                </div>
+                
+                <div class="header-actions">
+                    <!-- User Info Button -->
+                    <div class="user-info" id="userInfoButton">
+                        <img th:if="${user != null and user.profileImagePath != null}"
+                             th:src="${user.profileImagePath}"
+                             onerror="this.src='/images/default-student.png'"
+                             alt="Photo de profil"
+                             class="user-avatar">
+                        <img th:unless="${user != null and user.profileImagePath != null}"
+                             th:src="@{${user.userType.name() == 'STUDENT' ? '/images/default-student.png' : user.userType.name() == 'STAFF' ? '/images/default-staff.png' : '/images/default-librarian.png'}}"
+                             alt="Photo de profil par défaut"
+                             class="user-avatar">
+                        <span th:text="${user.name}">Nom utilisateur</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <div class="welcome-content">
+                <h2><i class="fas fa-star"></i> Choisissez votre plan d'abonnement</h2>
+                <p>Accédez à notre vaste collection de livres avec un abonnement adapté à vos besoins. Tous les plans incluent l'accès à notre catalogue en ligne.</p>
+            </div>
+            <div class="date-display">
+                <div class="current-date" id="currentDate"></div>
+                <div class="current-time" id="currentTime"></div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Section de solde pour les étudiants -->
+            <div class="dashboard-card" th:if="${user.userType.name() == 'STUDENT'}" style="grid-column: span 12;">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <h3 style="margin: 0;">Votre solde</h3>
+                    <button class="btn btn-success" onclick="openAddFundsModal()" style="white-space: nowrap;">
+                        <i class="fas fa-plus-circle"></i> Ajouter des fonds
+                    </button>
+                </div>
+                <div class="card-content">
+                    <div class="balance-section">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h4 style="margin: 0; color: var(--gray-700);">Solde disponible</h4>
+                                <p class="balance-amount"><span th:text="${#numbers.formatDecimal(user.balance, 1, 2)}">0.00</span> Ar</p>
+                            </div>
+                            <div style="text-align: center;">
+                                <i class="fas fa-wallet" style="font-size: 3rem; color: var(--success-color); opacity: 0.3;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alerte pour les non-étudiants -->
+            <div class="dashboard-card" th:if="${user.userType.name() != 'STUDENT'}" style="grid-column: span 12;">
+                <div class="card-content">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> 
+                        En tant que <span th:text="${user.userType.name() == 'STAFF' ? 'personnel' : 'bibliothécaire'}"></span>, vous pouvez emprunter des livres sans abonnement.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Abonnement actuel -->
+            <div class="dashboard-card" th:if="${activeSubscription != null}" style="grid-column: span 12;">
+                <div class="card-header">
+                    <h3>Votre abonnement actuel</h3>
+                    <div class="subscription-badge"
+                         th:class="'subscription-badge ' + ${activeSubscription.subscriptionType.name().toLowerCase()}">
+                        <i class="fas fa-crown" th:if="${activeSubscription.subscriptionType.name() == 'PREMIUM'}"></i>
+                        <i class="fas fa-certificate" th:if="${activeSubscription.subscriptionType.name() == 'STANDARD'}"></i>
+                        <i class="fas fa-tag" th:if="${activeSubscription.subscriptionType.name() == 'DISCOVERY'}"></i>
+                        <span th:text="${activeSubscription.subscriptionType.displayName}">Type</span>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="subscription-info" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                        <div class="info-item">
+                            <span class="info-label">Valide jusqu'au</span>
+                            <span class="info-value" th:text="${#temporals.format(activeSubscription.endDate, 'dd/MM/yyyy')}">01/01/2024</span>
+                        </div>
+                        <div class="info-item" th:if="${activeSubscription.subscriptionType.name() != 'PREMIUM'}">
+                            <span class="info-label">Livres restants</span>
+                            <span class="info-value" th:text="${activeSubscription.booksRemaining} + '/' + ${activeSubscription.subscriptionType.bookQuota}">3/10</span>
+                        </div>
+                        <div class="info-item" th:if="${activeSubscription.subscriptionType.name() == 'PREMIUM'}">
+                            <span class="info-label">Livres</span>
+                            <span class="info-value">Illimités</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Jours restants</span>
+                            <span class="info-value" th:text="${activeSubscription.daysRemaining} + ' jours'">30 jours</span>
+                        </div>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <button class="btn btn-outline-danger" onclick="openCancelModal()">
+                            <i class="fas fa-times-circle"></i> Annuler l'abonnement
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Plans d'abonnement -->
+            <div class="dashboard-card" style="grid-column: span 12;">
+                <div class="card-header">
+                    <h3>Nos plans d'abonnement</h3>
+                </div>
+                <div class="card-content">
+                    <div class="subscription-plans">
+                        <!-- Plan Découverte -->
+                        <div class="plan-card" th:classappend="${activeSubscription != null && activeSubscription.subscriptionType.name() == 'DISCOVERY'} ? 'active-plan' : ''">
+                            <div th:if="${activeSubscription != null && activeSubscription.subscriptionType.name() == 'DISCOVERY'}" class="plan-badge badge-current">Actuel</div>
+                            
+                            <div class="plan-header discovery">
+                                <h3 class="plan-name">Découverte</h3>
+                                <div class="plan-price">
+                                    <span class="currency"></span>1000 Ar
+                                </div>
+                                <p class="plan-description">Parfait pour essayer notre bibliothèque</p>
+                            </div>
+                            
+                            <div class="plan-features">
+                                <ul class="feature-list">
+                                    <li class="feature-item">
+                                        <span class="feature-icon"><i class="fas fa-book"></i></span>
+                                        <span class="feature-text">3 livres maximum</span>
+                                    </li>
+                                    <li class="feature-item">
+                                        <span class="feature-icon"><i class="fas fa-calendar-alt"></i></span>
+                                        <span class="feature-text">Validité de 7 jours</span>
+                                    </li>
+                                    <li class="feature-item">
+                                        <span class="feature-icon"><i class="fas fa-clock"></i></span>
+                                        <span class="feature-text">Accès aux livres populaires</span>
+                                    </li>
+                                    <li class="feature-item">
+                                        <span class="feature-icon"><i class="fas fa-times"></i></span>
+                                        <span class="feature-text" style="color: #9ca3af;">Pas de priorité de réservation</span>
+                                    </li>
+                                    <li class="feature-item">
+                                        <span class="feature-icon"><i class="fas fa-times"></i></span>
+                                        <span class="feature-text" style="color: #9ca3af;">Pas d'accès aux livres rares</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="plan-footer">
+                                <a th:if="${user.userType.name() == 'STUDENT' && (activeSubscription == null || activeSubscription.subscriptionType.name() != 'DISCOVERY')}"
+                                   th:href="@{/subscriptions/checkout/DISCOVERY}"
+                                   class="plan-btn btn-outline">
+                                    Choisir ce plan
+                                </a>
+                                <button th:if="${activeSubscription != null && activeSubscription.subscriptionType.name() == 'DISCOVERY'}" 
+                                        class="plan-btn btn-outline-danger" 
+                                        onclick="openCancelModal()">
+                                    Annuler l'abonnement
+                                </button>
+                                <button th:if="${user.userType.name() != 'STUDENT'}" 
+                                        class="plan-btn btn-secondary" 
+                                        disabled>
+                                    Non requis
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Plan Standard -->
+                        <div class="plan-card popular" th:classappend="${activeSubscription != null && activeSubscription.subscriptionType.name() == 'STANDARD'} ? 'active-plan' : ''">
+                            <div class="plan-badge badge-popular">Populaire</div>
+                            <div th:if="${activeSubscription != null && activeSubscription.subscriptionType.name() == 'STANDARD'}" class="plan-badge badge-current">Actuel</div>
+                            
+                            <div class="plan-header standard">
+                                <h3 class="plan-name">Standard</h3>
+                                <div class="plan-price">
+                                    <span class="currency"></span>3000 Ar
+                                </div>
+                                <p class="plan-description">Notre plan le plus populaire</p>
+                            </div>
+                            
+                            <div class="plan-features">
+                                <ul class="feature-list">
+                                    <li class="feature-item">
+                                        <span class="feature-icon"><i class="fas fa-book"></i></span>
+                                        <span class="feature-text">10 livres maximum</span>
+                                    </li>
+                                    <li class="feature-item">
+                                        <span class="feature-icon"><i class="fas fa-calendar-alt"></i></span>
+                                        <span class="feature-text">Validité de 30 jours</span>
+                                    </li>
+                                    <li class="feature-item">
+                                        <span class="feature-icon"><i class="fas fa-check"></i></span>
+                                        <span class="feature-text">Accès à tous les livres</span>
+                                    </li>
+                                    <li class="feature-item">
+                                        <span class="feature-icon"><i class="fas fa-bookmark"></i></span>
+                                        <span class="feature-text">Priorité de réservation</span>
+                                    </li>
+                                    <li class="feature-item">
+                                        <span class="feature-icon"><i class="fas fa-times"></i></span>
+                                        <span class="feature-text" style="color: #9ca3af;">Pas d'accès aux livres rares</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="plan-footer">
+                                <a th:if="${user.userType.name() == 'STUDENT' && (activeSubscription == null || activeSubscription.subscriptionType.name() != 'STANDARD')}"
+                                   th:href="@{/subscriptions/checkout/STANDARD}"
+                                   class="plan-btn btn-primary">
+                                    Choisir ce plan
+                                </a>
+                                <button th:if="${activeSubscription != null && activeSubscription.subscriptionType.name() == 'STANDARD'}" 
+                                        class="plan-btn btn-outline-danger" 
+                                        onclick="openCancelModal()">
+                                    Annuler l'abonnement
+                                </button>
+                                <button th:if="${user.userType.name() != 'STUDENT'}"
+                                        class="plan-btn btn-secondary"
+                                        disabled>
+                                    Non requis
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Plan Premium -->
+                        <div class="plan-card" th:classappend="${activeSubscription != null && activeSubscription.subscriptionType.name() == 'PREMIUM'} ? 'active-plan' : ''">
+                            <div class="plan-badge badge-best-value">Meilleure valeur</div>
+                            <div th:if="${activeSubscription != null && activeSubscription.subscriptionType.name() == 'PREMIUM'}" class="plan-badge badge-current">Actuel</div>
+                            
+                            <div class="plan-header premium">
+                                <h3 class="plan-name">Premium</h3>
+                                <div class="plan-price">
+                                    <span class="currency"></span>5000 Ar
+                                </div>
+                                <p class="plan-description">L'expérience complète de notre bibliothèque</p>
+                            </div>
+                            
+                            <div class="plan-features">
+                                <ul class="feature-list">
+                                    <li class="feature-item">
+                                        <span class="feature-icon"><i class="fas fa-infinity"></i></span>
+                                        <span class="feature-text">Livres illimités</span>
+                                    </li>
+                                    <li class="feature-item">
+                                        <span class="feature-icon"><i class="fas fa-calendar-alt"></i></span>
+                                        <span class="feature-text">Validité de 30 jours</span>
+                                    </li>
+                                    <li class="feature-item">
+                                        <span class="feature-icon"><i class="fas fa-gem"></i></span>
+                                        <span class="feature-text">Accès aux livres rares</span>
+                                    </li>
+                                    <li class="feature-item">
+                                        <span class="feature-icon"><i class="fas fa-crown"></i></span>
+                                        <span class="feature-text">Priorité maximale</span>
+                                    </li>
+                                    <li class="feature-item">
+                                        <span class="feature-icon"><i class="fas fa-headset"></i></span>
+                                        <span class="feature-text">Support prioritaire</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="plan-footer">
+                                <a th:if="${user.userType.name() == 'STUDENT' && (activeSubscription == null || activeSubscription.subscriptionType.name() != 'PREMIUM')}"
+                                   th:href="@{/subscriptions/checkout/PREMIUM}"
+                                   class="plan-btn btn-accent">
+                                    Choisir ce plan
+                                </a>
+                                <button th:if="${activeSubscription != null && activeSubscription.subscriptionType.name() == 'PREMIUM'}"
+                                        class="plan-btn btn-outline-danger"
+                                        onclick="openCancelModal()">
+                                    Annuler l'abonnement
+                                </button>
+                                <button th:if="${user.userType.name() != 'STUDENT'}"
+                                        class="plan-btn btn-secondary"
+                                        disabled>
+                                    Non requis
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section FAQ -->
+            <div class="dashboard-card" style="grid-column: span 12;">
+                <div class="card-header">
+                    <h3>Questions fréquentes</h3>
+                </div>
+                <div class="card-content">
+                    <div class="faq-section">
+                        <div class="faq-item">
+                            <div class="faq-question" onclick="toggleFaq(this)">
+                                <span>Comment fonctionne le système d'abonnement ?</span>
+                                <i class="fas fa-chevron-down faq-icon"></i>
+                            </div>
+                            <div class="faq-answer">
+                                <div class="faq-answer-content">
+                                    Chaque abonnement vous donne accès à un certain nombre de livres pendant une période définie.
+                                    Vous pouvez emprunter des livres jusqu'à votre limite et les retourner quand vous le souhaitez.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="faq-item">
+                            <div class="faq-question" onclick="toggleFaq(this)">
+                                <span>Puis-je changer d'abonnement à tout moment ?</span>
+                                <i class="fas fa-chevron-down faq-icon"></i>
+                            </div>
+                            <div class="faq-answer">
+                                <div class="faq-answer-content">
+                                    Oui, vous pouvez passer à un abonnement supérieur à tout moment.
+                                    Le nouveau plan remplacera l'ancien et vous bénéficierez immédiatement des nouveaux avantages.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="faq-item">
+                            <div class="faq-question" onclick="toggleFaq(this)">
+                                <span>Que se passe-t-il si mon abonnement expire ?</span>
+                                <i class="fas fa-chevron-down faq-icon"></i>
+                            </div>
+                            <div class="faq-answer">
+                                <div class="faq-answer-content">
+                                    Vous devrez retourner tous les livres empruntés et ne pourrez plus en emprunter de nouveaux
+                                    jusqu'à ce que vous renouveliez votre abonnement.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="faq-item">
+                            <div class="faq-question" onclick="toggleFaq(this)">
+                                <span>Comment ajouter des fonds à mon compte ?</span>
+                                <i class="fas fa-chevron-down faq-icon"></i>
+                            </div>
+                            <div class="faq-answer">
+                                <div class="faq-answer-content">
+                                    Cliquez sur le bouton "Ajouter des fonds" dans la section solde.
+                                    Vous pouvez payer par carte bancaire, PayPal ou virement bancaire.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal d'ajout de fonds -->
+    <div class="modal-overlay" id="addFundsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Ajouter des fonds</h3>
+                <button class="modal-close" onclick="closeAddFundsModal()">&times;</button>
+            </div>
+            <form id="addFundsForm" th:action="@{/student/subscription/add-funds}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label" for="amount">Montant à ajouter (Ar)</label>
+                        <input type="number"
+                               id="amount"
+                               name="amount"
+                               class="form-control"
+                               min="5"
+                               max="200000"
+                               step="0.01"
+                               required>
+                        <small style="color: var(--gray-600); font-size: 0.875rem;">Minimum: 5Ar - Maximum: 200,000Ar</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Méthode de paiement</label>
+                        <div class="payment-methods">
+                            <div class="payment-method" onclick="selectPaymentMethod('CARD')">
+                                <img src="/images/card-icon.png" alt="Carte bancaire" onerror="this.style.display='none'">
+                                <i class="fas fa-credit-card" style="font-size: 2rem; color: var(--primary-color);"></i>
+                                <span>Carte bancaire</span>
+                                <input type="radio" name="paymentMethod" value="CARD" style="display: none;">
+                            </div>
+                            <div class="payment-method" onclick="selectPaymentMethod('PAYPAL')">
+                                <img src="/images/paypal-icon.png" alt="PayPal" onerror="this.style.display='none'">
+                                <i class="fab fa-paypal" style="font-size: 2rem; color: #0070ba;"></i>
+                                <span>PayPal</span>
+                                <input type="radio" name="paymentMethod" value="PAYPAL" style="display: none;">
+                            </div>
+                            <div class="payment-method" onclick="selectPaymentMethod('BANK_TRANSFER')">
+                                <img src="/images/bank-icon.png" alt="Virement" onerror="this.style.display='none'">
+                                <i class="fas fa-university" style="font-size: 2rem; color: var(--success-color);"></i>
+                                <span>Virement</span>
+                                <input type="radio" name="paymentMethod" value="BANK_TRANSFER" style="display: none;">
+                            </div>
+                            <div class="payment-method" onclick="selectPaymentMethod('MOBILE_MONEY')">
+                                <img src="/images/mobile-money-icon.png" alt="Mobile Money" onerror="this.style.display='none'">
+                                <i class="fas fa-mobile-alt" style="font-size: 2rem; color: #ff6b35;"></i>
+                                <span>Mobile Money</span>
+                                <input type="radio" name="paymentMethod" value="MOBILE_MONEY" style="display: none;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeAddFundsModal()">Annuler</button>
+                    <button type="submit" class="btn btn-primary" id="addFundsBtn" disabled>
+                        <i class="fas fa-plus-circle"></i> Ajouter les fonds
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal d'annulation d'abonnement -->
+    <div class="modal-overlay" id="cancelModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Annuler l'abonnement</h3>
+                <button class="modal-close" onclick="closeCancelModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Attention !</strong> L'annulation de votre abonnement entraînera :
+                </div>
+                <ul style="margin: 1rem 0; padding-left: 1.5rem;">
+                    <li>La perte immédiate de l'accès aux fonctionnalités premium</li>
+                    <li>L'obligation de retourner tous les livres empruntés</li>
+                    <li>Aucun remboursement pour la période restante</li>
+                </ul>
+                <p><strong>Êtes-vous sûr de vouloir continuer ?</strong></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeCancelModal()">Non, garder mon abonnement</button>
+                <form th:action="@{/student/subscription/cancel}" method="post" style="display: inline;">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-times-circle"></i> Oui, annuler
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let selectedPaymentMethod = null;
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+        });
+
+        // Gestion de la sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+        }
+
+        // Mise à jour de la date et heure
+        function updateDateTime() {
+            const now = new Date();
+            const dateElement = document.getElementById('currentDate');
+            const timeElement = document.getElementById('currentTime');
+            
+            if (dateElement) {
+                dateElement.textContent = now.toLocaleDateString('fr-FR', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            }
+            
+            if (timeElement) {
+                timeElement.textContent = now.toLocaleTimeString('fr-FR');
+            }
+        }
+
+        // Gestion des FAQ
+        function toggleFaq(element) {
+            const faqItem = element.parentElement;
+            const isActive = faqItem.classList.contains('active');
+            
+            // Fermer tous les autres FAQ
+            document.querySelectorAll('.faq-item.active').forEach(item => {
+                if (item !== faqItem) {
+                    item.classList.remove('active');
+                }
+            });
+            
+            // Toggle l'élément actuel
+            faqItem.classList.toggle('active', !isActive);
+        }
+
+        // Gestion du modal d'ajout de fonds
+        function openAddFundsModal() {
+            document.getElementById('addFundsModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeAddFundsModal() {
+            document.getElementById('addFundsModal').classList.remove('show');
+            document.body.style.overflow = 'auto';
+            resetAddFundsForm();
+        }
+
+        function resetAddFundsForm() {
+            document.getElementById('addFundsForm').reset();
+            selectedPaymentMethod = null;
+            document.querySelectorAll('.payment-method').forEach(method => {
+                method.classList.remove('selected');
+            });
+            document.getElementById('addFundsBtn').disabled = true;
+        }
+
+        // Sélection de méthode de paiement
+        function selectPaymentMethod(method) {
+            selectedPaymentMethod = method;
+            
+            // Mettre à jour l'interface
+            document.querySelectorAll('.payment-method').forEach(element => {
+                element.classList.remove('selected');
+            });
+            
+            event.currentTarget.classList.add('selected');
+            event.currentTarget.querySelector('input[type="radio"]').checked = true;
+            
+            // Activer le bouton si un montant est aussi saisi
+            validateAddFundsForm();
+        }
+
+        // Validation du formulaire d'ajout de fonds
+        function validateAddFundsForm() {
+            const amount = document.getElementById('amount').value;
+            const hasPaymentMethod = selectedPaymentMethod !== null;
+            const hasValidAmount = amount && parseFloat(amount) >= 0 && parseFloat(amount) <= 200000;
+            
+            document.getElementById('addFundsBtn').disabled = !(hasPaymentMethod && hasValidAmount);
+        }
+
+        // Écouter les changements sur le montant
+        document.addEventListener('DOMContentLoaded', function() {
+            const amountInput = document.getElementById('amount');
+            if (amountInput) {
+                amountInput.addEventListener('input', validateAddFundsForm);
+            }
+        });
+
+        // Gestion du modal d'annulation
+        function openCancelModal() {
+            document.getElementById('cancelModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCancelModal() {
+            document.getElementById('cancelModal').classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Fermer les modals en cliquant à l'extérieur
+        document.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal-overlay')) {
+                if (event.target.id === 'addFundsModal') {
+                    closeAddFundsModal();
+                } else if (event.target.id === 'cancelModal') {
+                    closeCancelModal();
+                }
+            }
+        });
+
+        // Gestion responsive
+        function handleResize() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            
+            if (window.innerWidth <= 768) {
+                sidebar.classList.add('collapsed');
+                mainContent.classList.add('expanded');
+            } else {
+                sidebar.classList.remove('collapsed');
+                mainContent.classList.remove('expanded');
+            }
+        }
+
+        window.addEventListener('resize', handleResize);
+        document.addEventListener('DOMContentLoaded', handleResize);
+
+        // Gestion des erreurs d'images
+        document.addEventListener('DOMContentLoaded', function() {
+            const images = document.querySelectorAll('img');
+            images.forEach(img => {
+                img.addEventListener('error', function() {
+                    if (this.alt.includes('Photo de profil')) {
+                        this.src = '/images/default-student.png';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

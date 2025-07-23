@@ -1,116 +1,926 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Ajouter un livre</title>
-    <link rel="stylesheet" th:href="@{/css/add-book.css}" />
-    <script th:src="@{/js/add-book.js}"></script>
+    <title>Ajouter un Livre - Bibliothécaire</title>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <link rel="stylesheet" th:href="@{/css/dashboards.css}" />
+    <link rel="stylesheet" href="/fontawesome/all.min.css">
+    <link rel="stylesheet" href="/fonts/poppins.css">
+    <script src="/js/libs/qrcode.min.js"></script>
+    <script th:src="@{/js/notification-panel-ultra.js}"></script>
+    <link rel="stylesheet" th:href="@{/css/notification-panel-ultra.css}">
 </head>
 <body>
-    <div class="container">
-        <h2>Ajouter un nouveau livre</h2>
-        
-        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
-        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
-        
-        <form th:action="@{/librarian/books/add}" th:object="${book}" method="post">
-            <div class="form-group">
-                <label for="title">Titre:</label>
-                <input type="text" class="form-control" id="title" th:field="*{title}" required>
-                <span th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="text-danger"></span>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="/librarian/dashboard" class="logo">
+                <img src="/images/Logobnk.png" alt="Logobnk" />
+            </a>
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+               
+        <div class="sidebar-menu">
+            <div class="menu-section">
+                <h3>Principal</h3>
+                <a href="/librarian/dashboard" class="menu-item">
+                    <i class="fas fa-home"></i>
+                    <span>Tableau de bord</span>
+                </a>
+                <a href="/librarian/books" class="menu-item">
+                    <i class="fas fa-book"></i>
+                    <span>Livres</span>
+                </a>
+                <a href="/librarian/members" class="menu-item">
+                    <i class="fas fa-users"></i>
+                    <span>Membres</span>
+                </a>
+                <a href="/librarian/borrows-books" class="menu-item">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Emprunts</span>
+                </a>
             </div>
-            
-            <div class="form-group">
-                <label for="author">Auteur:</label>
-                <input type="text" class="form-control" id="author" th:field="*{author}" required>
-                <span th:if="${#fields.hasErrors('author')}" th:errors="*{author}" class="text-danger"></span>
+                       
+            <div class="menu-section">
+                <h3>Gestion</h3>
+                <a href="/librarian/books/add" class="menu-item active">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Ajouter livre</span>
+                </a>
+                <a href="/librarian/books/update-total-borrows" class="menu-item">
+                    <i class="fas fa-sync-alt"></i>
+                    <span>Mettre à jour emprunts</span>
+                </a>
+                <a href="/librarian/reports" class="menu-item">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Rapports</span>
+                </a>
+                <a href="/librarian/settings" class="menu-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Paramètres</span>
+                </a>
             </div>
-
-            <div class="form-group">
-                <label for="category">Catégorie:</label>
-                <select class="form-control" id="category" th:field="*{category}" required>
-                    <option value="">Sélectionner une catégorie</option>
-                    <option value="FICTION">Fiction</option>
-                    <option value="NON_FICTION">Non-Fiction</option>
-                    <option value="SCIENCE">Science</option>
-                    <option value="TECHNOLOGY">Technologie</option>
-                    <option value="HISTORY">Histoire</option>
-                    <option value="LITERATURE">Littérature</option>
-                </select>
-                <span th:if="${#fields.hasErrors('category')}" th:errors="*{category}" class="text-danger"></span>
+        </div>
+               
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <img th:src="${user != null && user.profileImagePath != null && !user.profileImagePath.isEmpty()} ? ${user.profileImagePath} : '/images/default-librarian.png'"
+                     class="profile-avatar"
+                     alt="Photo de profil">
+                <div class="user-info">
+                    <div class="user-name" th:text="${#authentication.name}">Nom utilisateur</div>
+                    <div class="user-role">Bibliothécaire</div>
+                </div>
             </div>
-            
-            <div class="form-group">
-                <label for="isbn">ISBN:</label>
-                <input type="text" class="form-control" id="isbn" th:field="*{isbn}" required>
-                <span th:if="${#fields.hasErrors('isbn')}" th:errors="*{isbn}" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label for="publisher">Éditeur:</label>
-                <input type="text" class="form-control" id="publisher" th:field="*{publisher}" required>
-            </div>
-
-            <div class="form-group">
-                <label for="publicationYear">Année de publication:</label>
-                <input type="number" class="form-control" id="publicationYear" th:field="*{publicationYear}" required>
-            </div>
-
-            <div class="form-group">
-                <label for="language">Langue:</label>
-                <select class="form-control" id="language" th:field="*{language}" required>
-                    <option value="">Sélectionner une langue</option>
-                    <option value="FRENCH">Français</option>
-                    <option value="ENGLISH">Anglais</option>
-                    <option value="SPANISH">Espagnol</option>
-                    <option value="ARABIC">Arabe</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="edition">Édition:</label>
-                <input type="text" class="form-control" id="edition" th:field="*{edition}">
-            </div>
-            
-            <div class="form-group">
-                <label for="quantity">Quantité:</label>
-                <input type="number" class="form-control" id="quantity" th:field="*{quantity}" required min="0">
-                <span th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label for="shelfLocation">Emplacement:</label>
-                <input type="text" class="form-control" id="shelfLocation" th:field="*{shelfLocation}" required>
-            </div>
-
-            <div class="form-group">
-                <label for="description">Description:</label>
-                <textarea class="form-control" id="description" th:field="*{description}" rows="3"></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="purchasePrice">Prix d'achat:</label>
-                <input type="number" step="0.01" class="form-control" id="purchasePrice" th:field="*{purchasePrice}" required>
-            </div>
-
-            <div class="form-group">
-                <label for="replacementCost">Coût de remplacement:</label>
-                <input type="number" step="0.01" class="form-control" id="replacementCost" th:field="*{replacementCost}" required>
-            </div>
-
-            <!-- Modification du champ image pour utiliser th:field -->
-            <div class="form-group">
-                <label for="imagePath">Nom de l'image:</label>
-                <input type="text" class="form-control" id="imagePath" th:field="*{imagePath}" 
-                       placeholder="exemple.jpg">
-                <small class="form-text text-muted">Entrez le nom de l'image située dans /static/images (ex: livre1.jpg)</small>
-                <span th:if="${#fields.hasErrors('imagePath')}" th:errors="*{imagePath}" class="text-danger"></span>
-            </div>
-            
-            <div class="button-group">
-                <button type="submit" class="btn btn-primary">Ajouter</button>
-                <a th:href="@{/librarian/books}" class="btn btn-secondary">Annuler</a>
-            </div>
-        </form>
+            <form th:action="@{/logout}" method="post" class="logout-form">
+                <button type="submit" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </form>
+        </div>
     </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Top Header -->
+        <div class="top-header">
+            <div class="header-left">
+                <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Ajouter un Livre</h1>
+            </div>
+                       
+            <div class="header-right">
+                <div class="search-container">
+                    <!-- Search functionality can be added here if needed -->
+                </div>
+                               
+                <div class="header-actions">
+                    <button class="action-btn notification-btn" id="notificationButton">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" th:if="${unreadNotifications > 0}" th:text="${unreadNotifications}"></span>
+                    </button>
+                    
+                    <!-- User Info Button -->
+                    <div class="user-info" id="userInfoButton">
+                        <img th:src="${user != null && user.profileImagePath != null && !user.profileImagePath.isEmpty()} ? ${user.profileImagePath} : '/images/default-librarian.png'"
+                             alt="Photo de profil"
+                             class="user-avatar">
+                        <span th:text="${#authentication.name}">Nom utilisateur</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Panel Ultra -->
+        <div th:replace="~{fragments/notification-panel-ultra :: notification-panel-ultra}"></div>
+
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <div class="welcome-content">
+                <h2>Ajouter un Nouveau Livre 📚</h2>
+                <p>Enrichissez votre collection en ajoutant de nouveaux ouvrages</p>
+            </div>
+            <div class="date-display">
+                <div class="current-date" id="currentDate"></div>
+                <div class="current-time" id="currentTime"></div>
+            </div>
+        </div>
+
+        <!-- Alert Messages -->
+        <div th:if="${error}" class="alert alert-error" style="position: relative; margin: 0 2rem 2rem; top: 0;">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span th:text="${error}"></span>
+        </div>
+
+        <div th:if="${success}" class="alert alert-success" style="position: relative; margin: 0 2rem 2rem; top: 0;">
+            <i class="fas fa-check-circle"></i>
+            <span th:text="${success}"></span>
+        </div>
+
+        <!-- Add Book Form -->
+        <div class="dashboard-grid" style="grid-template-columns: 1fr;">
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-plus-circle"></i> Informations du Livre</h3>
+                    <div class="card-actions">
+                        <button class="btn-icon" onclick="resetForm()">
+                            <i class="fas fa-refresh"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <form th:action="@{/librarian/books/add}" th:object="${book}" method="post" class="add-book-form">
+                        
+                        <!-- Basic Information Section -->
+                        <div class="form-section">
+                            <h4><i class="fas fa-info-circle"></i> Informations de base</h4>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="title"><i class="fas fa-heading"></i> Titre *</label>
+                                    <input type="text" class="form-control" id="title" th:field="*{title}" required 
+                                           placeholder="Entrez le titre du livre">
+                                    <span th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="error-message"></span>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="author"><i class="fas fa-user-edit"></i> Auteur *</label>
+                                    <input type="text" class="form-control" id="author" th:field="*{author}" required 
+                                           placeholder="Nom de l'auteur">
+                                    <span th:if="${#fields.hasErrors('author')}" th:errors="*{author}" class="error-message"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="category"><i class="fas fa-tags"></i> Catégorie *</label>
+                                    <select class="form-control" id="category" th:field="*{category}" required>
+                                        <option value="">Sélectionner une catégorie</option>
+                                        <option value="FICTION">📖 Fiction</option>
+                                        <option value="NON_FICTION">📚 Non-Fiction</option>
+                                        <option value="SCIENCE">🔬 Science</option>
+                                        <option value="TECHNOLOGY">💻 Technologie</option>
+                                        <option value="HISTORY">🏛️ Histoire</option>
+                                        <option value="LITERATURE">✍️ Littérature</option>
+                                    </select>
+                                    <span th:if="${#fields.hasErrors('category')}" th:errors="*{category}" class="error-message"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="language"><i class="fas fa-globe"></i> Langue *</label>
+                                    <select class="form-control" id="language" th:field="*{language}" required>
+                                        <option value="">Sélectionner une langue</option>
+                                        <option value="FRENCH">🇫🇷 Français</option>
+                                        <option value="ENGLISH">🇬🇧 Anglais</option>
+                                        <option value="SPANISH">🇪🇸 Espagnol</option>
+                                        <option value="ARABIC">🇸🇦 Arabe</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Publication Details Section -->
+                        <div class="form-section">
+                            <h4><i class="fas fa-book-open"></i> Détails de publication</h4>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="isbn"><i class="fas fa-barcode"></i> ISBN *</label>
+                                    <input type="text" class="form-control" id="isbn" th:field="*{isbn}" required 
+                                           placeholder="978-0-123456-78-9">
+                                    <span th:if="${#fields.hasErrors('isbn')}" th:errors="*{isbn}" class="error-message"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="publisher"><i class="fas fa-building"></i> Éditeur *</label>
+                                    <input type="text" class="form-control" id="publisher" th:field="*{publisher}" required 
+                                           placeholder="Nom de l'éditeur">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="publicationYear"><i class="fas fa-calendar-alt"></i> Année de publication *</label>
+                                    <input type="number" class="form-control" id="publicationYear" th:field="*{publicationYear}" 
+                                           required min="1000" max="2030" placeholder="2024">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="edition"><i class="fas fa-layer-group"></i> Édition</label>
+                                    <input type="text" class="form-control" id="edition" th:field="*{edition}" 
+                                           placeholder="1ère édition">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Inventory & Location Section -->
+                        <div class="form-section">
+                            <h4><i class="fas fa-warehouse"></i> Inventaire et localisation</h4>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="quantity"><i class="fas fa-sort-numeric-up"></i> Quantité *</label>
+                                    <input type="number" class="form-control" id="quantity" th:field="*{quantity}"
+                                           required min="0" placeholder="Nombre d'exemplaires">
+                                    <span th:if="${#fields.hasErrors('quantity')}" th:errors="*{quantity}" class="error-message"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="shelfLocation"><i class="fas fa-map-marker-alt"></i> Emplacement *</label>
+                                    <input type="text" class="form-control" id="shelfLocation" th:field="*{shelfLocation}"
+                                           required placeholder="Ex: A1-B2, Rayon Fiction">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="purchasePrice"><i class="fas fa-dollar-sign"></i> Prix d'achat *</label>
+                                    <input type="number" step="0.01" class="form-control" id="purchasePrice" th:field="*{purchasePrice}"
+                                           required min="0" placeholder="0.00">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="replacementCost"><i class="fas fa-exchange-alt"></i> Coût de remplacement *</label>
+                                    <input type="number" step="0.01" class="form-control" id="replacementCost" th:field="*{replacementCost}"
+                                           required min="0" placeholder="0.00">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Additional Information Section -->
+                        <div class="form-section">
+                            <h4><i class="fas fa-plus-square"></i> Informations supplémentaires</h4>
+                            <div class="form-grid">
+                                <div class="form-group full-width">
+                                    <label for="description"><i class="fas fa-align-left"></i> Description</label>
+                                    <textarea class="form-control" id="description" th:field="*{description}" rows="4"
+                                              placeholder="Description détaillée du livre..."></textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="imagePath"><i class="fas fa-image"></i> Image du livre</label>
+                                    <input type="text" class="form-control" id="imagePath" th:field="*{imagePath}"
+                                           placeholder="exemple.jpg">
+                                    <small class="form-help">Entrez le nom de l'image située dans /static/images</small>
+                                    <span th:if="${#fields.hasErrors('imagePath')}" th:errors="*{imagePath}" class="error-message"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Form Actions -->
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-plus-circle"></i>
+                                Ajouter le livre
+                            </button>
+                            <a th:href="@{/librarian/books}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i>
+                                Annuler
+                            </a>
+                            <button type="button" class="btn btn-outline" onclick="resetForm()">
+                                <i class="fas fa-undo"></i>
+                                Réinitialiser
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Dropdown -->
+    <div class="profile-dropdown" id="profileDropdown">
+        <div class="profile-header">
+            <img th:src="${user != null && user.profileImagePath != null && !user.profileImagePath.isEmpty()} ? ${user.profileImagePath} : '/images/default-librarian.png'"
+                 alt="Photo de profil"
+                 class="profile-avatar">
+            <div class="profile-name" th:text="${#authentication.name}">Nom utilisateur</div>
+            <div class="profile-role">Bibliothécaire</div>
+        </div>
+        
+        <div class="profile-info">
+            <div class="info-item">
+                <i class="fas fa-envelope"></i>
+                <span>email@example.com</span>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-id-card"></i>
+                <span>ID: 12345</span>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-user"></i>
+                <span th:text="${#authentication.name}">username</span>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-user-tag"></i>
+                <span>LIBRARIAN</span>
+            </div>
+        </div>
+        
+        <!-- QR Code Section -->
+        <div class="qr-code-section">
+            <div class="qr-header">
+                <i class="fas fa-qrcode"></i>
+                <span>Code QR Utilisateur</span>
+            </div>
+            <div class="qr-container" id="userQRCode"></div>
+            <div class="qr-info">
+                <small>Scannez pour accéder aux informations utilisateur</small>
+            </div>
+        </div>
+        
+        <div class="profile-actions">
+            <a href="/librarian/settings" class="profile-action-btn">
+                <i class="fas fa-cog"></i>
+                Paramètres
+            </a>
+            <form th:action="@{/logout}" method="post" style="margin: 0;">
+                <button type="submit" class="profile-action-btn logout" style="width: 100%; text-align: left;">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Déconnexion
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Overlays -->
+    <div class="profile-overlay" id="profileOverlay"></div>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- JavaScript -->
+    <script th:inline="javascript">
+        // Variables globales
+        let qrGenerated = false;
+
+        // FONCTION QR CODE
+        function generateUserQRCode() {
+            if (qrGenerated) return;
+            
+            const qrContainer = document.getElementById('userQRCode');
+            if (!qrContainer) return;
+            
+            // Clear any existing QR code
+            qrContainer.innerHTML = '';
+            
+            // Get user data from Thymeleaf
+            const userData = {
+                id: '12345',
+                name: /*[[${#authentication.name}]]*/ 'Nom utilisateur',
+                email: 'email@example.com',
+                username: /*[[${#authentication.name}]]*/ 'username',
+                userType: 'LIBRARIAN',
+                timestamp: new Date().toISOString()
+            };
+            
+            // Create QR code data
+            const qrData = JSON.stringify(userData);
+            
+            try {
+                // Check if QRCode is available
+                if (typeof QRCode === 'undefined') {
+                    console.error('QRCode library not loaded');
+                    qrContainer.innerHTML = '<div class="qr-error"><i class="fas fa-exclamation-triangle"></i><br>QR indisponible</div>';
+                    return;
+                }
+                
+                // Create a div element for QR code
+                const qrDiv = document.createElement('div');
+                qrDiv.style.display = 'inline-block';
+                qrDiv.style.borderRadius = '8px';
+                qrDiv.style.border = '2px solid #e5e7eb';
+                qrDiv.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                qrDiv.style.overflow = 'hidden';
+                
+                // Generate QR code using the correct constructor
+                const qrcode = new QRCode(qrDiv, {
+                    text: qrData,
+                    width: 120,
+                    height: 120,
+                    colorDark: '#1f2937',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+                
+                qrContainer.appendChild(qrDiv);
+                qrGenerated = true;
+                
+            } catch (error) {
+                console.error('Erreur QR code:', error);
+                qrContainer.innerHTML = '<div class="qr-error"><i class="fas fa-exclamation-triangle"></i><br>QR indisponible</div>';
+            }
+        }
+
+        // FONCTIONS DROPDOWN
+        function toggleProfileDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            const overlay = document.getElementById('profileOverlay');
+            
+            if (dropdown.classList.contains('show')) {
+                dropdown.classList.remove('show');
+                overlay.classList.remove('show');
+            } else {
+                dropdown.classList.add('show');
+                overlay.classList.add('show');
+                // Generate QR code when dropdown opens
+                setTimeout(generateUserQRCode, 100);
+            }
+        }
+
+        function closeProfileDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            const overlay = document.getElementById('profileOverlay');
+            dropdown.classList.remove('show');
+            overlay.classList.remove('show');
+        }
+
+        // SIDEBAR FUNCTIONS
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            if (sidebar && mainContent && overlay) {
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+                overlay.classList.toggle('active');
+            }
+        }
+
+        // DATE TIME FUNCTIONS
+        function updateDateTime() {
+            const now = new Date();
+            
+            const dateElement = document.getElementById('currentDate');
+            const timeElement = document.getElementById('currentTime');
+            
+            if (dateElement) {
+                dateElement.textContent = now.toLocaleDateString('fr-FR', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            }
+            
+            if (timeElement) {
+                timeElement.textContent = now.toLocaleTimeString('fr-FR', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+        }
+
+        // FORM FUNCTIONS
+        function resetForm() {
+            if (confirm('Êtes-vous sûr de vouloir réinitialiser le formulaire ?')) {
+                document.querySelector('.add-book-form').reset();
+                showNotification('Formulaire réinitialisé', 'info');
+            }
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type}`;
+            
+            let borderColor, textColor, iconClass;
+            switch(type) {
+                case 'success':
+                    borderColor = '#10b981';
+                    textColor = '#10b981';
+                    iconClass = 'fa-check-circle';
+                    break;
+                case 'error':
+                    borderColor = '#ef4444';
+                    textColor = '#ef4444';
+                    iconClass = 'fa-exclamation-triangle';
+                    break;
+                default:
+                    borderColor = '#3b82f6';
+                    textColor = '#3b82f6';
+                    iconClass = 'fa-info-circle';
+            }
+            
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                max-width: 350px;
+                padding: 1rem 1.5rem;
+                border-radius: 12px;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+                background: white;
+                border-left: 4px solid ${borderColor};
+                color: ${textColor};
+                font-weight: 500;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                animation: slideDown 0.3s ease-out;
+            `;
+            
+            notification.innerHTML = `
+                <i class="fas ${iconClass}"></i>
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideUp 0.3s ease-out forwards';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // EVENT LISTENERS
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mettre à jour la date/heure
+            updateDateTime();
+            setInterval(updateDateTime, 60000);
+
+            // Gestion du dropdown
+            const userInfoBtn = document.getElementById('userInfoButton');
+            const overlay = document.getElementById('profileOverlay');
+            
+            if (userInfoBtn) {
+                userInfoBtn.addEventListener('click', toggleProfileDropdown);
+            }
+            
+            if (overlay) {
+                overlay.addEventListener('click', closeProfileDropdown);
+            }
+            
+            // Initialize notification panel ultra
+            if (typeof NotificationPanelUltra !== 'undefined') {
+                const notificationPanel = new NotificationPanelUltra('notificationButton');
+                console.log('NotificationPanelUltra initialized for add-book page');
+            } else {
+                console.error('NotificationPanelUltra class not found');
+            }
+
+            // Fermer avec la touche Échap
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    closeProfileDropdown();
+                }
+            });
+
+            // Form validation
+            const form = document.querySelector('.add-book-form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const requiredFields = form.querySelectorAll('[required]');
+                    let isValid = true;
+                    
+                    requiredFields.forEach(field => {
+                        if (!field.value.trim()) {
+                            isValid = false;
+                            field.classList.add('error');
+                        } else {
+                            field.classList.remove('error');
+                        }
+                    });
+                    
+                    if (!isValid) {
+                        e.preventDefault();
+                        showNotification('Veuillez remplir tous les champs obligatoires', 'error');
+                    }
+                });
+            }
+        });
+
+        // PROFILE IMAGE LOADING
+        function ensureProfileImagesLoad() {
+            const profileImages = document.querySelectorAll('.profile-avatar, .user-avatar');
+            
+            profileImages.forEach(img => {
+                // Handle image load error - fallback to default image
+                img.onerror = function() {
+                    console.log('Profile image failed to load, using default fallback');
+                    this.src = '/images/default-librarian.png';
+                };
+            });
+        }
+
+        // Call profile image function
+        ensureProfileImagesLoad();
+
+        // Fermer sidebar en cliquant sur l'overlay
+        document.getElementById('sidebarOverlay').addEventListener('click', function() {
+            toggleSidebar();
+        });
+
+        console.log('Add book page initialized');
+    </script>
+
+    <style>
+        /* Additional styles for add-book page */
+        
+        /* QR Code Styles */
+        .qr-code-section {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+
+        .qr-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+
+        .qr-header i {
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        .qr-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .qr-info {
+            color: var(--gray-500);
+            font-size: 0.75rem;
+        }
+
+        .qr-error {
+            padding: 1rem;
+            color: var(--gray-400);
+            font-size: 0.75rem;
+            text-align: center;
+        }
+
+        .qr-error i {
+            display: block;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Form Styles */
+        .add-book-form {
+            max-width: 100%;
+        }
+
+        .form-section {
+            margin-bottom: 2.5rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #fefefe 0%, #f8fafc 100%);
+            border-radius: 12px;
+            border: 1px solid var(--gray-200);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-section h4 {
+            margin: 0 0 1.5rem 0;
+            color: var(--gray-800);
+            font-weight: 700;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .form-section h4 i {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: var(--gray-700);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group label i {
+            color: var(--primary-color);
+            width: 16px;
+            text-align: center;
+        }
+
+        .form-control {
+            padding: 0.875rem 1rem;
+            border: 2px solid var(--gray-200);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            background: var(--white);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .form-control.error {
+            border-color: var(--danger-color);
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+
+        .form-control::placeholder {
+            color: var(--gray-400);
+            font-style: italic;
+        }
+
+        .form-help {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            font-style: italic;
+        }
+
+        .error-message {
+            color: var(--danger-color);
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .error-message::before {
+            content: "⚠️";
+            font-size: 0.875rem;
+        }
+
+        /* Form Actions */
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 12px;
+            border: 1px solid var(--gray-200);
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 0.875rem 1.5rem;
+            border-radius: 8px;
+            border: 2px solid;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            text-align: center;
+            min-width: 140px;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #1d4ed8 100%);
+            color: var(--white);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--white);
+            color: var(--gray-700);
+            border-color: var(--gray-300);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gray-50);
+            border-color: var(--gray-400);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--gray-600);
+            border-color: var(--gray-300);
+        }
+
+        .btn-outline:hover {
+            background: var(--gray-50);
+            color: var(--gray-700);
+            border-color: var(--gray-400);
+        }
+
+        /* Alert Styles */
+        .alert {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            border-left: 4px solid;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+            border-left-color: var(--success-color);
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+            border-left-color: var(--danger-color);
+        }
+
+        /* Animations */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
 </body>
 </html>

@@ -1,3 +1,4 @@
+@import url('../fonts/poppins.css');
 /* Variables */
 :root {
     --primary-color: #007bff;
@@ -19,7 +20,7 @@
 }
 
 body {
-    font-family: 'Arial', sans-serif;
+    font-family: 'Poppins', sans-serif;
     background-color: #f4f6f9;
     color: #333;
 }
@@ -206,3 +207,4 @@ input, select, textarea {
     display: flex;
     align-items: center;
 }
+

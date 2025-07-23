@@ -1,251 +1,808 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
+<head th:fragment="common-scripts">
     <title>Tableau de bord - Bibliothécaire</title>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
     <link rel="stylesheet" th:href="@{/css/dashboards.css}" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script th:src="@{/js/dashboard.js}"></script>
-    <!-- Ajout de la bibliothèque QR Code -->
+    <link rel="stylesheet" href="/fontawesome/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Product+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <script th:src="@{/js/notification-panel-ultra.js}"></script>
+    <link rel="stylesheet" th:href="@{/css/notification-panel-ultra.css}">
+    <style>
+        /* Styles ajoutés pour le dropdown */
+        .profile-dropdown {
+            display: none;
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            width: 300px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            z-index: 1001;
+            overflow: hidden;
+        }
+
+        .profile-dropdown.show {
+            display: block;
+        }
+
+        .profile-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .profile-overlay.show {
+            display: block;
+        }
+    </style>
 </head>
 <body>
-    <!-- Ajout de la sidebar -->
-    <div class="profile-sidebar" id="profileSidebar">
-        <div class="sidebar-content">
-            <div class="sidebar-header">
-                <h2>Profil</h2>
-                <button class="close-sidebar" onclick="toggleSidebar()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="profile-details">
-                <div class="profile-image-large">
-                    <img th:if="${user != null and user.profileImagePath != null}" 
-                         th:src="${user.profileImagePath}"
-                         onerror="this.src='/images/default-librarian.png'"
-                         alt="Photo de profil">
-                    <img th:unless="${user != null and user.profileImagePath != null}" 
-                         src="/images/default-librarian.png"
-                         alt="Photo de profil par défaut">
-                </div>
-                <div class="profile-info">
-                    <h3 th:text="${user.name}">Nom complet</h3>
-                    <p><i class="fas fa-user"></i> <span th:text="${user.username}">Username</span></p>
-                    <p><i class="fas fa-envelope"></i> <span th:text="${user.email}">Email</span></p>
-                    <p><i class="fas fa-id-badge"></i> <span th:text="${user.employeeId}">ID Employé</span></p>
-                    <p><i class="fas fa-user-tag"></i> Bibliothécaire</p>
-                </div>
-                <div class="qr-code">
-                    <div id="qrcode"></div>
-                    <p>Scanner pour voir le profil</p>
-                </div>
-            </div>
+    <!-- Sidebar Navigation -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="/librarian/dashboard" class="logo">
+                <img src="/images/Logobnk.png" alt="Logobnk" />
+            </a>
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
         </div>
-    </div>
-
-    <div class="nav-header">
-        <div class="user-info">
-            <div class="header-actions">
-                <a th:href="@{/home}" class="btn-home">
+               
+        <div class="sidebar-menu">
+            <div class="menu-section">
+                <h3>Principal</h3>
+                <a href="/librarian/dashboard" class="menu-item active">
                     <i class="fas fa-home"></i>
-                    <span>Accueil</span>
+                    <span>Tableau de bord</span>
+                </a>
+                <a href="/librarian/books" class="menu-item">
+                    <i class="fas fa-book"></i>
+                    <span>Livres</span>
+                    <span class="notification-badge" th:if="${newBooksCount != null && newBooksCount > 0}" th:text="${newBooksCount}"></span>
+                </a>
+                <a href="/librarian/members" class="menu-item">
+                    <i class="fas fa-users"></i>
+                    <span>Membres</span>
+                    <span class="notification-badge" th:if="${newMembersCount != null && newMembersCount > 0}" th:text="${newMembersCount}"></span>
+                </a>
+                <a href="/librarian/borrows-books" class="menu-item">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Emprunts</span>
+                    <span class="notification-badge" th:if="${pendingBorrowsCount != null && pendingBorrowsCount > 0}" th:text="${pendingBorrowsCount}"></span>
                 </a>
             </div>
-            <div class="profile-image-container" onclick="toggleSidebar()">
-                <img th:if="${user != null and user.profileImagePath != null}" 
+                       
+            <div class="menu-section">
+                <h3>Gestion</h3>
+                <a href="/librarian/books/add" class="menu-item">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Ajouter livre</span>
+                </a>
+                <a href="/librarian/books/update-total-borrows" class="menu-item">
+                    <i class="fas fa-sync-alt"></i>
+                    <span>Mettre à jour emprunts</span>
+                </a>
+                <a href="/librarian/reports" class="menu-item">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Rapports</span>
+                </a>
+                <a href="/librarian/settings" class="menu-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Paramètres</span>
+                </a>
+            </div>
+        </div>
+               
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <img th:if="${user != null and user.profileImagePath != null}"
                      th:src="${user.profileImagePath}"
-                     class="profile-image"
+                     class="profile-avatar"
                      onerror="this.src='/images/default-librarian.png'"
                      alt="Photo de profil">
-                <img th:unless="${user != null and user.profileImagePath != null}" 
+                <img th:unless="${user != null and user.profileImagePath != null}"
                      src="/images/default-librarian.png"
-                     class="profile-image"
+                     class="profile-avatar"
                      alt="Photo de profil par défaut">
+                <div class="user-info">
+                    <div class="user-name" th:text="${user.name}">Nom utilisateur</div>
+                    <div class="user-role">Bibliothécaire</div>
+                </div>
             </div>
-            <span class="username" th:text="${#authentication.name}">Username</span>
             <form th:action="@{/logout}" method="post" class="logout-form">
-                <button type="submit" class="logout-btn">Déconnexion</button>
+                <button type="submit" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
             </form>
         </div>
     </div>
-    <div class="container">
-        <h1>Tableau de bord Bibliothécaire</h1>
-        
-        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
-        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
-        <!-- Statistiques -->
-        <div class="stats-container">
-            <div class="stat-box">
-                <i class="fas fa-books"></i>
-                <h3>Total des livres</h3>
-                <p th:text="${totalBooks}">0</p>
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Top Header -->
+        <div class="top-header">
+            <div class="header-left">
+                <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Tableau de bord</h1>
             </div>
-            <div class="stat-box">
-                <i class="fas fa-book-reader"></i>
-                <h3>Livres empruntés</h3>
-                <p th:text="${borrowedBooks}">0</p>
-            </div>
-            <div class="stat-box">
-                <i class="fas fa-exclamation-circle"></i>
-                <h3>Livres en retard</h3>
-                <p th:text="${overdueBooks}">0</p>
-            </div>
-        </div>
-
-        <!-- Menu Actions -->
-        <div class="actions-menu">
-            <a th:href="@{/librarian/books}" class="btn btn-primary">
-                <i class="fas fa-list"></i>
-                Liste des livres
-            </a>
-            <a th:href="@{/librarian/books/add}" class="btn btn-success">
-                <i class="fas fa-plus"></i>
-                Ajouter un livre
-            </a>
-            <a th:href="@{/librarian/borrows-books}" class="btn btn-info">
-                <i class="fas fa-history"></i>
-                Historique des emprunts
-            </a>
-        </div>
-    </div>
-
-    <div class="stats-container">
-    <div class="stat-box">
-        <i class="fas fa-books"></i>
-        <h3>Total des livres</h3>
-        <p th:text="${totalBooks}">0</p>
-    </div>
-</div>
-<!-- Nouvelles Sections Dashboard -->
-<div class="dashboard-grid">
-    <!-- Section Statistiques Journalières -->
-    <div class="dashboard-card">
-        <div class="card-header">
-            <h3><i class="fas fa-chart-line"></i> Statistiques du Jour</h3>
-        </div>
-        <div class="card-content">
-            <div class="daily-stats">
-                <div class="stat-item">
-                    <i class="fas fa-book-reader"></i>
-                    <div class="stat-details">
-                        <span class="stat-label">Emprunts</span>
-                        <span class="stat-value" th:text="${todayStats.emprunts}">0</span>
-                    </div>
+                       
+            <div class="header-right">
+                <div class="search-container">
+                    
                 </div>
-                <div class="stat-item">
-                    <i class="fas fa-undo"></i>
-                    <div class="stat-details">
-                        <span class="stat-label">Retours</span>
-                        <span class="stat-value" th:text="${todayStats.retours}">0</span>
+                               
+                <div class="header-actions">
+                    <button class="action-btn notification-btn" id="notificationButton">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" th:if="${unreadNotifications > 0}" th:text="${unreadNotifications}"></span>
+                    </button>
+                    
+                    <!-- User Info Button -->
+                    <div class="user-info" id="userInfoButton">
+                        <img th:if="${user != null and user.profileImagePath != null}"
+                             th:src="${user.profileImagePath}"
+                             onerror="this.src='/images/default-librarian.png'"
+                             alt="Photo de profil"
+                             class="user-avatar">
+                        <img th:unless="${user != null and user.profileImagePath != null}"
+                             src="/images/default-librarian.png"
+                             alt="Photo de profil par défaut"
+                             class="user-avatar">
+                        <span th:text="${user.name}">Nom utilisateur</span>
+                        <i class="fas fa-chevron-down"></i>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Section Livres Populaires -->
-    <div class="dashboard-card">
-        <div class="card-header">
-            <h3><i class="fas fa-star"></i> Livres Populaires</h3>
-        </div>
-        <div class="card-content">
-            <div class="popular-books">
-                <div th:each="book : ${popularBooks}" class="book-item">
-                    <img th:src="${book.imagePath}" alt="Couverture du livre" class="book-cover">
-                    <div class="book-info">
-                        <h4 th:text="${book.title}">Titre du livre</h4>
-                        <p th:text="${book.author}">Auteur</p>
-                        <span class="borrow-count">
-                            <i class="fas fa-users"></i>
-                            <span th:text="${book.borrowCount}">0</span> emprunts
-                        </span>
-                    </div>
-                </div>
+        <!-- Notification Panel Ultra -->
+        <div th:replace="~{fragments/notification-panel-ultra :: notification-panel-ultra}"></div>
+
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <div class="welcome-content">
+                <h2>Bonjour, <span th:text="${user.name}">Bibliothécaire</span> 👋</h2>
+                <p>Voici un aperçu de votre bibliothèque aujourd'hui</p>
+            </div>
+            <div class="date-display">
+                <div class="current-date" id="currentDate"></div>
+                <div class="current-time" id="currentTime"></div>
             </div>
         </div>
-    </div>
 
-    <!-- Section Actions Rapides -->
-    <div class="dashboard-card">
-        <div class="card-header">
-            <h3><i class="fas fa-bolt"></i> Actions Rapides</h3>
-        </div>
-        <div class="card-content">
-            <div class="quick-actions">
-                <a th:href="@{/librarian/books/add}" class="action-button">
-                    <i class="fas fa-plus-circle"></i>
-                    Ajouter un livre
-                </a>
-                <a th:href="@{/librarian/books}" class="action-button">
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card primary">
+                <div class="stat-icon">
                     <i class="fas fa-book"></i>
-                    Gérer les livres
-                </a>
-                <a th:href="@{/librarian/members}" class="action-button">
-    <i class="fas fa-users"></i>
-    Gérer les membres
-</a>
-                <a th:href="@{/librarian/reports}" class="action-button">
-                    <i class="fas fa-chart-bar"></i>
-                    Rapports
-                </a>
+                </div>
+                <div class="stat-info">
+                    <h3>Total des livres</h3>
+                    <div class="stat-number" th:text="${totalBooks}">0</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>Collection complète</span>
+                    </div>
+                </div>
             </div>
+                       
+            <div class="stat-card success">
+                <div class="stat-icon">
+                    <i class="fas fa-book-reader"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Livres empruntés</h3>
+                    <div class="stat-number" th:text="${borrowedBooks}">0</div>
+                    <div class="stat-change neutral">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span>En circulation</span>
+                    </div>
+                </div>
+            </div>
+                       
+            <div class="stat-card warning">
+                <div class="stat-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Livres en retard</h3>
+                    <div class="stat-number" th:text="${overdueBooks}">0</div>
+                    <div class="stat-change" th:class="${overdueBooks > 0} ? 'negative' : 'positive'">
+                        <i th:class="${overdueBooks > 0} ? 'fas fa-exclamation' : 'fas fa-check'"></i>
+                        <span th:text="${overdueBooks > 0} ? 'Attention requise' : 'Parfait'">Parfait</span>
+                    </div>
+                </div>
+            </div>
+                       
+            <div class="stat-card info">
+                <div class="stat-icon">
+                    <i class="fas fa-calendar-day"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Activité du jour</h3>
+                    <div class="stat-number" th:text="${todayStats.emprunts + todayStats.retours}">0</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-chart-line"></i>
+                        <span th:text="'Emprunts: ' + ${todayStats.emprunts} + ' | Retours: ' + ${todayStats.retours}">Aujourd'hui</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Borrowing Chart -->
+            <div class="dashboard-card chart-card">
+                <div class="card-header">
+                    <h3>Emprunts des 7 derniers jours</h3>
+                    <div class="card-actions">
+                        <button class="btn-icon" onclick="refreshBorrowingChart()">
+                            <i class="fas fa-refresh"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="chart-container">
+                        <canvas id="borrowingChart"></canvas>
+                    </div>
+                    <div class="chart-stats">
+                        <div class="chart-stat">
+                            <span class="stat-label">Aujourd'hui</span>
+                            <span class="stat-value" th:text="${todayStats.emprunts}">0</span>
+                        </div>
+                        <div class="chart-stat">
+                            <span class="stat-label">Cette semaine</span>
+                            <span class="stat-value" id="weekTotal">0</span>
+                        </div>
+                        <div class="chart-stat">
+                            <span class="stat-label">Moyenne/jour</span>
+                            <span class="stat-value" id="dailyAverage">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categories Chart -->
+            <div class="dashboard-card chart-card">
+                <div class="card-header">
+                    <h3>Top 5 des catégories</h3>
+                    <a href="/librarian/books" class="view-all-link">Voir tout</a>
+                </div>
+                <div class="card-content">
+                    <div class="chart-container">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Types Chart -->
+            <div class="dashboard-card chart-card">
+                <div class="card-header">
+                    <h3>Répartition des utilisateurs</h3>
+                    <a href="/librarian/members" class="view-all-link">Gérer</a>
+                </div>
+                <div class="card-content">
+                    <div class="chart-container">
+                        <canvas id="userTypeChart"></canvas>
+                    </div>
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #3b82f6;"></div>
+                            <span>Étudiants</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #10b981;"></div>
+                            <span>Personnel</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background-color: #f59e0b;"></div>
+                            <span>Bibliothécaires</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Popular Books -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3>Livres populaires</h3>
+                    <a href="/librarian/books" class="view-all-link">Voir tout</a>
+                </div>
+                <div class="card-content">
+                    <div class="books-list">
+                        <div class="book-item" th:each="book, iterStat : ${popularBooks}" th:if="${popularBooks != null and iterStat.index < 5}">
+                            <img th:src="${book.imagePath != null ? book.imagePath : '/images/default-book.jpg'}"
+                                 th:alt="${book.title}"
+                                 class="book-cover"
+                                 onerror="this.src='/images/default-book.jpg'">
+                            <div class="book-info">
+                                <h4 th:text="${book.title}">Titre du livre</h4>
+                                <p th:text="${book.author}">Auteur</p>
+                                <div class="book-stats">
+                                    <span class="borrow-count">
+                                        <i class="fas fa-heart"></i>
+                                        <span th:text="${book.borrowCount ?: 0}">0</span>
+                                    </span>
+                                    <span class="book-category" th:text="${book.category}">Catégorie</span>
+                                </div>
+                            </div>
+                        </div>
+                                               
+                        <!-- Message si pas de livres populaires -->
+                        <div th:if="${popularBooks == null or popularBooks.isEmpty()}" class="no-data">
+                            <i class="fas fa-book-open"></i>
+                            <p>Aucun livre populaire pour le moment</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3>Actions rapides</h3>
+                </div>
+                <div class="card-content">
+                    <div class="quick-actions">
+                        <a href="/librarian/books/add" class="quick-action-btn primary">
+                            <i class="fas fa-plus"></i>
+                            <span>Ajouter un livre</span>
+                        </a>
+                                                
+                        <a href="/librarian/members" class="quick-action-btn success">
+                            <i class="fas fa-users"></i>
+                            <span>Gérer les membres</span>
+                        </a>
+                                                
+                        <a href="/librarian/borrows-books" class="quick-action-btn info">
+                            <i class="fas fa-history"></i>
+                            <span>Voir les emprunts</span>
+                        </a>
+                                    
+                        <a href="/librarian/reports" class="quick-action-btn warning">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Générer rapport</span>
+                        </a>
+                        
+                        <a href="/payments/form" class="quick-action-btn danger">
+                            <i class="fas fa-money-bill-wave"></i>
+                            <span>Payer une amende</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h3>Activité récente</h3>
+                    <a href="/librarian/borrows-books" class="view-all-link">Voir tout</a>
+                </div>
+                <div class="card-content">
+                    <div class="activity-list">
+                        <div class="activity-item" th:each="activity, iterStat : ${recentActivities}" th:if="${recentActivities != null and iterStat.index < 5}">
+                            <div class="activity-icon">
+                                <i th:class="${activity.type == 'RETOURNÉ'} ? 'fas fa-undo' : 'fas fa-book-reader'"></i>
+                            </div>
+                            <div class="activity-info">
+                                <p th:text="${activity.description}">Description de l'activité</p>
+                                <span class="activity-time" th:text="${activity.timestamp}">Date</span>
+                            </div>
+                        </div>
+
+                        <!-- Message si pas d'activité récente -->
+                        <div th:if="${recentActivities == null or recentActivities.isEmpty()}" class="no-data">
+                            <i class="fas fa-clock"></i>
+                            <p>Aucune activité récente</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+           
+
+    <!-- Profile Dropdown -->
+    <div class="profile-dropdown" id="profileDropdown">
+        <div class="profile-header">
+            <img th:if="${user != null and user.profileImagePath != null}"
+                 th:src="${user.profileImagePath}"
+                 onerror="this.src='/images/default-librarian.png'"
+                 alt="Photo de profil"
+                 class="profile-avatar">
+            <img th:unless="${user != null and user.profileImagePath != null}"
+                 src="/images/default-librarian.png"
+                 alt="Photo de profil par défaut"
+                 class="profile-avatar">
+            <div class="profile-name" th:text="${user.name}">Nom utilisateur</div>
+            <div class="profile-role">Bibliothécaire</div>
+        </div>
+        
+        <div class="profile-info">
+            <div class="info-item">
+                <i class="fas fa-envelope"></i>
+                <span th:text="${user.email}">email@example.com</span>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-id-card"></i>
+                <span>ID: <span th:text="${user.id}">12345</span></span>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-user"></i>
+                <span th:text="${user.username}">username</span>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-user-tag"></i>
+                <span th:text="${user.userType}">Type utilisateur</span>
+            </div>
+        </div>
+        
+        <div class="qr-section">
+            <div class="qr-title">
+                <i class="fas fa-qrcode"></i>
+                Mon QR Code
+            </div>
+            <div class="qr-code" id="qrcode"></div>
+        </div>
+        
+            <a href="/librarian/settings" class="profile-action-btn">
+                <i class="fas fa-cog"></i>
+                Paramètres
+            </a>
+            <form th:action="@{/logout}" method="post" style="margin: 0;">
+                <button type="submit" class="profile-action-btn logout" style="width: 100%; text-align: left;">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Déconnexion
+                </button>
+            </form>
         </div>
     </div>
 
-    <!-- Section Notifications -->
-    <div class="dashboard-card">
-        <div class="card-header">
-            <h3><i class="fas fa-bell"></i> Notifications</h3>
-        </div>
-        <div class="card-content">
-            <div class="notifications-list">
-                <div class="notification-item">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <div class="notification-content">
-                        <p>5 livres sont en retard</p>
-                        <small>Il y a 2 heures</small>
-                    </div>
-                </div>
-                <!-- Autres notifications... -->
-            </div>
-        </div>
-    </div>
-</div>
+    <!-- Overlays -->
+    <div class="profile-overlay" id="profileOverlay"></div>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- JavaScript -->
     <script th:inline="javascript">
-        // Données de l'utilisateur pour le QR Code
-        const userData = {
-            name: [[${user.name}]],
-            username: [[${user.username}]],
-            email: [[${user.email}]],
-            employeeId: [[${user.employeeId}]],
-            role: 'Bibliothécaire'
+        // Variables globales
+        let borrowingChart, categoryChart, userTypeChart;
+        let qrCodeGenerated = false;
+        // Using the global toggleNotificationPanel function from notifications.js
+        // Données du dashboard depuis le contrôleur
+        const dashboardData = {
+            totalBooks: /*[[${totalBooks}]]*/ 0,
+            borrowedBooks: /*[[${borrowedBooks}]]*/ 0,
+            overdueBooks: /*[[${overdueBooks}]]*/ 0,
+            todayBorrows: /*[[${todayStats.emprunts}]]*/ 0,
+            todayReturns: /*[[${todayStats.retours}]]*/ 0,
+            weeklyBorrows: /*[[${weeklyBorrows}]]*/ [0, 0, 0, 0, 0, 0, 0],
+            bookCategories: /*[[${bookCategories}]]*/ ['Fiction', 'Science', 'Histoire', 'Art', 'Technologie'],
+            categoryCounts: /*[[${categoryCounts}]]*/ [10, 8, 6, 4, 3],
+            userTypeStats: /*[[${userTypeStats}]]*/ [15, 8, 3]
         };
 
-        // Générer le QR Code
-        function generateQRCode() {
-            const qrcode = new QRCode(document.getElementById("qrcode"), {
-                text: JSON.stringify(userData),
-                width: 128,
-                height: 128,
-                colorDark : "#000000",
-                colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.H
+        // FONCTIONS DROPDOWN CORRIGÉES
+        let qrGenerated = false;
+
+        function toggleProfileDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            const overlay = document.getElementById('profileOverlay');
+            
+            if (dropdown.classList.contains('show')) {
+                dropdown.classList.remove('show');
+                overlay.classList.remove('show');
+            } else {
+                dropdown.classList.add('show');
+                overlay.classList.add('show');
+                
+                if (!qrGenerated) {
+                    generateQR();
+                }
+            }
+        }
+
+        function closeProfileDropdown() {
+            const dropdown = document.getElementById('profileDropdown');
+            const overlay = document.getElementById('profileOverlay');
+            dropdown.classList.remove('show');
+            overlay.classList.remove('show');
+        }
+
+        function generateQR() {
+            const qrDiv = document.getElementById('qrcode');
+            if (qrDiv && typeof QRCode !== 'undefined') {
+                const userData = {
+                    name: '[[${user.name}]]',
+                    email: '[[${user.email}]]',
+                    id: '[[${user.id}]]'
+                };
+                
+                new QRCode(qrDiv, {
+                    text: JSON.stringify(userData),
+                    width: 120,
+                    height: 120
+                });
+                qrGenerated = true;
+            }
+        }
+
+        // SIDEBAR FUNCTIONS
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            if (sidebar && mainContent && overlay) {
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+                overlay.classList.toggle('active');
+            }
+        }
+
+        // DATE TIME FUNCTIONS
+        function updateDateTime() {
+            const now = new Date();
+            
+            const dateElement = document.getElementById('currentDate');
+            const timeElement = document.getElementById('currentTime');
+            
+            if (dateElement) {
+                dateElement.textContent = now.toLocaleDateString('fr-FR', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            }
+            
+            if (timeElement) {
+                timeElement.textContent = now.toLocaleTimeString('fr-FR', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
+        }
+
+        // CHART FUNCTIONS
+        function initBorrowingChart() {
+            const ctx = document.getElementById('borrowingChart');
+            if (!ctx) return;
+
+            let weeklyData;
+            try {
+                weeklyData = typeof dashboardData.weeklyBorrows === 'string' 
+                    ? JSON.parse(dashboardData.weeklyBorrows) 
+                    : dashboardData.weeklyBorrows;
+            } catch (e) {
+                                weeklyData = [0, 0, 0, 0, 0, 0, 0];
+            }
+
+            const labels = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+            
+            borrowingChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Emprunts',
+                        data: weeklyData,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#3b82f6',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1,
+                                color: '#6b7280'
+                            },
+                            grid: {
+                                color: '#f3f4f6'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#6b7280'
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Calculer les statistiques
+            const weekTotal = weeklyData.reduce((a, b) => a + b, 0);
+            const dailyAverage = (weekTotal / 7).toFixed(1);
+            
+            document.getElementById('weekTotal').textContent = weekTotal;
+            document.getElementById('dailyAverage').textContent = dailyAverage;
+        }
+
+        function initCategoryChart() {
+            const ctx = document.getElementById('categoryChart');
+            if (!ctx) return;
+
+            let categories, counts;
+            try {
+                categories = typeof dashboardData.bookCategories === 'string' 
+                    ? JSON.parse(dashboardData.bookCategories) 
+                    : dashboardData.bookCategories;
+                counts = typeof dashboardData.categoryCounts === 'string' 
+                    ? JSON.parse(dashboardData.categoryCounts) 
+                    : dashboardData.categoryCounts;
+            } catch (e) {
+                categories = ['Fiction', 'Science', 'Histoire', 'Art', 'Technologie'];
+                counts = [10, 8, 6, 4, 3];
+            }
+
+            categoryChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: categories.slice(0, 5),
+                    datasets: [{
+                        data: counts.slice(0, 5),
+                        backgroundColor: [
+                            '#3b82f6',
+                            '#10b981',
+                            '#f59e0b',
+                            '#ef4444',
+                            '#8b5cf6'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        }
+                    }
+                }
             });
         }
 
-        // Toggle sidebar
-        function toggleSidebar() {
-            const sidebar = document.getElementById('profileSidebar');
-            sidebar.classList.toggle('active');
-            
-            // Générer le QR Code seulement quand la sidebar est ouverte
-            if(sidebar.classList.contains('active')) {
-                document.getElementById('qrcode').innerHTML = '';
-                generateQRCode();
+        function initUserTypeChart() {
+            const ctx = document.getElementById('userTypeChart');
+            if (!ctx) return;
+
+            let userStats;
+            try {
+                userStats = typeof dashboardData.userTypeStats === 'string' 
+                    ? JSON.parse(dashboardData.userTypeStats) 
+                    : dashboardData.userTypeStats;
+            } catch (e) {
+                userStats = [15, 8, 3];
+            }
+
+            userTypeChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Étudiants', 'Personnel', 'Bibliothécaires'],
+                    datasets: [{
+                        data: userStats,
+                        backgroundColor: [
+                            '#3b82f6',
+                            '#10b981',
+                            '#f59e0b'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        function refreshBorrowingChart() {
+            if (borrowingChart) {
+                borrowingChart.destroy();
+                initBorrowingChart();
             }
         }
+
+        // EVENT LISTENERS
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mettre à jour la date/heure
+            updateDateTime();
+            setInterval(updateDateTime, 60000);
+
+            // Initialiser les graphiques
+            setTimeout(() => {
+                initBorrowingChart();
+                initCategoryChart();
+                initUserTypeChart();
+            }, 500);
+
+            // Gestion du dropdown
+            const userInfoBtn = document.getElementById('userInfoButton');
+            const overlay = document.getElementById('profileOverlay');
+            
+            if (userInfoBtn) {
+                userInfoBtn.addEventListener('click', toggleProfileDropdown);
+            }
+            
+            if (overlay) {
+                overlay.addEventListener('click', closeProfileDropdown);
+            }
+            
+            // Initialize notification panel ultra
+            if (typeof NotificationPanelUltra !== 'undefined') {
+                const notificationPanel = new NotificationPanelUltra('notificationButton');
+                console.log('NotificationPanelUltra initialized for librarian dashboard');
+            } else {
+                console.error('NotificationPanelUltra class not found');
+            }
+
+            // Fermer avec la touche Échap
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    closeProfileDropdown();
+                }
+            });
+        });
+// Fermer sidebar en cliquant sur l'overlay
+document.getElementById('sidebarOverlay').addEventListener('click', function() {
+    toggleSidebar();
+});
+
+
+        // Style pour la nouvelle carte des étudiants avec abonnement
+        document.addEventListener('DOMContentLoaded', function() {
+            const studentItems = document.querySelectorAll('.student-item');
+            
+            studentItems.forEach(item => {
+                // Ajouter des styles dynamiques si nécessaire
+            });
+        });
         
+        console.log('Dashboard initialized with data:', dashboardData);
     </script>
+    
+    <!-- notifications.js script is already loaded in the head section -->
 </body>
 </html>

@@ -16,8 +16,12 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Data
+@EqualsAndHashCode(exclude = {"book", "user"})
+@ToString(exclude = {"book", "user"})
 @Entity
 @Table(name = "reservations")
 public class Reservation {
@@ -49,6 +53,16 @@ private User user;
 
     @Column(name = "last_notification_date")
     private LocalDateTime lastNotificationDate;
+    
+    // Fields for notification tracking
+    @Column(name = "expired")
+    private boolean expired = false;
+    
+    @Column(name = "processed")
+    private boolean processed = false;
+    
+    @Column(name = "notified")
+    private boolean notified = false;
 
     // Constructeur
     public Reservation() {
@@ -74,7 +88,11 @@ private User user;
     }
 
     public boolean isExpired() {
-        return LocalDateTime.now().isAfter(this.expirationDate);
+        return expired || LocalDateTime.now().isAfter(this.expirationDate);
+    }
+    
+    public void setExpired(boolean expired) {
+        this.expired = expired;
     }
 
     // Méthodes de validation
@@ -97,6 +115,23 @@ private User user;
             this.lastNotificationDate = LocalDateTime.now();
             this.notificationSent = true;
         }
+    }
+
+    // Getters and setters for notification tracking fields
+    public boolean isProcessed() {
+        return processed;
+    }
+    
+    public void setProcessed(boolean processed) {
+        this.processed = processed;
+    }
+    
+    public boolean isNotified() {
+        return notified;
+    }
+    
+    public void setNotified(boolean notified) {
+        this.notified = notified;
     }
 
     public void setStatus(String string) {

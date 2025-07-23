@@ -1,0 +1,179 @@
+/* Basic notification panel styles */
+.notification-panel, #notificationPanel {
+    position: relative;
+    display: inline-block;
+}
+
+/* Notification badge styles */
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #e41e3f;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 11px;
+    min-width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    border: 2px solid white;
+}
+
+/* Notification button styles */
+.notification-btn {
+    cursor: pointer;
+    position: relative;
+}
+
+/* Notification item styles */
+.notification-item {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: flex-start;
+    transition: background-color 0.2s;
+    cursor: pointer;
+}
+
+.notification-item:hover {
+    background-color: #f5f5f5;
+}
+
+.notification-item.unread {
+    background-color: #f0f7ff;
+}
+
+/* Notification icon styles */
+.notification-icon-type {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #e4e6eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+/* Notification content styles */
+.notification-content {
+    flex: 1;
+}
+
+.notification-item .message {
+    font-size: 14px;
+    color: #1c1e21;
+    margin-bottom: 4px;
+    line-height: 1.4;
+}
+
+.notification-item .timestamp {
+    font-size: 12px;
+    color: #65676b;
+}
+
+/* Mark as read button styles */
+.mark-read-btn {
+    background: #1877f2;
+    border: none;
+    color: white;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 8px 14px;
+    border-radius: 20px;
+    margin-left: 8px;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.mark-read-btn:hover {
+    background: #166fe5;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+}
+
+.mark-read-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.4);
+}
+
+.mark-read-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Mark all read button styles */
+.mark-all-read {
+    background: none;
+    border: none;
+    color: #1877f2;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+
+.mark-all-read:hover {
+    background: #f0f2f5;
+}
+
+/* Filter button styles */
+.filter-btn {
+    background: none;
+    border: none;
+    padding: 5px 12px;
+    margin-right: 8px;
+    border-radius: 30px;
+    font-size: 13px;
+    cursor: pointer;
+    color: #65676b;
+}
+
+.filter-btn.active {
+    background-color: #e7f3ff;
+    color: #1877f2;
+}
+
+/* Empty notification styles */
+.empty-notification {
+    padding: 20px;
+    text-align: center;
+    color: #65676b;
+    font-size: 14px;
+}
+
+/* Notification type colors */
+.notification-type-book_borrowed {
+    background: #1877f2;
+    color: white;
+}
+
+.notification-type-book_returned {
+    background: #42b72a;
+    color: white;
+}
+
+.notification-type-overdue_reminder {
+    background: #e41e3f;
+    color: white;
+}
+
+.notification-type-due_soon_reminder {
+    background: #f7b928;
+    color: white;
+}
+
+/* Let JavaScript handle display property */
+.notification-dropdown,
+.notification-overlay {
+    /* No display property here - let JavaScript control it */
+}

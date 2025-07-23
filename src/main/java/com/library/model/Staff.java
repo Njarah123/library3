@@ -17,9 +17,6 @@ public class Staff extends User {
     
     @Column(name = "employee_id", unique = true)
     private String employeeId;
-    
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
@@ -32,7 +29,6 @@ public class Staff extends User {
     // Méthode appelée avant la persistance
     @PrePersist
     protected void onCreate() {
-        createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
     }
 
@@ -94,7 +90,7 @@ public class Staff extends User {
     }
 
     public LocalDateTime getCreatedAt() {
-        return createdAt;
+        return super.getCreatedAt();
     }
 
     public LocalDateTime getUpdatedAt() {
@@ -155,7 +151,7 @@ public class Staff extends User {
                 ", email='" + getEmail() + '\'' +
                 ", dept='" + dept + '\'' +
                 ", employeeId='" + employeeId + '\'' +
-                ", createdAt=" + createdAt +
+                ", createdAt=" + getCreatedAt() +
                 ", updatedAt=" + updatedAt +
                 '}';
     }

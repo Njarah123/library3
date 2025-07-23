@@ -1,78 +1,55 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // Animation des cartes statistiques
-    const statBoxes = document.querySelectorAll('.stat-box');
+const monthlyCtx = document.getElementById('monthlyChart');
+if (monthlyCtx) {
+    const ctx = monthlyCtx.getContext('2d');
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, '#8b5cf6');
+    gradient.addColorStop(1, '#3b82f6');
     
-    statBoxes.forEach((box, index) => {
-        box.style.opacity = '0';
-        box.style.transform = 'translateY(20px)';
-        
-        setTimeout(() => {
-            box.style.transition = 'all 0.5s ease';
-            box.style.opacity = '1';
-            box.style.transform = 'translateY(0)';
-        }, index * 100);
-    });
-
-    // Animation des cartes d'action
-    const actionCards = document.querySelectorAll('.action-card');
-    
-    actionCards.forEach((card, index) => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-        
-        setTimeout(() => {
-            card.style.transition = 'all 0.5s ease';
-            card.style.opacity = '1';
-            card.style.transform = 'translateY(0)';
-        }, (index * 100) + 300);
-
-        // Effet de parallaxe
-        card.addEventListener('mousemove', (e) => {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            const rotateX = (y - rect.height / 2) / 20;
-            const rotateY = (x - rect.width / 2) / 20;
-            
-            card.style.transform = `
-                perspective(1000px)
-                rotateX(${-rotateX}deg)
-                rotateY(${rotateY}deg)
-                translateY(-10px)
-            `;
-        });
-
-        card.addEventListener('mouseleave', () => {
-            card.style.transform = '';
-        });
-    });
-
-    // Carousel automatique pour les recommandations
-    const carousel = document.querySelector('.books-carousel');
-    if (carousel) {
-        let scrollPosition = 0;
-        const cardWidth = 320; // largeur de la carte + gap
-
-        setInterval(() => {
-            scrollPosition += cardWidth;
-            if (scrollPosition >= carousel.scrollWidth) {
-                scrollPosition = 0;
+    const monthlyData = JSON.parse(studentDashboardData.monthlyBorrows || '[0,0,0,0,0,0]');
+    new Chart(monthlyCtx, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun'],
+            datasets: [{
+                label: 'Emprunts',
+                data: monthlyData,
+                borderColor: gradient,
+                backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#3b82f6',
+                pointBorderColor: '#ffffff',
+                pointBorderWidth: 2,
+                pointRadius: 6,
+                pointHoverRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#ffffff',
+                    bodyColor: '#ffffff',
+                    borderColor: '#3b82f6',
+                    borderWidth: 1,
+                    cornerRadius: 8,
+                    displayColors: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                    ticks: { stepSize: 1 }
+                },
+                x: {
+                    grid: { display: false }
+                }
             }
-            carousel.scrollTo({
-                left: scrollPosition,
-                behavior: 'smooth'
-            });
-        }, 5000);
-    }
-
-    // Animation des étoiles
-    const ratings = document.querySelectorAll('.rating');
-    ratings.forEach(rating => {
-        const stars = rating.querySelector('.stars');
-        const value = parseFloat(stars.dataset.rating);
-        
-        stars.style.width = `${value * 20}%`;
-        stars.style.animation = 'glow 1s ease-in-out infinite alternate';
+        }
     });
-});
+}

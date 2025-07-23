@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Notifications</title>
+    <link rel="stylesheet" th:href="@{/css/notifications.css}">
+</head>
+<body>
+
+<!-- Simple notification panel fragment that will be enhanced by JavaScript -->
+<div th:fragment="notification-panel" id="notificationPanel" class="notification-panel">
+    <!-- This is an empty container that will be populated by JavaScript -->
+    <!-- The notification overlay will be created by JavaScript -->
+    <div id="notificationOverlay" class="notification-overlay"></div>
+    
+    <!-- Add a debug element to show notification status -->
+    <div id="notificationDebug" style="display: none; position: fixed; bottom: 10px; right: 10px; background: rgba(0,0,0,0.7); color: white; padding: 10px; border-radius: 5px; z-index: 9999; font-size: 12px;">
+        Notification Debug
+    </div>
+</div>
+
+<!-- The script is included in the fragment to ensure it's loaded when the fragment is used -->
+<script th:src="@{/js/notifications.js}" th:inline="javascript">
+    // This ensures the notification system is initialized when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Notification fragment loaded');
+        
+        // Add debug function
+        window.showNotificationDebug = function(message) {
+            const debugElement = document.getElementById('notificationDebug');
+            if (debugElement) {
+                debugElement.style.display = 'block';
+                debugElement.innerHTML += '<div>' + message + '</div>';
+                
+                // Auto-hide after 10 seconds
+                setTimeout(function() {
+                    debugElement.style.display = 'none';
+                    debugElement.innerHTML = 'Notification Debug';
+                }, 10000);
+            }
+        };
+        
+        // Test the notification system
+        setTimeout(function() {
+            if (window.toggleNotificationPanel) {
+                console.log('toggleNotificationPanel is available globally');
+                
+                // DO NOT attach click handler here - let the dashboard handle it
+                // This prevents conflicts between multiple click handlers
+            } else {
+                console.error('toggleNotificationPanel is NOT available globally');
+            }
+        }, 1000);
+    });
+</script>
+
+</body>
+</html>

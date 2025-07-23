@@ -1,15 +1,17 @@
 package com.library.controller;
 
+import com.library.enums.UserType;
+import com.library.model.User;
+import com.library.security.CustomUserDetails;
+import com.library.service.BookService;
+import com.library.service.BorrowService;
+import com.library.service.NotificationService;
+import com.library.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-
-import com.library.model.User;
-import com.library.security.CustomUserDetails;
-import com.library.service.BookService;
-import com.library.service.UserService;
 
 @Controller
 public class DashboardController {
@@ -20,6 +22,12 @@ public class DashboardController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private NotificationService notificationService;
+
+    @Autowired
+    private BorrowService borrowService;
+
     @GetMapping("/dashboard")
     public String dashboard(@AuthenticationPrincipal CustomUserDetails currentUser, Model model) {
         User user = currentUser.getUser();
@@ -29,8 +37,7 @@ public class DashboardController {
         model.addAttribute("availableBooks", bookService.getAvailableBooks());
         
         // Pour les administrateurs et bibliothécaires, montrer toutes les statistiques
-        if (user.getUserType().toString().equals("STAFF") || 
-            user.getUserType().toString().equals("LIBRARIAN")) {
+        if (user.getUserType() == UserType.STAFF || user.getUserType() == UserType.LIBRARIAN) {
             model.addAttribute("totalBorrowedBooks", bookService.getBorrowedBooksCount());
             model.addAttribute("totalReservedBooks", bookService.getReservedBooksCount());
             model.addAttribute("allBorrowedBooks", bookService.getAllBorrowedBooks());
@@ -47,6 +54,7 @@ public class DashboardController {
         // Redirection vers le dashboard approprié
         switch (user.getUserType()) {
             case LIBRARIAN:
+                model.addAttribute("recentActivities", borrowService.getRecentActivities());
                 return "dashboard/librarian";
             case STAFF:
                 return "dashboard/staff";

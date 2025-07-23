@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Annuler mon Abonnement - Étudiant</title>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <link rel="stylesheet" th:href="@{/css/dashboards.css}" />
+    <link rel="stylesheet" href="/fontawesome/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Product+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Styles spécifiques pour le dashboard étudiant */
+        .student-theme {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #3b82f6;
+        }
+
+        /* Styles pour la page d'annulation */
+        .cancellation-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .cancellation-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .cancellation-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+        
+        .cancellation-subtitle {
+            font-size: 16px;
+            color: #6b7280;
+        }
+        
+        .cancellation-message {
+            font-size: 16px;
+            color: #4b5563;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+        
+        .cancellation-warning {
+            background-color: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        .cancellation-warning-title {
+            font-weight: 600;
+            color: #b91c1c;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            font-size: 16px;
+        }
+        
+        .cancellation-warning-title i {
+            margin-right: 10px;
+        }
+        
+        .cancellation-warning-text {
+            color: #7f1d1d;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .cancellation-warning-text ul {
+            margin-top: 10px;
+            padding-left: 20px;
+        }
+        
+        .cancellation-warning-text li {
+            margin-bottom: 8px;
+        }
+        
+        .active-borrowings {
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .active-borrowings-header {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+        }
+        
+        .active-borrowings-header i {
+            margin-right: 10px;
+            color: var(--warning-color);
+        }
+        
+        .borrowing-list {
+            background: #f9fafb;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .borrowing-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #e5e7eb;
+            transition: background-color 0.2s ease;
+        }
+        
+        .borrowing-item:hover {
+            background-color: #f3f4f6;
+        }
+        
+        .borrowing-item:last-child {
+            border-bottom: none;
+        }
+        
+        .borrowing-cover {
+            width: 60px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-right: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .borrowing-info {
+            flex: 1;
+        }
+        
+        .borrowing-title {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+        
+        .borrowing-author {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+        
+        .borrowing-dates {
+            font-size: 13px;
+            color: #9ca3af;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .borrowing-date-item {
+            display: flex;
+            align-items: center;
+        }
+        
+        .borrowing-date-item i {
+            margin-right: 5px;
+            font-size: 12px;
+        }
+        
+        .no-borrowings {
+            text-align: center;
+            padding: 30px;
+            color: #6b7280;
+            background: #f9fafb;
+            border-radius: 10px;
+            font-style: italic;
+            border: 1px dashed #e5e7eb;
+        }
+        
+        .no-borrowings i {
+            font-size: 36px;
+            color: var(--success-color);
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        /* Current subscription info */
+        .current-subscription {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            padding: 25px;
+            margin-bottom: 30px;
+            border-left: 5px solid var(--primary-color);
+        }
+        
+        .current-subscription-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .current-subscription-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .current-subscription-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .current-subscription-badge.premium {
+            background-color: #fecaca;
+            color: #b91c1c;
+        }
+        
+        .current-subscription-badge.standard {
+            background-color: #bfdbfe;
+            color: #1e40af;
+        }
+        
+        .current-subscription-badge.discovery {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        .current-subscription-badge i {
+            margin-right: 5px;
+        }
+        
+        .current-subscription-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .current-subscription-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .current-subscription-label {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 5px;
+        }
+        
+        .current-subscription-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .current-subscription-progress {
+            margin-bottom: 20px;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 5px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 4px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .cancel-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .cancel-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
+        }
+        
+        .cancel-btn:disabled {
+            background: linear-gradient(135deg, #fca5a5 0%, #f87171 100%);
+            color: white;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.7;
+        }
+        
+        .back-btn {
+            width: 100%;
+            padding: 15px;
+            background: #f9fafb;
+            color: #4b5563;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        
+        .back-btn:hover {
+            background: #f3f4f6;
+        }
+    </style>
+</head>
+<body class="student-theme">
+    <!-- Sidebar Navigation -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="/student/dashboard" class="logo">
+                <img src="/images/Logobnk.png" alt="Logobnk" />
+            </a>
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        
+        <div class="sidebar-menu">
+            <div class="menu-section">
+                <h3>Mon Espace</h3>
+                <a href="/student/dashboard" class="menu-item">
+                    <i class="fas fa-home"></i>
+                    <span>Tableau de bord</span>
+                </a>
+                <a href="/student/books" class="menu-item">
+                    <i class="fas fa-book"></i>
+                    <span>Catalogue</span>
+                </a>
+                <a href="/student/borrows" class="menu-item">
+                    <i class="fas fa-book-reader"></i>
+                    <span>Mes emprunts</span>
+                </a>
+               
+            </div>
+            
+            <div class="menu-section">
+                <h3>Services</h3>
+                <a href="/student/subscription/dashboard" class="menu-item active">
+                    <i class="fas fa-id-card"></i>
+                    <span>Mon abonnement</span>
+                </a>
+                <a href="/student/books" class="menu-item">
+                    <i class="fas fa-star"></i>
+                    <span>Recommandations</span>
+                </a>
+            </div>
+        </div>
+        
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <img th:if="${user != null and user.profileImagePath != null}"
+                     th:src="${user.profileImagePath}"
+                     class="profile-avatar"
+                     onerror="this.src='/images/default-student.png'"
+                     alt="Photo de profil">
+                <img th:unless="${user != null and user.profileImagePath != null}"
+                     src="/images/default-student.png"
+                     class="profile-avatar"
+                     alt="Photo de profil par défaut">
+                <div class="user-info">
+                    <div class="user-name" th:text="${user.name}">Nom étudiant</div>
+                    <div class="user-role">Étudiant</div>
+                </div>
+            </div>
+            <form th:action="@{/logout}" method="post" class="logout-form">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Top Header -->
+        <div class="top-header">
+            <div class="header-left">
+                <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Annuler mon Abonnement</h1>
+            </div>
+            
+            <div class="header-right">
+                <div class="search-container">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Rechercher un livre...">
+                </div>
+                
+                <div class="header-actions">
+                    <!-- User Info Button -->
+                    <div class="user-info" id="userInfoButton">
+                        <img th:if="${user != null and user.profileImagePath != null}"
+                             th:src="${user.profileImagePath}"
+                             onerror="this.src='/images/default-student.png'"
+                             alt="Photo de profil"
+                             class="user-avatar">
+                        <img th:unless="${user != null and user.profileImagePath != null}"
+                             src="/images/default-student.png"
+                             alt="Photo de profil par défaut"
+                             class="user-avatar">
+                        <span th:text="${user.name}">Nom étudiant</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alert messages -->
+        <div th:if="${message}" class="alert" th:classappend="${messageType == 'success'} ? 'alert-success' : (${messageType == 'error'} ? 'alert-danger' : 'alert-warning')">
+            <i class="fas" th:classappend="${messageType == 'success'} ? 'fa-check-circle' : (${messageType == 'error'} ? 'fa-exclamation-circle' : 'fa-exclamation-triangle')"></i>
+            <span th:text="${message}"></span>
+            <button class="close-btn" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Current Subscription Info -->
+        <div class="current-subscription" th:if="${currentSubscription != null}">
+            <div class="current-subscription-header">
+                <div class="current-subscription-title">Votre abonnement actuel</div>
+                <div class="current-subscription-badge" 
+                     th:class="'current-subscription-badge ' + ${currentSubscription.subscriptionType.name().toLowerCase()}">
+                    <i class="fas fa-crown" th:if="${currentSubscription.subscriptionType.name() == 'PREMIUM'}"></i>
+                    <i class="fas fa-certificate" th:if="${currentSubscription.subscriptionType.name() == 'STANDARD'}"></i>
+                    <i class="fas fa-tag" th:if="${currentSubscription.subscriptionType.name() == 'DISCOVERY'}"></i>
+                    <span th:text="${currentSubscription.subscriptionType.displayName}">Type</span>
+                </div>
+            </div>
+            
+            <div class="current-subscription-details">
+                <div class="current-subscription-item">
+                    <span class="current-subscription-label">Date de début</span>
+                    <span class="current-subscription-value" th:text="${#temporals.format(currentSubscription.startDate, 'dd/MM/yyyy')}">01/01/2023</span>
+                </div>
+                <div class="current-subscription-item">
+                    <span class="current-subscription-label">Date d'expiration</span>
+                    <span class="current-subscription-value" th:text="${#temporals.format(currentSubscription.endDate, 'dd/MM/yyyy')}">01/01/2023</span>
+                </div>
+                <div class="current-subscription-item">
+                    <span class="current-subscription-label">Jours restants</span>
+                    <span class="current-subscription-value" th:text="${currentSubscription.daysRemaining}">30</span>
+                </div>
+                <div class="current-subscription-item" th:if="${currentSubscription.subscriptionType.name() != 'PREMIUM'}">
+                    <span class="current-subscription-label">Livres restants</span>
+                    <span class="current-subscription-value" th:text="${currentSubscription.booksRemaining} + '/' + ${currentSubscription.subscriptionType.bookQuota}">3/5</span>
+                </div>
+                <div class="current-subscription-item" th:if="${currentSubscription.subscriptionType.name() == 'PREMIUM'}">
+                    <span class="current-subscription-label">Livres</span>
+                    <span class="current-subscription-value">Illimités</span>
+                </div>
+            </div>
+            
+            <div class="current-subscription-progress">
+                <div class="progress-label">
+                    <span>Temps restant</span>
+                    <span th:text="${currentSubscription.daysRemaining} + ' jours'">30 jours</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" 
+                         th:style="'width: ' + ${currentSubscription.daysRemaining * 100 / currentSubscription.subscriptionType.validityDays} + '%'"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="cancellation-container">
+            <div class="cancellation-header">
+                <div class="cancellation-title">Annulation d'abonnement</div>
+                <div class="cancellation-subtitle">Nous sommes désolés de vous voir partir</div>
+            </div>
+            
+            <div class="cancellation-message">
+                <p>Avant de confirmer l'annulation de votre abonnement, veuillez prendre connaissance des informations suivantes :</p>
+            </div>
+            
+            <div class="cancellation-warning">
+                <div class="cancellation-warning-title">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Conséquences de l'annulation</span>
+                </div>
+                <div class="cancellation-warning-text">
+                    <ul>
+                        <li>Vous perdrez immédiatement l'accès à tous les services de la bibliothèque.</li>
+                        <li>Vous ne pourrez plus emprunter de nouveaux livres.</li>
+                        <li>Vous devez retourner tous les livres actuellement empruntés avant de pouvoir annuler.</li>
+                        <li>Aucun remboursement ne sera effectué pour la période restante de votre abonnement.</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="active-borrowings" th:if="${activeBorrowings != null && !activeBorrowings.isEmpty()}">
+                <div class="active-borrowings-header">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>Vous avez <span th:text="${activeBorrowingsCount}">0</span> livre(s) à retourner avant de pouvoir annuler</span>
+                </div>
+                
+                <div class="borrowing-list">
+                    <div class="borrowing-item" th:each="borrowing : ${activeBorrowings}">
+                        <img th:src="${borrowing.book.imagePath != null ? borrowing.book.imagePath : '/images/default-book.png'}" 
+                             class="borrowing-cover" 
+                             alt="Couverture du livre">
+                        <div class="borrowing-info">
+                            <div class="borrowing-title" th:text="${borrowing.book.title}">Titre du livre</div>
+                            <div class="borrowing-author" th:text="${borrowing.book.author}">Auteur du livre</div>
+                            <div class="borrowing-dates">
+                                <div class="borrowing-date-item">
+                                    <i class="fas fa-calendar-check"></i>
+                                    <span>Emprunté le: </span>
+                                    <span th:text="${#temporals.format(borrowing.borrowDate, 'dd/MM/yyyy')}">01/01/2023</span>
+                                </div>
+                                <div class="borrowing-date-item">
+                                    <i class="fas fa-calendar-times"></i>
+                                    <span>À retourner avant le: </span>
+                                    <span th:text="${#temporals.format(borrowing.dueDate, 'dd/MM/yyyy')}">15/01/2023</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="no-borrowings" th:if="${activeBorrowings == null || activeBorrowings.isEmpty()}">
+                <i class="fas fa-check-circle"></i>
+                <p>Vous n'avez aucun livre emprunté actuellement. Vous pouvez procéder à l'annulation.</p>
+            </div>
+            
+            <div class="action-buttons">
+                <form th:action="@{/student/subscription/cancel/confirm}" method="post" id="cancel-form">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <button type="submit" class="cancel-btn" id="cancel-btn" th:disabled="${activeBorrowings != null && !activeBorrowings.isEmpty()}">
+                        <i class="fas fa-times-circle"></i> Confirmer l'annulation
+                    </button>
+                </form>
+                
+                <a href="/student/subscription/dashboard" class="back-btn">
+                    <i class="fas fa-arrow-left"></i> Retour au tableau de bord
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script th:inline="javascript">
+        // SIDEBAR FUNCTIONS
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+        }
+        
+        // Handle form submission - Defined outside DOMContentLoaded to ensure it's available
+        function setupCancellationForm() {
+            console.log("Setting up cancellation form");
+            const cancelForm = document.getElementById('cancel-form');
+            const cancelBtn = document.getElementById('cancel-btn');
+            
+            if (cancelForm) {
+                console.log("Found cancel form - no confirmation popup needed");
+                // Form will submit directly without confirmation popup
+                // since this page is already a confirmation page
+            } else {
+                console.error("Cancel form not found in the DOM");
+            }
+        }
+        
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("DOM fully loaded");
+            
+            // Profile dropdown
+            const userInfoButton = document.getElementById('userInfoButton');
+            const profileDropdown = document.getElementById('profileDropdown');
+            const profileOverlay = document.getElementById('profileOverlay');
+            
+            if (userInfoButton && profileDropdown && profileOverlay) {
+                userInfoButton.addEventListener('click', function() {
+                    profileDropdown.classList.toggle('show');
+                    profileOverlay.classList.toggle('show');
+                });
+                
+                profileOverlay.addEventListener('click', function() {
+                    profileDropdown.classList.remove('show');
+                    profileOverlay.classList.remove('show');
+                });
+            }
+            
+            // Setup cancellation form
+            setupCancellationForm();
+        });
+        
+        // Backup initialization in case DOMContentLoaded already fired
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            console.log("Document already loaded, setting up form immediately");
+            setTimeout(setupCancellationForm, 1);
+        }
+    </script>
+</body>
+</html>

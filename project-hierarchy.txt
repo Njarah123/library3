@@ -1,0 +1,1151 @@
+PROJECT_GRP-10 mandroso be 2 - afaka aterina pagination
+├─ .classpath
+├─ .factorypath
+├─ .git
+│  ├─ COMMIT_EDITMSG
+│  ├─ config
+│  ├─ description
+│  ├─ HEAD
+│  ├─ hooks
+│  │  ├─ applypatch-msg.sample
+│  │  ├─ commit-msg.sample
+│  │  ├─ fsmonitor-watchman.sample
+│  │  ├─ post-update.sample
+│  │  ├─ pre-applypatch.sample
+│  │  ├─ pre-commit.sample
+│  │  ├─ pre-merge-commit.sample
+│  │  ├─ pre-push.sample
+│  │  ├─ pre-rebase.sample
+│  │  ├─ pre-receive.sample
+│  │  ├─ prepare-commit-msg.sample
+│  │  ├─ push-to-checkout.sample
+│  │  ├─ sendemail-validate.sample
+│  │  └─ update.sample
+│  ├─ index
+│  ├─ info
+│  │  └─ exclude
+│  ├─ logs
+│  │  ├─ HEAD
+│  │  └─ refs
+│  │     ├─ heads
+│  │     │  └─ main
+│  │     └─ remotes
+│  │        └─ origin
+│  │           └─ main
+│  ├─ objects
+│  │  ├─ 02
+│  │  │  └─ 92997b2bcb64360167416f587068edb196b856
+│  │  ├─ 04
+│  │  │  └─ b1a2cb0d4b41c454cb65c7b69c5ba64f595988
+│  │  ├─ 05
+│  │  │  ├─ 2dc4b3491d7347bd217f681e537c98c7e0ddf3
+│  │  │  └─ ecdbdc421c1c744a9174b4a69143eff18c44ea
+│  │  ├─ 06
+│  │  │  └─ 89d37d9019e785ab08f738d9f7beae58d15a8a
+│  │  ├─ 07
+│  │  │  ├─ b36d5c86f7c7667fc4ffa36bfd44957a70b9f8
+│  │  │  └─ dbfc98607450b6352714953901d98bec7760ff
+│  │  ├─ 09
+│  │  │  ├─ 822f04634d99b5820a051b4e086ac838f1a083
+│  │  │  ├─ a72e78b9ec40f09e57cb83cc4db54fe3064383
+│  │  │  └─ f139a711da5c6ece9249e63d154c99f1b5f306
+│  │  ├─ 0c
+│  │  │  ├─ 09af9b4b86a6dda861297b692110025c67eecd
+│  │  │  └─ 60721d44f4ebd85e57a4f13c8c2857cf8d42d8
+│  │  ├─ 0d
+│  │  │  └─ 1c3679db9bd610d2c0a0a49881280673e07fd2
+│  │  ├─ 0e
+│  │  │  └─ 41a61cc1a52e257f6c09c1e663f417e917bff0
+│  │  ├─ 10
+│  │  │  └─ 04bf621bb7edcbb00eae26da9eef8fb36281b7
+│  │  ├─ 16
+│  │  │  └─ 65822f5b023dde6cea79247648196e85a32830
+│  │  ├─ 19
+│  │  │  ├─ 1e92944cab80dc0b0c7e850161f5841be80e1d
+│  │  │  └─ 529ddf8c6eaa08c5c75ff80652d21ce4b72f8c
+│  │  ├─ 1a
+│  │  │  └─ 8de54c3964a14f45671ba834b605e2c9a9f0c2
+│  │  ├─ 1b
+│  │  │  ├─ 11ab1f1a70366552e18a73de0a7ba69d0b8331
+│  │  │  └─ 92e7870cca74824792cbb51cc7874bd3fcbe7c
+│  │  ├─ 1c
+│  │  │  ├─ 028358097b37e58f9da53868a53e57ca94e83f
+│  │  │  └─ c5908852d327e865bbc3d9bfafc58f9272b845
+│  │  ├─ 1e
+│  │  │  ├─ 39a6e66c6c31399c787ca28016d82cfb6cc983
+│  │  │  └─ 84de4bd71fced2d22558d9eaf8baa174283a3a
+│  │  ├─ 21
+│  │  │  ├─ 2e0eb16ddff18d457a5d120fe1e09ffc88b03b
+│  │  │  ├─ 78944e23f245f4aae24d083c8c6a87913eac38
+│  │  │  └─ 7f38949f2d8eb48e381bcb0067ae7d91b61376
+│  │  ├─ 24
+│  │  │  └─ 9bdf3822221aa612d1da2605316cabd7b07e50
+│  │  ├─ 25
+│  │  │  └─ e35582c3bced6858e8e9cefff360c830da3de6
+│  │  ├─ 27
+│  │  │  └─ bc77fcf40237164fbb860f53b0ac9fff15cbec
+│  │  ├─ 28
+│  │  │  └─ eaf9c9eac00c03df73a52d48bb622417a26ce0
+│  │  ├─ 29
+│  │  │  ├─ b6a13f8f64837a19994d2a67cacd7c301ebea3
+│  │  │  └─ f905699fe52920cdff4a9baaea7b23f656bb2d
+│  │  ├─ 2c
+│  │  │  ├─ 8920a2b2a04bd82dd37d6bae01f7efd9570b19
+│  │  │  └─ 8ecff43dcd3231ab77908f6bba5b6a9aaa2056
+│  │  ├─ 2d
+│  │  │  ├─ 7330e265abb4dd06357c8e473bb879ec2b55ae
+│  │  │  └─ c491b42f2eb3c73fba2912c849482d7dc6fe80
+│  │  ├─ 2e
+│  │  │  ├─ 01a4141600d6915dda8e197855f1cd28c4964a
+│  │  │  └─ 6f935f59dffe693d7b03bf8eaf2825fd748063
+│  │  ├─ 2f
+│  │  │  ├─ 96013d005d9b6cc37d4d40e216177e01406555
+│  │  │  └─ f0d2f17f90a779eae024389a22b9b5ed14cc22
+│  │  ├─ 30
+│  │  │  └─ f37cee9998cbfdd8c90ad2222229e63495210c
+│  │  ├─ 31
+│  │  │  └─ 1511e818eb4b55c62e618d1b33f5d04fcc26ab
+│  │  ├─ 33
+│  │  │  ├─ 1ba7835728dd5ec091b63acf395902019c39f1
+│  │  │  └─ 8b4b0ac86f9bf83e52c6ca85bdc028a4cea4e4
+│  │  ├─ 34
+│  │  │  ├─ a108f5178d443726c4bd8a6480d975717b88c7
+│  │  │  ├─ b46e3cee564639387a83820ff6a802b433c097
+│  │  │  └─ e4fcfd56ea6d1525b6705e3dedb60f4a0a6937
+│  │  ├─ 35
+│  │  │  ├─ 55186bd102f78e72f9c380a9f2bc27b6548b22
+│  │  │  └─ ddd88dc8b3e7b9a04ecdec215ad1d20d895fd5
+│  │  ├─ 36
+│  │  │  └─ 4814511397eb6f6fbeeaa93a3c05d3f68ada5e
+│  │  ├─ 37
+│  │  │  ├─ 35971ffd6691b3690be75df4ad025f86a85225
+│  │  │  ├─ 3645d51036f565bf0eb5ffc7e60dd41d86a4b4
+│  │  │  └─ d24744153c7d8f03129949d6e365a6772b89fa
+│  │  ├─ 39
+│  │  │  ├─ 01129b52edb4b6a08fe3788b4f64936a2161dd
+│  │  │  └─ 96dee27a10275d2125e8ac63f6651114f6be39
+│  │  ├─ 3b
+│  │  │  ├─ 25cea4149e2aa526443cb370e7d708e832dc64
+│  │  │  ├─ 41682ac579fafb665abb4dfcdaa6aaaa712184
+│  │  │  └─ cc5716b2a47a3349f7375937d7124d5eef1956
+│  │  ├─ 3c
+│  │  │  └─ 9db71c62fc23117feb2c9e301c5313c101cf1d
+│  │  ├─ 3e
+│  │  │  ├─ 484280e5fa1ea470c8d8fba0875bb637c8f77a
+│  │  │  └─ 7b46ead8e7c392575ef1b4ef602c58f95cf091
+│  │  ├─ 3f
+│  │  │  └─ 41f0ec3758fea4d7cf94cb22730389394fb25d
+│  │  ├─ 40
+│  │  │  └─ c6568d58950c59e1275c78b10c331d3818873e
+│  │  ├─ 41
+│  │  │  └─ 00929f903c15800b26915058a38caf1641bb65
+│  │  ├─ 43
+│  │  │  └─ 63070fd0d546cc24615aacfc7f89f7c2e3cf7c
+│  │  ├─ 44
+│  │  │  └─ 66da2c505b4fbd682d0343c0b99e96ca137f73
+│  │  ├─ 49
+│  │  │  └─ b5394dcd41bd237401f9e47c6e52088a76290f
+│  │  ├─ 4a
+│  │  │  └─ bd85667cd0f32472c7a799d5c5861b6af8fb5d
+│  │  ├─ 4b
+│  │  │  └─ 825dc642cb6eb9a060e54bf8d69288fbee4904
+│  │  ├─ 4c
+│  │  │  ├─ 64805f70667471fb8bd020a6a3ba2e8a130953
+│  │  │  └─ 9e38c2c3b08b647aba7de0ccb50e7ce8b144b1
+│  │  ├─ 4f
+│  │  │  └─ 4f2ba4b72abcfe9ea7588e9fc9b417a0f60f71
+│  │  ├─ 50
+│  │  │  └─ 3576b0a31be7498a4db098272a2245ada5bcf6
+│  │  ├─ 51
+│  │  │  └─ f9ab492064e712fcb54bde069ac8bb6dfec301
+│  │  ├─ 52
+│  │  │  └─ f5b18e8c493aa1028528a12a6e39853e9476a0
+│  │  ├─ 53
+│  │  │  └─ e70a8ace4ece2cc07983bce9c69e73ae4fe915
+│  │  ├─ 55
+│  │  │  ├─ 1e7fdabb6fc096dc786ed8e77b062d795c660c
+│  │  │  ├─ 59d0c5a845999cec21d0e367051e5846ca2762
+│  │  │  └─ d4fd8ec4f2bb2c31f78f9d89227eb4295b8781
+│  │  ├─ 56
+│  │  │  └─ 979ff3d89f25b0c897a346f5c0305ba38eac12
+│  │  ├─ 58
+│  │  │  └─ f16a9fda726329fe2d28b0d6dc2317d4161320
+│  │  ├─ 59
+│  │  │  └─ fc172de34b88c4b7b7db16e5dfbe7b268286ab
+│  │  ├─ 5a
+│  │  │  └─ 02a8995ad84028080ea5fa3f0e3d777b9ceec1
+│  │  ├─ 5b
+│  │  │  ├─ 8a495ee940c3c1c1a7c3562c932d8552a2fc5f
+│  │  │  └─ f0fc4e3bb680fbdc1cf34e94f4d91e1ad8b075
+│  │  ├─ 5f
+│  │  │  └─ 4649b54af726b834d8132d25c60192adb6da4b
+│  │  ├─ 60
+│  │  │  └─ 2fbb941c2eb0f54c376d6fa2f59ff136260223
+│  │  ├─ 62
+│  │  │  └─ 2135eb0221525b004d3e5219c3ee4cf6a0f72d
+│  │  ├─ 66
+│  │  │  ├─ 7aaef0c891a18c6177b09b53418bf59c6ab91f
+│  │  │  ├─ 808a56210437a1a37b3480a3e918e5cf0e63c9
+│  │  │  └─ c070dcbced6463eaecf3e31660990fd7497b19
+│  │  ├─ 67
+│  │  │  └─ f95f5df67f576ce36abdbb2805bb2fc1920f42
+│  │  ├─ 6a
+│  │  │  ├─ 488da3d919178af31887dae8450e208086659b
+│  │  │  └─ ae51c6905304eadf1960bdd744b5150c36ea93
+│  │  ├─ 6b
+│  │  │  └─ d521964932789be7b4ad10ec035fa864cbfa9c
+│  │  ├─ 6c
+│  │  │  ├─ 795bd630043dff0d7596bf44f40ddfd3fbfb6d
+│  │  │  └─ 948a2864808de301bbf75c64d767d116720ff3
+│  │  ├─ 6d
+│  │  │  ├─ 4b3e828eac77367dd4e18f8178e0724d60b084
+│  │  │  └─ b9f750883a35788dd70475b7e0aeb394bb4e9e
+│  │  ├─ 6e
+│  │  │  ├─ bf641f856939dc34393474c9172d4f9ee4ef3c
+│  │  │  └─ c2c5f7c5988b4145083aefe99e3ee8c51773b8
+│  │  ├─ 6f
+│  │  │  └─ 21e831742879548fe90f1886fb00b42cdb8184
+│  │  ├─ 70
+│  │  │  ├─ 2155a0a8710eb283b807cdeca0d8ff80e5b804
+│  │  │  └─ 8f23673b385ac20eda681d2b2bacf203e57775
+│  │  ├─ 73
+│  │  │  └─ e26f6933637e8a9d21dd9b6bcec00353b1eff6
+│  │  ├─ 74
+│  │  │  ├─ 1c22ebff2a0377afd1977dc7542fcab98fa812
+│  │  │  └─ 1df78e8b1dee6a4463caee6affbb908e696d24
+│  │  ├─ 76
+│  │  │  ├─ 15330ac464404f76e3c1058c352b7a04f84ce4
+│  │  │  └─ 5f0f7d5ab5950020690549a06a133345bddcda
+│  │  ├─ 77
+│  │  │  └─ 8c56c61494107056bac0d8503ba54cc8b4a364
+│  │  ├─ 78
+│  │  │  └─ 4448c4a208f83fbd7692c845fd2d18b9921f39
+│  │  ├─ 7a
+│  │  │  └─ 0db9dd9047f3fc3ea36d3c5700bac64990ffc8
+│  │  ├─ 7b
+│  │  │  └─ 5425241555f8547ebaca88321400dcb69eeb9d
+│  │  ├─ 7e
+│  │  │  ├─ 87a23e8cc6e3bab5c86597711cc3d9405a5851
+│  │  │  └─ 9dfa083d4da9ca76967ad6c54f6f56a5f402c8
+│  │  ├─ 81
+│  │  │  ├─ 2a45f36f510659b32f2f8194454e739115af85
+│  │  │  └─ 2d41d8fb12c6ca217365a38cc795e133b930ea
+│  │  ├─ 82
+│  │  │  ├─ 355209617d04eaeba3deb7151dfeb2b5bbf549
+│  │  │  ├─ bad66c884ff532374cce700f5bc24bc167bfb5
+│  │  │  └─ c5beb3e332a9c8320ed9108b240eba245c2136
+│  │  ├─ 84
+│  │  │  └─ 9b7344ad9dd68a7be77d4627440d1568de4d59
+│  │  ├─ 86
+│  │  │  └─ dcc3e314912a6bb0a353c66b64231f04328cb3
+│  │  ├─ 88
+│  │  │  ├─ 8f4a9bd327112fbb738108ee02647414f42ff1
+│  │  │  └─ f2675fd31e00ab4df59ac6c58dfacf67d73cff
+│  │  ├─ 89
+│  │  │  └─ 970a228d4883cd514d864a55733c6231bf2871
+│  │  ├─ 8b
+│  │  │  └─ 1a6c1a7088e79684337ebbbc071bbb29bfbd25
+│  │  ├─ 8d
+│  │  │  ├─ 16f161352416f7a88d74078a8f67ded9dbcba4
+│  │  │  ├─ 4d3da160a2195ac60defc6b14ef20133241826
+│  │  │  ├─ 88b8e0a0044d1a85f5170b0c23472dcd3cbcb2
+│  │  │  ├─ 8d400a1f0cb2ff9e4eab7ed5fe776cb627838a
+│  │  │  └─ cbec5a356357d7a34d8302cd0f2003d8869aad
+│  │  ├─ 8e
+│  │  │  └─ 6ae2e829aaa8b6aff7393ba5993634345c39f4
+│  │  ├─ 8f
+│  │  │  ├─ 1cf82ac44972555965660304a3f81e7a73a48d
+│  │  │  └─ 443dcad53f8290916b528b29b17cf9e5d0835a
+│  │  ├─ 92
+│  │  │  ├─ 9453125a75ebca8d9f91f42e9eb80b1b00e16a
+│  │  │  └─ caf33da612903e9ce1d26ac10d13ec76b8f812
+│  │  ├─ 93
+│  │  │  ├─ 596e18ca3cae3fa1ad101e771640dd05f0189e
+│  │  │  └─ f96b0d6b1f2a307bb9bb4bcb5107f670acdeab
+│  │  ├─ 96
+│  │  │  ├─ 7bea5213f7c67f1f79b41c14344b9157943536
+│  │  │  └─ cb65c90e527ed7bf57532b1c3e3c1b9f00d471
+│  │  ├─ 97
+│  │  │  └─ 5cac1b10a2adf2125d1e7cbf5be955bdfe2af3
+│  │  ├─ 98
+│  │  │  ├─ 44761278c278f43c2e0814d2fdaa6c80fc2310
+│  │  │  ├─ 7ea7fcf53909f96fb12a24c4745ad5c3ea48bd
+│  │  │  └─ e08bfe7cceaa8cf49bd4931ab1c11107c1b2ae
+│  │  ├─ 99
+│  │  │  ├─ 2dbc51b3a396a2e72c9e9373cbe452f8082ebf
+│  │  │  ├─ a10cb4f3ad9abb1aae88fdb444ecd240fa6e5d
+│  │  │  ├─ e7952f79bc470c527a37641c9f2280a00fcaf1
+│  │  │  └─ fdfb24b0706f8ce16b95c51d91a398d5b3aa6a
+│  │  ├─ 9b
+│  │  │  ├─ b781dee4e50f12270a202a7158c60fb70ec927
+│  │  │  └─ d4bcef5e3ccc91bfd65c96791d85e7f392df6d
+│  │  ├─ 9d
+│  │  │  └─ 7c0e2a90e1474ba83aaca85144183822ad11d6
+│  │  ├─ 9f
+│  │  │  └─ 62b6a2a42c7c0e7a1a1eaf0abaf8df22913732
+│  │  ├─ a3
+│  │  │  └─ 024d1ff08f8ea034af7fc5c26af399cf169ee9
+│  │  ├─ a4
+│  │  │  ├─ 48e7519ef7d8970efa83f510b9f4ae6bc25c25
+│  │  │  └─ 5bfa761a87579d1ecad64ac6f52f8dc8721cc6
+│  │  ├─ a6
+│  │  │  └─ 7e51c3e3e56b67c85a3be7f0a5765ce2bd96a5
+│  │  ├─ a8
+│  │  │  ├─ 379d7a3deb7c62255e4ff1acfe308a700a10ec
+│  │  │  └─ 77ca36b7d800e7f992283f5603881c7cc71f8b
+│  │  ├─ a9
+│  │  │  ├─ 77e65446614ff57c2031b34c251781a991f4ba
+│  │  │  └─ cc433aa55925eaba5950dea0103e6490af821d
+│  │  ├─ ab
+│  │  │  └─ 96ef6efebf719d967737f8910dbd8b9fd94136
+│  │  ├─ ac
+│  │  │  ├─ 30ecae568bcbc234233985e6ac8d94f6db7565
+│  │  │  ├─ e3bf0ed5f2787ea477c44e90281b5292291bca
+│  │  │  └─ ffb076ae9f9b4d6a934ccc0a4c7d4828ade18e
+│  │  ├─ ae
+│  │  │  ├─ 08330bb26a8fae7270a74dfc28a82e6fb034ef
+│  │  │  └─ 7a090b0b831221895c6cd7ae1e7ca7d1a97b79
+│  │  ├─ af
+│  │  │  ├─ 1968c76db43599d8528425956e8d5c680e32f6
+│  │  │  └─ f8f8459bf88daf6fe4a0efadad96d947cf2949
+│  │  ├─ b0
+│  │  │  └─ 024db790c30ebe8dbcea1541efe5dfefebb563
+│  │  ├─ b2
+│  │  │  └─ cf4f53ac342e147dd7350a5f79f50968a44569
+│  │  ├─ b5
+│  │  │  ├─ 649661e7605c5309c341e924e06c4b79aff897
+│  │  │  └─ bd1bf785478abc704831cb0d49c40d0084daab
+│  │  ├─ b6
+│  │  │  └─ 44d1fac2939e0f7e453546eee834efcf9535f6
+│  │  ├─ b7
+│  │  │  ├─ 1245c1f1fc281312b6d4c8ae8c5bc39e81ab51
+│  │  │  ├─ 77a925780db3362c15bbd1e7a5f44797e950e6
+│  │  │  └─ 9f4933ee454fdc05058c0f588ea9c2208f2c6a
+│  │  ├─ b8
+│  │  │  └─ 02280f7556bee36126c1804ca7c2cd12df7c3e
+│  │  ├─ b9
+│  │  │  └─ 24f5c98e3d1a95335a657fc5b90387cb84b125
+│  │  ├─ ba
+│  │  │  └─ 304a500e556ad6d77261308f597a857bf43cb8
+│  │  ├─ bb
+│  │  │  ├─ 28e542ea5423129c9f64dc2c64512fb5ec720a
+│  │  │  └─ d929f4e6a29da6b4315af8b90ad495c7bf28eb
+│  │  ├─ bd
+│  │  │  ├─ 001c27bc02e4bf7606c03f9f7bc23d9c3a8a9b
+│  │  │  └─ a954bc230a5853416761a2ca2ba46e8fa64677
+│  │  ├─ be
+│  │  │  └─ d52d4b2a09545c138a280d7e464045a64d475e
+│  │  ├─ c1
+│  │  │  ├─ 0c65e5139d9d6abd9788d44ad09a89f5800eda
+│  │  │  └─ 27695bfa4b21a883c2d74559ebd5c53b05bdee
+│  │  ├─ c3
+│  │  │  └─ 2779027c282b0f034bba6cb610014b16db9fe4
+│  │  ├─ c4
+│  │  │  └─ f7c03aaae58729427986178af689f7e39b77e6
+│  │  ├─ c5
+│  │  │  └─ fbcc520da3be2a8b7b9c3ab412bb830085d3af
+│  │  ├─ c6
+│  │  │  ├─ 3245c0aee7d9218c174c0d822caaa42c971d46
+│  │  │  └─ 831ad03e84dc81567bb6c9f46a263c1cc6339b
+│  │  ├─ c7
+│  │  │  ├─ 30e3662fdeb8613fafa9bdca650b48f1f0951a
+│  │  │  └─ f02da516b0e669ecd14dc58f6c036bfe5102c1
+│  │  ├─ c8
+│  │  │  ├─ 48c8c46805110765dbf560bf257046fe1b03ae
+│  │  │  └─ 4c977599b747894e6791a7804f020aa5a8552d
+│  │  ├─ c9
+│  │  │  └─ 9742498b5022bea1618b7d333a5d92bbae4ed5
+│  │  ├─ cd
+│  │  │  └─ 0e3296b1a3a9d027e319a0c73a59b2b3ab874b
+│  │  ├─ ce
+│  │  │  └─ 2ca46e78376149adbbe4d2db282e566de810e6
+│  │  ├─ cf
+│  │  │  └─ 10cbcf429cf6df1138ca471e34ba356899bf42
+│  │  ├─ d0
+│  │  │  └─ 4ff52bfd0f4234a14d73512aa7997decbc07bb
+│  │  ├─ d1
+│  │  │  ├─ 0c0701346d7af09e7b62596e6d765e90122e7a
+│  │  │  └─ ec20626adf54defab8ec1b4345a0e6bd5b649b
+│  │  ├─ d2
+│  │  │  └─ 84a1df21768fccb70e96a2fdb1681875d944ec
+│  │  ├─ d3
+│  │  │  ├─ ba5f6c8722cc6f258f3597d96760aa51e2984e
+│  │  │  └─ f5433413d6cc8bcad1a20353a98683e349f9c4
+│  │  ├─ d4
+│  │  │  └─ c71570bb39f183e92c3e8380f9cee257adff9b
+│  │  ├─ d5
+│  │  │  └─ 8dfb70bab565a697e6854eb012d17e0fd39bd4
+│  │  ├─ d6
+│  │  │  └─ 90064798143d51841e04f80d34b41367c369ab
+│  │  ├─ da
+│  │  │  └─ e53390b3b4fe0ba1e7b7dbda2d68c2752f08e4
+│  │  ├─ dc
+│  │  │  └─ e1420443daf7e49c19cf323a25f68aee1bbd96
+│  │  ├─ dd
+│  │  │  └─ 99b62be007d12ddd617ba8dd92313917a919a3
+│  │  ├─ de
+│  │  │  └─ 0e7d94ec21cbc6eea3116fd4ec8599b3918341
+│  │  ├─ df
+│  │  │  └─ a32684e189483f85e55882b3546036147cec82
+│  │  ├─ e0
+│  │  │  ├─ 47e0c3080cf8910cc0d0930fa551b928b9c5b9
+│  │  │  └─ 9a54c62da27aadc4cd0f1ea70959f815130791
+│  │  ├─ e1
+│  │  │  ├─ 96c7c377ae2812255dd12dfa883ef514757102
+│  │  │  └─ 9cb6729e3683d2df37dce64f11d855df4340b3
+│  │  ├─ e5
+│  │  │  └─ 116422bcfc219a6723db51964a5b747a74b7d6
+│  │  ├─ e7
+│  │  │  └─ 611a08f2d672c3deb3222db2d323006950f951
+│  │  ├─ e8
+│  │  │  └─ 659ce535cd502eeba01a1499b3e03d3a335b31
+│  │  ├─ ea
+│  │  │  ├─ 057b9dd7613e6f5ad39b140f7cbedef3ed4dbf
+│  │  │  └─ 56f0fcbea9441a3d82fcf8dc1e44c3f76e404f
+│  │  ├─ ef
+│  │  │  └─ 694b51ef6c39be7212cd66a7565c907bb2e576
+│  │  ├─ f2
+│  │  │  └─ 750b8f94d94aa3afad77416cdec2a50be27f50
+│  │  ├─ f3
+│  │  │  └─ 8675ea28ed2d1e213ed2e767f380e5af09b3d5
+│  │  ├─ f4
+│  │  │  └─ d9ca992c7fa26f14cac509bdde8b234e48f175
+│  │  ├─ f5
+│  │  │  └─ 588a157bc6e9802091517db27589d8b95bc73b
+│  │  ├─ f6
+│  │  │  └─ 7b96c0b1619894cf47f65f557a52a57832e01b
+│  │  ├─ f7
+│  │  │  └─ ebb1c46912b0d04a8d8d1340ba31f4ab6800c8
+│  │  ├─ f8
+│  │  │  └─ 90dd25eee634bf8eae3559ac595c388df6c9a7
+│  │  ├─ fa
+│  │  │  └─ d7ebcb8e3cb4d299f344ac91cc696617ee9608
+│  │  ├─ fb
+│  │  │  ├─ 19c30ef977fe0e37e27e8a1d8633d2b3ef8f6e
+│  │  │  └─ 62288781fd85650a1281a251ed8fb60a0df66d
+│  │  ├─ fc
+│  │  │  └─ 31bb9d2bb9f357dccfb4a02f728b749e59beed
+│  │  ├─ fd
+│  │  │  └─ 4b0bc4c3ff849a0557885955c673c063cd7608
+│  │  ├─ fe
+│  │  │  ├─ f9e9152ecc219776c136f802b396a41940db79
+│  │  │  └─ fa95861a9015894732c36747c62568e7aaa9b4
+│  │  ├─ info
+│  │  └─ pack
+│  └─ refs
+│     ├─ heads
+│     │  └─ main
+│     ├─ remotes
+│     │  └─ origin
+│     │     └─ main
+│     └─ tags
+├─ .gitattributes
+├─ .gitignore
+├─ .mvn
+│  └─ wrapper
+│     └─ maven-wrapper.properties
+├─ .project
+├─ .settings
+│  ├─ org.eclipse.core.resources.prefs
+│  ├─ org.eclipse.jdt.apt.core.prefs
+│  ├─ org.eclipse.jdt.core.prefs
+│  ├─ org.eclipse.m2e.core.prefs
+│  └─ org.springframework.ide.eclipse.prefs
+├─ .vscode
+│  └─ settings.json
+├─ fix_total_borrows_instructions.html
+├─ fix_total_borrows_instructions_updated.html
+├─ HELP.md
+├─ hs_err_pid26680.log
+├─ mvnw
+├─ mvnw.cmd
+├─ pom.xml
+├─ replay_pid26680.log
+├─ src
+│  ├─ main
+│  │  ├─ java
+│  │  │  └─ com
+│  │  │     └─ library
+│  │  │        ├─ config
+│  │  │        │  ├─ FileStorageConfig.java
+│  │  │        │  ├─ FlywayConfig.java
+│  │  │        │  ├─ JacksonConfig.java
+│  │  │        │  ├─ SchedulingConfig.java
+│  │  │        │  ├─ SecurityConfig.java
+│  │  │        │  ├─ SubscriptionInitializer.java
+│  │  │        │  └─ WebConfig.java
+│  │  │        ├─ controller
+│  │  │        │  ├─ AccountController.java
+│  │  │        │  ├─ AuthController.java
+│  │  │        │  ├─ BookAdminController.java
+│  │  │        │  ├─ BooksController.java
+│  │  │        │  ├─ BorrowController.java
+│  │  │        │  ├─ DashboardController.java
+│  │  │        │  ├─ ErrorController.java
+│  │  │        │  ├─ FileController.java
+│  │  │        │  ├─ HomeController.java
+│  │  │        │  ├─ LibrarianController.java
+│  │  │        │  ├─ LibrarianSubscriptionController.java
+│  │  │        │  ├─ MainController.java
+│  │  │        │  ├─ MemberController.java
+│  │  │        │  ├─ NotificationRestController.java
+│  │  │        │  ├─ PaymentController.java
+│  │  │        │  ├─ StaffController.java
+│  │  │        │  ├─ StudentController.java
+│  │  │        │  ├─ StudentSubscriptionController.java
+│  │  │        │  ├─ SubscriptionController.java
+│  │  │        │  └─ TestNotificationController.java
+│  │  │        ├─ dto
+│  │  │        │  ├─ Activity.java
+│  │  │        │  ├─ BookDetailsDTO.java
+│  │  │        │  ├─ MemberBorrowingStats.java
+│  │  │        │  ├─ NotificationDTO.java
+│  │  │        │  ├─ NotificationResponse.java
+│  │  │        │  ├─ SubscriptionDTO.java
+│  │  │        │  └─ UserRegistrationDto.java
+│  │  │        ├─ enums
+│  │  │        │  ├─ BorrowingStatus.java
+│  │  │        │  ├─ NotificationType.java
+│  │  │        │  ├─ PaymentMethod.java
+│  │  │        │  ├─ PaymentStatus.java
+│  │  │        │  ├─ PaymentType.java
+│  │  │        │  ├─ ReservationRequestStatus.java
+│  │  │        │  ├─ ReservationStatus.java
+│  │  │        │  ├─ SubscriptionType.java
+│  │  │        │  └─ UserType.java
+│  │  │        ├─ model
+│  │  │        │  ├─ Account.java
+│  │  │        │  ├─ Book.java
+│  │  │        │  ├─ Borrow.java
+│  │  │        │  ├─ Borrowing.java
+│  │  │        │  ├─ Feedback.java
+│  │  │        │  ├─ Librarian.java
+│  │  │        │  ├─ Member.java
+│  │  │        │  ├─ Notification.java
+│  │  │        │  ├─ Payment.java
+│  │  │        │  ├─ Reservation.java
+│  │  │        │  ├─ ReservationStatus.java
+│  │  │        │  ├─ Staff.java
+│  │  │        │  ├─ Student.java
+│  │  │        │  ├─ Subscription.java
+│  │  │        │  ├─ TransactionLog.java
+│  │  │        │  └─ User.java
+│  │  │        ├─ ProjectGrp10Application.java
+│  │  │        ├─ repository
+│  │  │        │  ├─ AccountRepository.java
+│  │  │        │  ├─ BookRepository.java
+│  │  │        │  ├─ BorrowingRepository.java
+│  │  │        │  ├─ BorrowRepository.java
+│  │  │        │  ├─ FeedbackRepository.java
+│  │  │        │  ├─ LibrarianRepository.java
+│  │  │        │  ├─ NotificationRepository.java
+│  │  │        │  ├─ PaymentRepository.java
+│  │  │        │  ├─ ReservationRepository.java
+│  │  │        │  ├─ StaffRepository.java
+│  │  │        │  ├─ StudentRepository.java
+│  │  │        │  ├─ SubscriptionRepository.java
+│  │  │        │  ├─ TransactionLogRepository.java
+│  │  │        │  └─ UserRepository.java
+│  │  │        ├─ scheduler
+│  │  │        │  ├─ ScheduledTasks.java
+│  │  │        │  └─ SubscriptionExpirationScheduler.java
+│  │  │        ├─ security
+│  │  │        │  ├─ CustomAuthenticationSuccessHandler.java
+│  │  │        │  ├─ CustomUserDetails.java
+│  │  │        │  ├─ CustomUserDetailsService.java
+│  │  │        │  └─ SimpleSuccessHandler.java
+│  │  │        └─ service
+│  │  │           ├─ BookService.java
+│  │  │           ├─ BorrowingService.java
+│  │  │           ├─ BorrowService.java
+│  │  │           ├─ FileStorageService.java
+│  │  │           ├─ impl
+│  │  │           │  ├─ PaymentServiceImpl.java
+│  │  │           │  ├─ SubscriptionServiceImpl.java
+│  │  │           │  └─ TransactionLoggerServiceImpl.java
+│  │  │           ├─ NotificationScheduler.java
+│  │  │           ├─ NotificationService.java
+│  │  │           ├─ NotificationTriggerService.java
+│  │  │           ├─ PaymentService.java
+│  │  │           ├─ ScheduledNotificationService.java
+│  │  │           ├─ SubscriptionService.java
+│  │  │           ├─ TransactionLoggerService.java
+│  │  │           └─ UserService.java
+│  │  └─ resources
+│  │     ├─ application.properties
+│  │     ├─ db
+│  │     │  ├─ migration
+│  │     │  │  ├─ V1__alter_notifications_type_column.sql
+│  │     │  │  └─ V6__update_borrowing_table.sql
+│  │     │  └─ repair
+│  │     │     └─ R__repair_flyway_schema_history.sql
+│  │     ├─ static
+│  │     │  ├─ css
+│  │     │  │  ├─ add-book.css
+│  │     │  │  ├─ auth.css
+│  │     │  │  ├─ books.css
+│  │     │  │  ├─ borrow-confirmation.css
+│  │     │  │  ├─ borrowed-books.css
+│  │     │  │  ├─ dashboard.css
+│  │     │  │  ├─ dashboards.css
+│  │     │  │  ├─ edit-book.css
+│  │     │  │  ├─ history.css
+│  │     │  │  ├─ home.css
+│  │     │  │  ├─ libradash.css
+│  │     │  │  ├─ librarian-immersive.css
+│  │     │  │  ├─ login.css
+│  │     │  │  ├─ main.css
+│  │     │  │  ├─ members.css
+│  │     │  │  ├─ notification-panel-new.css
+│  │     │  │  ├─ notification-panel-ultra.css
+│  │     │  │  ├─ notifications.css
+│  │     │  │  ├─ payment-receipt.css
+│  │     │  │  ├─ register.css
+│  │     │  │  ├─ reports.css
+│  │     │  │  ├─ samsung-biblio.css
+│  │     │  │  ├─ staff-books.css
+│  │     │  │  ├─ staff-borrows.css
+│  │     │  │  ├─ staff-dashboard.css
+│  │     │  │  ├─ student-borrows.css
+│  │     │  │  ├─ student-dashboard.css
+│  │     │  │  ├─ student-history.css
+│  │     │  │  ├─ style.css
+│  │     │  │  ├─ subscription-checkout.css
+│  │     │  │  ├─ subscription-dashboard.css
+│  │     │  │  ├─ subscription-history.css
+│  │     │  │  └─ subscription-plans.css
+│  │     │  ├─ images
+│  │     │  │  ├─ avalon.jpg
+│  │     │  │  ├─ bank-transfer.png
+│  │     │  │  ├─ bib1.jpg
+│  │     │  │  ├─ bib2.jpg
+│  │     │  │  ├─ bib3.jpg
+│  │     │  │  ├─ bib4.jpg
+│  │     │  │  ├─ blaire.jpg
+│  │     │  │  ├─ captive.jpg
+│  │     │  │  ├─ credit-card.png
+│  │     │  │  ├─ dark.jpg
+│  │     │  │  ├─ darkest.jpg
+│  │     │  │  ├─ default-book-cover.jpg
+│  │     │  │  ├─ default-librarian.png
+│  │     │  │  ├─ default-staff.png
+│  │     │  │  ├─ default-student.png
+│  │     │  │  ├─ default-system.png
+│  │     │  │  ├─ default-user.png
+│  │     │  │  ├─ depa.jpg
+│  │     │  │  ├─ espace.webp
+│  │     │  │  ├─ face.jpg
+│  │     │  │  ├─ face2.jpg
+│  │     │  │  ├─ fallen angel.jpg
+│  │     │  │  ├─ fond.jpg
+│  │     │  │  ├─ gentleman.jpg
+│  │     │  │  ├─ joh.jpg
+│  │     │  │  ├─ lagon.jpg
+│  │     │  │  ├─ lakestone.jpeg
+│  │     │  │  ├─ liv.jpg
+│  │     │  │  ├─ livre.jpg
+│  │     │  │  ├─ livre.png
+│  │     │  │  ├─ livre2.png
+│  │     │  │  ├─ Nos.jpg
+│  │     │  │  ├─ note.jpg
+│  │     │  │  ├─ onyx.jpg
+│  │     │  │  ├─ organiser.jpg
+│  │     │  │  ├─ outil.jpg
+│  │     │  │  ├─ palazzo.jpg
+│  │     │  │  ├─ paypal.png
+│  │     │  │  ├─ perdus.jpg
+│  │     │  │  ├─ placeholder.png
+│  │     │  │  ├─ porte.jpg
+│  │     │  │  ├─ sabi.avif
+│  │     │  │  ├─ serpent.jpg
+│  │     │  │  ├─ twist.jpg
+│  │     │  │  └─ valentina.jpg
+│  │     │  ├─ js
+│  │     │  │  ├─ add-book.js
+│  │     │  │  ├─ books-filters.js
+│  │     │  │  ├─ books.js
+│  │     │  │  ├─ borrowed-books.js
+│  │     │  │  ├─ dashboard.js
+│  │     │  │  ├─ edit-book.js
+│  │     │  │  ├─ history.js
+│  │     │  │  ├─ librarian-immersive.js
+│  │     │  │  ├─ notification-panel-ultra.js
+│  │     │  │  ├─ notifications-new.js
+│  │     │  │  ├─ register.js
+│  │     │  │  ├─ samsung-biblio.js
+│  │     │  │  ├─ session-timeout.js
+│  │     │  │  ├─ staff-books.js
+│  │     │  │  ├─ staff-dashboard.js
+│  │     │  │  ├─ student-borrows.js
+│  │     │  │  ├─ student-dashboard.js
+│  │     │  │  ├─ student-history.js
+│  │     │  │  ├─ subscription-dashboard.js
+│  │     │  │  └─ subscription-upgrade.js
+│  │     │  └─ uploads
+│  │     │     └─ profiles
+│  │     │        ├─ 19_52a729a9-0599-4598-bbc6-f8b560fa96c1.jpg
+│  │     │        ├─ 34_5e0be60d-8844-41e7-a1c6-a7a37a2f0b97.jpg
+│  │     │        ├─ 37424f65-4724-4e55-8659-fc79241e7d96.jpg
+│  │     │        ├─ 40_28efc95c-6f80-422f-904b-b4c21f60eab4.jpg
+│  │     │        ├─ 4cb25339-9dc9-45ba-95f3-adc761ca2770.jpg
+│  │     │        ├─ 5415d1c2-dd75-47da-a653-58ecfb8afc91.jpg
+│  │     │        ├─ 5fa798f2-1d7c-4566-8670-2e5d637600c5.jpg
+│  │     │        ├─ 66f72aa8-28ae-431d-bca6-6b0625af1b20.jpg
+│  │     │        ├─ 6eae620e-b5db-4a38-878a-b3fd07c2a5c5.jpg
+│  │     │        ├─ 80095a6c-6187-43c8-aca2-1121d4b0d412.jpeg
+│  │     │        ├─ 81f6f253-23c5-4fc8-bec6-df4b1e09a42c.jpeg
+│  │     │        ├─ a33a9564-fb40-4806-a89b-dca629ad4f3b.jpg
+│  │     │        ├─ beeadf77-18f0-4d69-94c2-878d48b2e574.avif
+│  │     │        ├─ c1a1cef9-dfeb-443f-8810-809128c17cb2.png
+│  │     │        ├─ c5f554d6-be8f-4b81-86e6-896f7aaa586a.jpg
+│  │     │        ├─ ce33e2f4-f6f3-4fbd-94d3-7530b2fad739.jpg
+│  │     │        ├─ default-librarian.png
+│  │     │        ├─ default-profile.png
+│  │     │        ├─ default-staff.png
+│  │     │        ├─ default-student.png
+│  │     │        ├─ e121fb81-e908-424f-a985-969695ee4788.jpg
+│  │     │        ├─ e4c710f3-2b5a-462f-a2e4-09597fcb2f54.jpg
+│  │     │        ├─ e6fce417-6a13-4588-b48d-5785dcb27484.jpg
+│  │     │        └─ eddea4f8-0d45-4557-9cae-b7b882dca8b0.jpg
+│  │     └─ templates
+│  │        ├─ auth
+│  │        │  ├─ login.html
+│  │        │  ├─ package-lock.json
+│  │        │  ├─ package.json
+│  │        │  └─ register.html
+│  │        ├─ books
+│  │        │  ├─ borrow-confirmation.html
+│  │        │  ├─ details.html
+│  │        │  └─ list.html
+│  │        ├─ borrow
+│  │        │  └─ confirm.html
+│  │        ├─ dashboard.html
+│  │        ├─ error
+│  │        │  ├─ 403.html
+│  │        │  ├─ 404.html
+│  │        │  ├─ 500.html
+│  │        │  ├─ borrow-error.html
+│  │        │  ├─ general.html
+│  │        │  └─ image-error.html
+│  │        ├─ error.html
+│  │        ├─ fragments
+│  │        │  ├─ footer.html
+│  │        │  ├─ header.html
+│  │        │  ├─ notification-panel-new.html
+│  │        │  ├─ notification-panel-ultra.html
+│  │        │  └─ notifications.html
+│  │        ├─ home.html
+│  │        ├─ librarian
+│  │        │  ├─ add-book.html
+│  │        │  ├─ books.html
+│  │        │  ├─ borrows-books.html
+│  │        │  ├─ dashboard.html
+│  │        │  ├─ edit-book.html
+│  │        │  ├─ members
+│  │        │  │  ├─ form.html
+│  │        │  │  └─ list.html
+│  │        │  ├─ notifications.html
+│  │        │  ├─ reports
+│  │        │  │  └─ dashboard.html
+│  │        │  ├─ reports.html
+│  │        │  ├─ settings.html
+│  │        │  ├─ subscription-dashboard.html
+│  │        │  ├─ subscription-details.html
+│  │        │  ├─ subscription-reports.html
+│  │        │  ├─ user-search.html
+│  │        │  └─ val.jpg
+│  │        ├─ payments
+│  │        │  ├─ payment-form.html
+│  │        │  ├─ payment-history.html
+│  │        │  └─ receipt.html
+│  │        ├─ staff
+│  │        │  ├─ books.html
+│  │        │  ├─ borrow-confirmation.html
+│  │        │  ├─ borrows.html
+│  │        │  ├─ dashboard.html
+│  │        │  ├─ history.html
+│  │        │  ├─ notifications.html
+│  │        │  └─ settings.html
+│  │        ├─ student
+│  │        │  ├─ books.html
+│  │        │  ├─ borrows.html
+│  │        │  ├─ dashboard.html
+│  │        │  ├─ history.html
+│  │        │  ├─ notifications.html
+│  │        │  ├─ settings.html
+│  │        │  ├─ subscription-cancel.html
+│  │        │  ├─ subscription-dashboard.html
+│  │        │  ├─ subscription-renew.html
+│  │        │  └─ subscription-upgrade.html
+│  │        └─ subscriptions
+│  │           ├─ borrow-offers.html
+│  │           ├─ checkout.html
+│  │           ├─ plans.html
+│  │           └─ subscription-history.html
+│  └─ test
+│     └─ java
+│        └─ com
+│           └─ library
+│              ├─ ProjectGrp10ApplicationTests.java
+│              └─ service
+│                 └─ SubscriptionServiceImplTest.java
+├─ target
+│  ├─ classes
+│  │  ├─ application.properties
+│  │  ├─ com
+│  │  │  └─ library
+│  │  │     ├─ config
+│  │  │     │  ├─ FileStorageConfig.class
+│  │  │     │  ├─ FlywayConfig.class
+│  │  │     │  ├─ JacksonConfig.class
+│  │  │     │  ├─ SchedulingConfig.class
+│  │  │     │  ├─ SecurityConfig.class
+│  │  │     │  ├─ SubscriptionInitializer.class
+│  │  │     │  └─ WebConfig.class
+│  │  │     ├─ controller
+│  │  │     │  ├─ AccountController.class
+│  │  │     │  ├─ AuthController$1.class
+│  │  │     │  ├─ AuthController$2.class
+│  │  │     │  ├─ AuthController.class
+│  │  │     │  ├─ BookAdminController.class
+│  │  │     │  ├─ BooksController.class
+│  │  │     │  ├─ BorrowController.class
+│  │  │     │  ├─ DashboardController.class
+│  │  │     │  ├─ ErrorController.class
+│  │  │     │  ├─ FileController.class
+│  │  │     │  ├─ LibrarianController.class
+│  │  │     │  ├─ LibrarianSubscriptionController.class
+│  │  │     │  ├─ MainController.class
+│  │  │     │  ├─ MemberController.class
+│  │  │     │  ├─ NotificationRestController.class
+│  │  │     │  ├─ PaymentController.class
+│  │  │     │  ├─ StaffController.class
+│  │  │     │  ├─ StudentController.class
+│  │  │     │  ├─ StudentSubscriptionController.class
+│  │  │     │  ├─ SubscriptionController.class
+│  │  │     │  └─ TestNotificationController.class
+│  │  │     ├─ dto
+│  │  │     │  ├─ Activity.class
+│  │  │     │  ├─ BookDetailsDTO.class
+│  │  │     │  ├─ MemberBorrowingStats.class
+│  │  │     │  ├─ NotificationDTO.class
+│  │  │     │  ├─ NotificationResponse.class
+│  │  │     │  ├─ SubscriptionDTO.class
+│  │  │     │  └─ UserRegistrationDto.class
+│  │  │     ├─ enums
+│  │  │     │  ├─ BorrowingStatus.class
+│  │  │     │  ├─ NotificationType.class
+│  │  │     │  ├─ PaymentMethod.class
+│  │  │     │  ├─ PaymentStatus.class
+│  │  │     │  ├─ PaymentType.class
+│  │  │     │  ├─ ReservationRequestStatus.class
+│  │  │     │  ├─ ReservationStatus.class
+│  │  │     │  ├─ SubscriptionType.class
+│  │  │     │  └─ UserType.class
+│  │  │     ├─ model
+│  │  │     │  ├─ Account.class
+│  │  │     │  ├─ Book.class
+│  │  │     │  ├─ Borrow.class
+│  │  │     │  ├─ Borrowing.class
+│  │  │     │  ├─ Feedback.class
+│  │  │     │  ├─ Librarian.class
+│  │  │     │  ├─ Member.class
+│  │  │     │  ├─ Notification.class
+│  │  │     │  ├─ Payment.class
+│  │  │     │  ├─ Reservation.class
+│  │  │     │  ├─ ReservationStatus.class
+│  │  │     │  ├─ Staff$StaffBuilder.class
+│  │  │     │  ├─ Staff.class
+│  │  │     │  ├─ Student.class
+│  │  │     │  ├─ Subscription.class
+│  │  │     │  ├─ TransactionLog.class
+│  │  │     │  └─ User.class
+│  │  │     ├─ ProjectGrp10Application.class
+│  │  │     ├─ repository
+│  │  │     │  ├─ AccountRepository.class
+│  │  │     │  ├─ BookRepository.class
+│  │  │     │  ├─ BorrowingRepository.class
+│  │  │     │  ├─ BorrowRepository.class
+│  │  │     │  ├─ FeedbackRepository.class
+│  │  │     │  ├─ LibrarianRepository.class
+│  │  │     │  ├─ NotificationRepository.class
+│  │  │     │  ├─ PaymentRepository.class
+│  │  │     │  ├─ ReservationRepository.class
+│  │  │     │  ├─ StaffRepository.class
+│  │  │     │  ├─ StudentRepository.class
+│  │  │     │  ├─ SubscriptionRepository.class
+│  │  │     │  ├─ TransactionLogRepository.class
+│  │  │     │  └─ UserRepository.class
+│  │  │     ├─ scheduler
+│  │  │     │  ├─ ScheduledTasks.class
+│  │  │     │  └─ SubscriptionExpirationScheduler.class
+│  │  │     ├─ security
+│  │  │     │  ├─ CustomAuthenticationSuccessHandler$1.class
+│  │  │     │  ├─ CustomAuthenticationSuccessHandler.class
+│  │  │     │  ├─ CustomUserDetails.class
+│  │  │     │  ├─ CustomUserDetailsService.class
+│  │  │     │  └─ SimpleSuccessHandler.class
+│  │  │     └─ service
+│  │  │        ├─ BookService.class
+│  │  │        ├─ BorrowingService.class
+│  │  │        ├─ BorrowService.class
+│  │  │        ├─ FileStorageService.class
+│  │  │        ├─ impl
+│  │  │        │  ├─ PaymentServiceImpl.class
+│  │  │        │  ├─ SubscriptionServiceImpl.class
+│  │  │        │  └─ TransactionLoggerServiceImpl.class
+│  │  │        ├─ NotificationScheduler.class
+│  │  │        ├─ NotificationService.class
+│  │  │        ├─ NotificationTriggerService.class
+│  │  │        ├─ PaymentService.class
+│  │  │        ├─ ScheduledNotificationService.class
+│  │  │        ├─ SubscriptionService.class
+│  │  │        ├─ TransactionLoggerService.class
+│  │  │        └─ UserService.class
+│  │  ├─ db
+│  │  │  ├─ migration
+│  │  │  │  ├─ V1__alter_notifications_type_column.sql
+│  │  │  │  └─ V6__update_borrowing_table.sql
+│  │  │  └─ repair
+│  │  │     └─ R__repair_flyway_schema_history.sql
+│  │  ├─ static
+│  │  │  ├─ css
+│  │  │  │  ├─ add-book.css
+│  │  │  │  ├─ auth.css
+│  │  │  │  ├─ books.css
+│  │  │  │  ├─ borrow-confirmation.css
+│  │  │  │  ├─ borrowed-books.css
+│  │  │  │  ├─ dashboard.css
+│  │  │  │  ├─ dashboards.css
+│  │  │  │  ├─ edit-book.css
+│  │  │  │  ├─ history.css
+│  │  │  │  ├─ home.css
+│  │  │  │  ├─ libradash.css
+│  │  │  │  ├─ librarian-immersive.css
+│  │  │  │  ├─ login.css
+│  │  │  │  ├─ main.css
+│  │  │  │  ├─ members.css
+│  │  │  │  ├─ notification-panel-new.css
+│  │  │  │  ├─ notification-panel-ultra.css
+│  │  │  │  ├─ notifications.css
+│  │  │  │  ├─ payment-receipt.css
+│  │  │  │  ├─ register.css
+│  │  │  │  ├─ reports.css
+│  │  │  │  ├─ samsung-biblio.css
+│  │  │  │  ├─ staff-books.css
+│  │  │  │  ├─ staff-borrows.css
+│  │  │  │  ├─ staff-dashboard.css
+│  │  │  │  ├─ student-borrows.css
+│  │  │  │  ├─ student-dashboard.css
+│  │  │  │  ├─ student-history.css
+│  │  │  │  ├─ style.css
+│  │  │  │  ├─ subscription-checkout.css
+│  │  │  │  ├─ subscription-dashboard.css
+│  │  │  │  ├─ subscription-history.css
+│  │  │  │  └─ subscription-plans.css
+│  │  │  ├─ images
+│  │  │  │  ├─ avalon.jpg
+│  │  │  │  ├─ bank-transfer.png
+│  │  │  │  ├─ bib1.jpg
+│  │  │  │  ├─ bib2.jpg
+│  │  │  │  ├─ bib3.jpg
+│  │  │  │  ├─ bib4.jpg
+│  │  │  │  ├─ blaire.jpg
+│  │  │  │  ├─ captive.jpg
+│  │  │  │  ├─ credit-card.png
+│  │  │  │  ├─ dark.jpg
+│  │  │  │  ├─ darkest.jpg
+│  │  │  │  ├─ default-book-cover.jpg
+│  │  │  │  ├─ default-librarian.png
+│  │  │  │  ├─ default-staff.png
+│  │  │  │  ├─ default-student.png
+│  │  │  │  ├─ default-system.png
+│  │  │  │  ├─ default-user.png
+│  │  │  │  ├─ depa.jpg
+│  │  │  │  ├─ espace.webp
+│  │  │  │  ├─ face.jpg
+│  │  │  │  ├─ face2.jpg
+│  │  │  │  ├─ fallen angel.jpg
+│  │  │  │  ├─ fond.jpg
+│  │  │  │  ├─ gentleman.jpg
+│  │  │  │  ├─ joh.jpg
+│  │  │  │  ├─ lagon.jpg
+│  │  │  │  ├─ lakestone.jpeg
+│  │  │  │  ├─ liv.jpg
+│  │  │  │  ├─ livre.jpg
+│  │  │  │  ├─ livre.png
+│  │  │  │  ├─ livre2.png
+│  │  │  │  ├─ Nos.jpg
+│  │  │  │  ├─ note.jpg
+│  │  │  │  ├─ onyx.jpg
+│  │  │  │  ├─ organiser.jpg
+│  │  │  │  ├─ outil.jpg
+│  │  │  │  ├─ palazzo.jpg
+│  │  │  │  ├─ paypal.png
+│  │  │  │  ├─ perdus.jpg
+│  │  │  │  ├─ placeholder.png
+│  │  │  │  ├─ porte.jpg
+│  │  │  │  ├─ sabi.avif
+│  │  │  │  ├─ serpent.jpg
+│  │  │  │  ├─ twist.jpg
+│  │  │  │  └─ valentina.jpg
+│  │  │  ├─ js
+│  │  │  │  ├─ add-book.js
+│  │  │  │  ├─ books-filters.js
+│  │  │  │  ├─ books.js
+│  │  │  │  ├─ borrowed-books.js
+│  │  │  │  ├─ dashboard.js
+│  │  │  │  ├─ edit-book.js
+│  │  │  │  ├─ history.js
+│  │  │  │  ├─ librarian-immersive.js
+│  │  │  │  ├─ notification-panel-ultra.js
+│  │  │  │  ├─ notifications-new.js
+│  │  │  │  ├─ register.js
+│  │  │  │  ├─ samsung-biblio.js
+│  │  │  │  ├─ session-timeout.js
+│  │  │  │  ├─ staff-books.js
+│  │  │  │  ├─ staff-dashboard.js
+│  │  │  │  ├─ student-borrows.js
+│  │  │  │  ├─ student-dashboard.js
+│  │  │  │  ├─ student-history.js
+│  │  │  │  ├─ subscription-dashboard.js
+│  │  │  │  └─ subscription-upgrade.js
+│  │  │  └─ uploads
+│  │  │     └─ profiles
+│  │  │        ├─ 19_52a729a9-0599-4598-bbc6-f8b560fa96c1.jpg
+│  │  │        ├─ 34_5e0be60d-8844-41e7-a1c6-a7a37a2f0b97.jpg
+│  │  │        ├─ 37424f65-4724-4e55-8659-fc79241e7d96.jpg
+│  │  │        ├─ 40_28efc95c-6f80-422f-904b-b4c21f60eab4.jpg
+│  │  │        ├─ 4cb25339-9dc9-45ba-95f3-adc761ca2770.jpg
+│  │  │        ├─ 5415d1c2-dd75-47da-a653-58ecfb8afc91.jpg
+│  │  │        ├─ 5fa798f2-1d7c-4566-8670-2e5d637600c5.jpg
+│  │  │        ├─ 66f72aa8-28ae-431d-bca6-6b0625af1b20.jpg
+│  │  │        ├─ 6eae620e-b5db-4a38-878a-b3fd07c2a5c5.jpg
+│  │  │        ├─ 80095a6c-6187-43c8-aca2-1121d4b0d412.jpeg
+│  │  │        ├─ 81f6f253-23c5-4fc8-bec6-df4b1e09a42c.jpeg
+│  │  │        ├─ a33a9564-fb40-4806-a89b-dca629ad4f3b.jpg
+│  │  │        ├─ beeadf77-18f0-4d69-94c2-878d48b2e574.avif
+│  │  │        ├─ c1a1cef9-dfeb-443f-8810-809128c17cb2.png
+│  │  │        ├─ c5f554d6-be8f-4b81-86e6-896f7aaa586a.jpg
+│  │  │        ├─ ce33e2f4-f6f3-4fbd-94d3-7530b2fad739.jpg
+│  │  │        ├─ default-librarian.png
+│  │  │        ├─ default-profile.png
+│  │  │        ├─ default-staff.png
+│  │  │        ├─ default-student.png
+│  │  │        ├─ e121fb81-e908-424f-a985-969695ee4788.jpg
+│  │  │        ├─ e4c710f3-2b5a-462f-a2e4-09597fcb2f54.jpg
+│  │  │        ├─ e6fce417-6a13-4588-b48d-5785dcb27484.jpg
+│  │  │        └─ eddea4f8-0d45-4557-9cae-b7b882dca8b0.jpg
+│  │  └─ templates
+│  │     ├─ auth
+│  │     │  ├─ login.html
+│  │     │  ├─ package-lock.json
+│  │     │  ├─ package.json
+│  │     │  └─ register.html
+│  │     ├─ books
+│  │     │  ├─ borrow-confirmation.html
+│  │     │  ├─ details.html
+│  │     │  └─ list.html
+│  │     ├─ borrow
+│  │     │  └─ confirm.html
+│  │     ├─ dashboard.html
+│  │     ├─ error
+│  │     │  ├─ 403.html
+│  │     │  ├─ 404.html
+│  │     │  ├─ 500.html
+│  │     │  ├─ borrow-error.html
+│  │     │  ├─ general.html
+│  │     │  └─ image-error.html
+│  │     ├─ error.html
+│  │     ├─ fragments
+│  │     │  ├─ footer.html
+│  │     │  ├─ header.html
+│  │     │  ├─ notification-panel-new.html
+│  │     │  ├─ notification-panel-ultra.html
+│  │     │  └─ notifications.html
+│  │     ├─ home.html
+│  │     ├─ librarian
+│  │     │  ├─ add-book.html
+│  │     │  ├─ books.html
+│  │     │  ├─ borrows-books.html
+│  │     │  ├─ dashboard.html
+│  │     │  ├─ edit-book.html
+│  │     │  ├─ members
+│  │     │  │  ├─ form.html
+│  │     │  │  └─ list.html
+│  │     │  ├─ notifications.html
+│  │     │  ├─ reports
+│  │     │  │  └─ dashboard.html
+│  │     │  ├─ reports.html
+│  │     │  ├─ settings.html
+│  │     │  ├─ subscription-dashboard.html
+│  │     │  ├─ subscription-details.html
+│  │     │  ├─ subscription-reports.html
+│  │     │  ├─ user-search.html
+│  │     │  └─ val.jpg
+│  │     ├─ payments
+│  │     │  ├─ payment-form.html
+│  │     │  ├─ payment-history.html
+│  │     │  └─ receipt.html
+│  │     ├─ staff
+│  │     │  ├─ books.html
+│  │     │  ├─ borrow-confirmation.html
+│  │     │  ├─ borrows.html
+│  │     │  ├─ dashboard.html
+│  │     │  ├─ history.html
+│  │     │  ├─ notifications.html
+│  │     │  └─ settings.html
+│  │     ├─ student
+│  │     │  ├─ books.html
+│  │     │  ├─ borrows.html
+│  │     │  ├─ dashboard.html
+│  │     │  ├─ history.html
+│  │     │  ├─ notifications.html
+│  │     │  ├─ settings.html
+│  │     │  ├─ subscription-cancel.html
+│  │     │  ├─ subscription-dashboard.html
+│  │     │  ├─ subscription-renew.html
+│  │     │  └─ subscription-upgrade.html
+│  │     └─ subscriptions
+│  │        ├─ borrow-offers.html
+│  │        ├─ checkout.html
+│  │        ├─ plans.html
+│  │        └─ subscription-history.html
+│  ├─ generated-sources
+│  │  └─ annotations
+│  ├─ generated-test-sources
+│  │  └─ test-annotations
+│  ├─ maven-status
+│  │  └─ maven-compiler-plugin
+│  │     ├─ compile
+│  │     │  └─ default-compile
+│  │     │     ├─ createdFiles.lst
+│  │     │     └─ inputFiles.lst
+│  │     └─ testCompile
+│  │        └─ default-testCompile
+│  │           ├─ createdFiles.lst
+│  │           └─ inputFiles.lst
+│  ├─ surefire-reports
+│  │  ├─ 2025-07-16T20-54-38_904.dumpstream
+│  │  ├─ com.library.service.SubscriptionServiceImplTest.txt
+│  │  └─ TEST-com.library.service.SubscriptionServiceImplTest.xml
+│  └─ test-classes
+│     └─ com
+│        └─ library
+│           ├─ ProjectGrp10ApplicationTests.class
+│           └─ service
+│              └─ SubscriptionServiceImplTest.class
+├─ update_total_borrows.sql
+└─ uploads
+   └─ books
+      ├─ 78e2c0b9-8590-410a-842b-227556b75a80_joh2.jpeg
+      ├─ 96d3514f-d41b-43b1-9536-7ca08d91ab77_joh2.jpeg
+      ├─ book-covers
+      │  └─ default-book.jpg
+      ├─ d7ee3c88-ecbb-4208-94e0-730020d0bfa9_joh2.jpeg
+      ├─ images
+      │  ├─ dark.jpg
+      │  └─ default-book.jpg
+      ├─ profiles
+      │  └─ a3e41072-1b9f-4554-b8c6-680f74e10961_joh2.jpeg
+      └─ static
