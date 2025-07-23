@@ -1,32 +1,38 @@
-# Ignorer les fichiers et dossiers inutiles pour Docker
+# Maven
 target/
+!target/*.jar
 .mvn/wrapper/maven-wrapper.jar
-.git
-.gitignore
-README.md
-.env
-.DS_Store
-Thumbs.db
+mvnw
+mvnw.cmd
 
-# Logs
-*.log
-
-# IDE files
+# IDE
 .idea/
 .vscode/
 *.iml
 *.ipr
 *.iws
 
-# OS generated files
+# OS
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
 
-# Maven
-.mvn/timing.properties
-.mvn/wrapper/maven-wrapper.properties
+# Git
+.git/
+.gitignore
+
+# Documentation
+README.md
+*.md
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Node modules (if any)
+node_modules/
+
+# Railway specific
+railway.json

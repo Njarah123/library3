@@ -1,31 +1,35 @@
-# Utiliser OpenJDK 21 comme image de base
-FROM openjdk:21-jdk-slim
+# Use Maven image for building
+FROM maven:3.9.6-openjdk-21-slim AS build
 
-# Définir le répertoire de travail
+# Set working directory
 WORKDIR /app
 
-# Copier le fichier pom.xml et télécharger les dépendances
+# Copy pom.xml first for better caching
 COPY pom.xml .
-COPY mvnw .
-COPY .mvn .mvn
 
-# Donner les permissions d'exécution au wrapper Maven
-RUN chmod +x ./mvnw
+# Download dependencies (this layer will be cached if pom.xml doesn't change)
+RUN mvn dependency:go-offline -B
 
-# Télécharger les dépendances (pour optimiser le cache Docker)
-RUN ./mvnw dependency:go-offline -B
-
-# Copier le code source
+# Copy source code
 COPY src ./src
 
-# Construire l'application
-RUN ./mvnw clean package -DskipTests
+# Build the application
+RUN mvn clean package -DskipTests -B
 
-# Exposer le port
+# Use OpenJDK 21 runtime for final image
+FROM openjdk:21-jre-slim
+
+# Set working directory
+WORKDIR /app
+
+# Copy the built jar from build stage
+COPY --from=build /app/target/*.jar app.jar
+
+# Expose port
 EXPOSE 8080
 
-# Définir les variables d'environnement
+# Set environment variables
 ENV SPRING_PROFILES_ACTIVE=prod
 
-# Lancer l'application
-CMD ["java", "-jar", "target/PROJECT_GRP-10-0.0.1-SNAPSHOT.jar"]
+# Run the application
+CMD ["java", "-jar", "app.jar"]
