@@ -16,8 +16,8 @@ COPY src ./src
 # Build the application
 RUN mvn clean package -DskipTests -B
 
-# Use OpenJDK 21 runtime for final image
-FROM openjdk:21-jre-slim
+# Use OpenJDK 21 slim for final image (more stable than jre-slim)
+FROM openjdk:21-slim
 
 # Set working directory
 WORKDIR /app
