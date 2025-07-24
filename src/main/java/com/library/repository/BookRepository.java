@@ -39,8 +39,8 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     List<Book> findByTitleContainingIgnoreCaseOrAuthorContainingIgnoreCaseOrIsbnContainingIgnoreCase(
         String title, String author, String isbn);
     
-    // Correction de la requête problématique
-    @Query("SELECT b FROM Book b ORDER BY SIZE(b.borrowings) DESC")
+    // Correction de la requête problématique - remplace SIZE par COUNT avec JOIN
+    @Query("SELECT b FROM Book b LEFT JOIN b.borrowings br GROUP BY b ORDER BY COUNT(br) DESC")
     List<Book> findMostBorrowedBooks();
     
     List<Book> findTop10ByOrderByAddedDateDesc();

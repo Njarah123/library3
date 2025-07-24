@@ -228,7 +228,7 @@ long countByReturnDateBetween(@Param("startDate") LocalDateTime startDate, @Para
 
 
 // Compter les emprunts par jour (pour les 7 derniers jours)
-@Query("SELECT COUNT(b) FROM Borrowing b WHERE DATE(b.borrowDate) = :date")
+@Query("SELECT COUNT(b) FROM Borrowing b WHERE CAST(b.borrowDate AS date) = :date")
 long countByBorrowDate(@Param("date") LocalDate date);
 
 // Statistiques mensuelles des emprunts
@@ -288,7 +288,7 @@ List<Object[]> getBorrowingStatusStatistics();
 List<Borrowing> findByReturnDateBetween(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
 // Ajouter cette méthode
 
-@Query("SELECT COUNT(b) FROM Borrowing b WHERE DATE(b.borrowDate) = DATE(:date)")
+@Query("SELECT COUNT(b) FROM Borrowing b WHERE CAST(b.borrowDate AS date) = :date")
 Long countByBorrowDateBetween(@Param("date") LocalDate date);
 
 @Query("SELECT b.book.title, b.book.author, COUNT(b) as borrowCount " +
