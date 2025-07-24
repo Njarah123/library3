@@ -408,8 +408,28 @@ public List<Map<String, Object>> getRecentActivities() {
     }
     
     public int getAverageReadingDays(User user) {
-        Double average = borrowingRepository.getAverageReadingDaysByUser(user);
-        return average != null ? average.intValue() : 0;
+        try {
+            List<Borrowing> completedBorrowings = borrowingRepository.findCompletedBorrowingsByUser(user);
+            if (completedBorrowings.isEmpty()) {
+                return 0;
+            }
+            
+            long totalDays = 0;
+            int count = 0;
+            
+            for (Borrowing borrowing : completedBorrowings) {
+                if (borrowing.getBorrowDate() != null && borrowing.getReturnDate() != null) {
+                    long days = ChronoUnit.DAYS.between(borrowing.getBorrowDate(), borrowing.getReturnDate());
+                    totalDays += days;
+                    count++;
+                }
+            }
+            
+            return count > 0 ? (int) (totalDays / count) : 0;
+        } catch (Exception e) {
+            logger.error("Erreur lors du calcul de la moyenne des jours de lecture", e);
+            return 0;
+        }
     }
     
     public String getFavoriteCategory(User user) {
