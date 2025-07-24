@@ -18,6 +18,14 @@ public class FileStorageConfig {
 
     @PostConstruct
     public void init() {
+        // Skip file storage initialization in production to avoid permission issues
+        if (System.getProperty("spring.profiles.active", "").contains("prod")) {
+            System.out.println("=== PRODUCTION MODE: SKIPPING FILE STORAGE INITIALIZATION ===");
+            // Use system temp directory for uploads in production
+            uploadDir = System.getProperty("java.io.tmpdir") + "/uploads";
+            System.out.println("Using temporary directory for uploads: " + uploadDir);
+            return;
+        }
         try {
             System.out.println("=== INITIALISATION DES RÉPERTOIRES DE STOCKAGE ===");
             System.out.println("Répertoire de base: " + uploadDir);
