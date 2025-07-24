@@ -1,0 +1,19 @@
+# Ignore unnecessary files for Railway deployment
+.git/
+.gitignore
+*.md
+README.md
+HELP.md
+DIAGNOSTIC_SOLUTION.md
+*.log
+*.html
+*.sql
+project-hierarchy.txt
+start.sh
+Dockerfile
+uploads/
+src/test/
+target/
+.mvn/
+mvnw
+mvnw.cmd
