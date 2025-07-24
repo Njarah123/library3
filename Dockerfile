@@ -49,4 +49,4 @@ ENV SPRING_PROFILES_ACTIVE=prod
 ENV JAVA_OPTS="-Xmx512m -Xms256m"
 
 # Run the application
-CMD ["sh", "-c", "java $JAVA_OPTS -Dserver.port=$PORT -jar app.jar"]
+CMD ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
