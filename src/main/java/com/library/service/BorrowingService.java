@@ -408,7 +408,8 @@ public List<Map<String, Object>> getRecentActivities() {
     }
     
     public int getAverageReadingDays(User user) {
-        return borrowingRepository.getAverageReadingDaysByUser(user);
+        Double average = borrowingRepository.getAverageReadingDaysByUser(user);
+        return average != null ? average.intValue() : 0;
     }
     
     public String getFavoriteCategory(User user) {
@@ -1066,7 +1067,7 @@ private void updateBookRating(Book book, int newRating) {
     public long getTodayBorrowingsCount() {
         LocalDateTime startOfDay = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0);
         LocalDateTime endOfDay = startOfDay.plusDays(1);
-        return borrowingRepository.countByBorrowDateBetween(startOfDay, endOfDay);
+        return borrowingRepository.countByBorrowDateForDay(startOfDay, endOfDay);
     }
     
     public long getTodayReturnsCount() {

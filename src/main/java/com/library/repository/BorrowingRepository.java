@@ -228,8 +228,8 @@ long countByReturnDateBetween(@Param("startDate") LocalDateTime startDate, @Para
 
 
 // Compter les emprunts par jour (pour les 7 derniers jours)
-@Query("SELECT COUNT(b) FROM Borrowing b WHERE CAST(b.borrowDate AS date) = :date")
-long countByBorrowDate(@Param("date") LocalDate date);
+@Query("SELECT COUNT(b) FROM Borrowing b WHERE b.borrowDate >= :startOfDay AND b.borrowDate < :endOfDay")
+long countByBorrowDate(@Param("startOfDay") LocalDateTime startOfDay, @Param("endOfDay") LocalDateTime endOfDay);
 
 // Statistiques mensuelles des emprunts
 @Query("SELECT COUNT(b) FROM Borrowing b WHERE b.borrowDate BETWEEN :startDate AND :endDate")
@@ -257,8 +257,8 @@ List<Borrowing> findReturnedOnTime();
     @Query("SELECT AVG(b.rating) FROM Borrowing b WHERE b.user = :user AND b.rating IS NOT NULL")
     Double getAverageRatingByUser(@Param("user") User user);
     
-    @Query("SELECT AVG(EXTRACT(DAY FROM (b.returnDate - b.borrowDate))) FROM Borrowing b WHERE b.user = :user AND b.returnDate IS NOT NULL")
-    Integer getAverageReadingDaysByUser(@Param("user") User user);
+    @Query("SELECT AVG(FUNCTION('DATE_PART', 'day', b.returnDate - b.borrowDate)) FROM Borrowing b WHERE b.user = :user AND b.returnDate IS NOT NULL")
+    Double getAverageReadingDaysByUser(@Param("user") User user);
     
     @Query("SELECT b.book.category FROM Borrowing b WHERE b.user = :user GROUP BY b.book.category ORDER BY COUNT(b) DESC")
     List<String> getFavoriteCategoriesByUser(@Param("user") User user);
@@ -286,10 +286,10 @@ List<Object[]> getBorrowingStatusStatistics();
     // Ajoutez cette méthode dans votre BorrowingRepository
 @Query("SELECT b FROM Borrowing b WHERE b.returnDate BETWEEN :startDate AND :endDate")
 List<Borrowing> findByReturnDateBetween(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
-// Ajouter cette méthode
 
-@Query("SELECT COUNT(b) FROM Borrowing b WHERE CAST(b.borrowDate AS date) = :date")
-Long countByBorrowDateBetween(@Param("date") LocalDate date);
+// Compter les emprunts par jour avec une plage de dates
+@Query("SELECT COUNT(b) FROM Borrowing b WHERE b.borrowDate >= :startOfDay AND b.borrowDate < :endOfDay")
+Long countByBorrowDateForDay(@Param("startOfDay") LocalDateTime startOfDay, @Param("endOfDay") LocalDateTime endOfDay);
 
 @Query("SELECT b.book.title, b.book.author, COUNT(b) as borrowCount " +
        "FROM Borrowing b " +
