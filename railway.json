@@ -5,8 +5,6 @@
     "dockerfilePath": "Dockerfile"
   },
   "deploy": {
-    "startCommand": "java -Dspring.profiles.active=prod -Dserver.port=$PORT -jar app.jar",
-    "healthcheckPath": "/",
-    "healthcheckTimeout": 300
+    "startCommand": "java -Dspring.profiles.active=prod -Dserver.port=$PORT -jar app.jar"
   }
 }
