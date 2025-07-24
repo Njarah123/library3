@@ -37,24 +37,36 @@ public class SubscriptionInitializer {
      */
     @EventListener(ApplicationReadyEvent.class)
     public void createDefaultSubscriptions() {
-        logger.info("Subscription initializer running...");
-        
-        // Get all student users
-        List<User> students = userService.getAllStudents();
-        int count = 0;
-        
-        // Log the number of students without subscriptions
-        for (User student : students) {
-            Optional<Subscription> existingSubscription = subscriptionService.getActiveSubscription(student);
-            if (!existingSubscription.isPresent()) {
-                count++;
-            }
+        // Skip initialization in production to avoid startup issues
+        String activeProfile = System.getProperty("spring.profiles.active", "");
+        if (activeProfile.contains("prod")) {
+            logger.info("Skipping subscription initialization in production mode");
+            return;
         }
         
-        logger.info("Found {} students without active subscriptions", count);
-        logger.info("Students will be prompted to choose a subscription when they attempt to borrow a book");
+        logger.info("Subscription initializer running...");
         
-        // We no longer automatically create subscriptions
-        // Instead, students will be shown subscription options when they try to borrow a book
+        try {
+            // Get all student users
+            List<User> students = userService.getAllStudents();
+            int count = 0;
+            
+            // Log the number of students without subscriptions
+            for (User student : students) {
+                Optional<Subscription> existingSubscription = subscriptionService.getActiveSubscription(student);
+                if (!existingSubscription.isPresent()) {
+                    count++;
+                }
+            }
+            
+            logger.info("Found {} students without active subscriptions", count);
+            logger.info("Students will be prompted to choose a subscription when they attempt to borrow a book");
+            
+            // We no longer automatically create subscriptions
+            // Instead, students will be shown subscription options when they try to borrow a book
+        } catch (Exception e) {
+            logger.error("Error during subscription initialization: {}", e.getMessage());
+            // Don't fail the application startup for this
+        }
     }
 }

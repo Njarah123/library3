@@ -36,7 +36,11 @@ public class FileUploadConfig {
     
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationReady() {
-        System.out.println("=== Application prête - Configuration FileUpload active ===");
-        System.out.println("Les limites de fichiers ont été configurées pour éviter FileCountLimitExceededException");
+        // Skip verbose logging in production
+        String activeProfile = System.getProperty("spring.profiles.active", "");
+        if (!activeProfile.contains("prod")) {
+            System.out.println("=== Application prête - Configuration FileUpload active ===");
+            System.out.println("Les limites de fichiers ont été configurées pour éviter FileCountLimitExceededException");
+        }
     }
 }
