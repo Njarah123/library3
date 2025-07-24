@@ -18,6 +18,7 @@ public class FlywayConfig {
 
     @Bean(initMethod = "migrate")
     @DependsOn("dataSource")
+    @Profile("!prod") // Désactiver en production à cause de l'incompatibilité PostgreSQL 16.8
     public Flyway flyway(DataSource dataSource) {
         Flyway flyway = Flyway.configure()
                 .dataSource(dataSource)
