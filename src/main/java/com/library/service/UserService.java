@@ -502,28 +502,18 @@ public Map<String, Long> getCategoryStatistics() {
     @Transactional
     public String saveProfileImage(User user, MultipartFile file) {
         try {
-            // Create uploads directory if it doesn't exist
-            String uploadDir = "src/main/resources/static/uploads/profiles/";
-            Path uploadPath = Paths.get(uploadDir);
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
+            // Stocker l'image en base de données pour la persistance en production
+            user.setProfileImageData(file.getBytes());
+            user.setProfileImageContentType(file.getContentType());
             
-            // Generate unique filename
-            String originalFilename = file.getOriginalFilename();
-            String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
-            String uniqueFilename = user.getId() + "_" + UUID.randomUUID().toString() + fileExtension;
-            
-            // Save file
-            Path filePath = uploadPath.resolve(uniqueFilename);
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-            
-            // Update user profile image path
-            String imagePath = "/uploads/profiles/" + uniqueFilename;
+            // Générer un nom de fichier virtuel pour la compatibilité
+            String uniqueFilename = "profile_" + user.getId() + "_" + System.currentTimeMillis();
+            String imagePath = "/api/users/" + user.getId() + "/profile-image";
             user.setProfileImagePath(imagePath);
+            
             userRepository.save(user);
             
-            logger.info("Image de profil sauvegardée avec succès pour l'utilisateur: {}", user.getUsername());
+            logger.info("Image de profil sauvegardée en base de données pour l'utilisateur: {}", user.getUsername());
             return imagePath;
             
         } catch (IOException e) {

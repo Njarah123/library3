@@ -57,6 +57,8 @@ public class SecurityConfig {
                     "/auth/**", "/register",
                     // Ressources statiques
                     "/css/**", "/js/**", "/images/**", "/uploads/**",
+                    // API endpoints pour les images de profil
+                    "/api/users/*/profile-image", "/api/users/*/has-profile-image",
                     // Autres endpoints
                     "/error", "/notifications/mark-as-read"
                 )
@@ -64,6 +66,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/home", "/info/**").permitAll()
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/uploads/**").permitAll()
+                .requestMatchers("/api/users/*/profile-image", "/api/users/*/has-profile-image").permitAll()
                 .requestMatchers("/auth/**", "/register", "/error", "/auth/login-remembered", "/auth/remove-remembered-user", "/notifications/**").permitAll()
                 .requestMatchers("/diagnostic/**").permitAll() // Permettre l'accès aux endpoints de diagnostic
                 .requestMatchers("/auth/profile-photo-setup").permitAll() // Permettre l'accès à la configuration de photo de profil

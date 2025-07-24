@@ -88,7 +88,16 @@ private Account account;
     
     // Méthodes abstraites
     public abstract boolean verify();
+    
     private String profileImagePath;
+    
+    // Stockage de l'image de profil en base de données pour la persistance en production
+    @Column(name = "profile_image_data", columnDefinition = "BYTEA")
+    @JsonIgnore
+    private byte[] profileImageData;
+    
+    @Column(name = "profile_image_content_type")
+    private String profileImageContentType;
 
     // Méthodes communes
     public boolean checkAccount() {
@@ -124,6 +133,28 @@ private Account account;
 
     public void setProfileImagePath(String profileImagePath) {
         this.profileImagePath = profileImagePath;
+    }
+    
+    // Getters et setters pour les données d'image stockées en base
+    public byte[] getProfileImageData() {
+        return profileImageData;
+    }
+    
+    public void setProfileImageData(byte[] profileImageData) {
+        this.profileImageData = profileImageData;
+    }
+    
+    public String getProfileImageContentType() {
+        return profileImageContentType;
+    }
+    
+    public void setProfileImageContentType(String profileImageContentType) {
+        this.profileImageContentType = profileImageContentType;
+    }
+    
+    // Méthode utilitaire pour vérifier si l'utilisateur a une image de profil
+    public boolean hasProfileImage() {
+        return profileImageData != null && profileImageData.length > 0;
     }
 
     // Méthodes pour la gestion des emprunts
