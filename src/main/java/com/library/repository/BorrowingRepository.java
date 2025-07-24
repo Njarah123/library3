@@ -257,11 +257,11 @@ List<Borrowing> findReturnedOnTime();
     @Query("SELECT AVG(b.rating) FROM Borrowing b WHERE b.user = :user AND b.rating IS NOT NULL")
     Double getAverageRatingByUser(@Param("user") User user);
     
-    @Query("SELECT AVG(DATEDIFF(b.returnDate, b.borrowDate)) FROM Borrowing b WHERE b.user = :user AND b.returnDate IS NOT NULL")
+    @Query("SELECT AVG(EXTRACT(DAY FROM (b.returnDate - b.borrowDate))) FROM Borrowing b WHERE b.user = :user AND b.returnDate IS NOT NULL")
     Integer getAverageReadingDaysByUser(@Param("user") User user);
     
-    @Query("SELECT b.book.category FROM Borrowing b WHERE b.user = :user GROUP BY b.book.category ORDER BY COUNT(b) DESC LIMIT 1")
-    String getFavoriteCategoryByUser(@Param("user") User user);
+    @Query("SELECT b.book.category FROM Borrowing b WHERE b.user = :user GROUP BY b.book.category ORDER BY COUNT(b) DESC")
+    List<String> getFavoriteCategoriesByUser(@Param("user") User user);
 
 
 @Query("SELECT COUNT(b) FROM Borrowing b WHERE b.borrowDate BETWEEN :start AND :end")

@@ -64,7 +64,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
      
      @Query("SELECT DISTINCT b.edition FROM Book b WHERE b.edition IS NOT NULL ORDER BY b.edition")
      List<String> findDistinctEditions();
-      @Query("SELECT b FROM Book b WHERE (LOWER(b.title) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(b.author) LIKE LOWER(CONCAT('%', :search, '%'))) AND b.category = :category")
+      @Query("SELECT b FROM Book b WHERE (LOWER(b.title) LIKE LOWER('%' || :search || '%') OR LOWER(b.author) LIKE LOWER('%' || :search || '%')) AND b.category = :category")
     List<Book> findBySearchAndCategory(@Param("search") String search, @Param("category") String category);
     
     List<Book> findByTitleContainingIgnoreCaseAndCategoryAndAvailableTrue(String title, String category);

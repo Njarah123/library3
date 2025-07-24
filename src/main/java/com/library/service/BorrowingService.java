@@ -412,7 +412,8 @@ public List<Map<String, Object>> getRecentActivities() {
     }
     
     public String getFavoriteCategory(User user) {
-        return borrowingRepository.getFavoriteCategoryByUser(user);
+        List<String> categories = borrowingRepository.getFavoriteCategoriesByUser(user);
+        return categories.isEmpty() ? null : categories.get(0);
     }
 
 public long countReturnedOnTime() {
